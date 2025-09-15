@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Active Directory Scenario Simulators</title>
+    <style>
+        .simulator-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            min-height: 100vh;
+        }
+        .terminal {
+            background: #000;
+            border: 2px solid #00ff00;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 20px 0;
+            height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+        }
+        .command-line {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .prompt {
+            color: #00ff00;
+            margin-right: 10px;
+        }
+        .command-input {
+            background: transparent;
+            border: none;
+            color: #ffffff;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            width: 80%;
+            outline: none;
+        }
+        .output {
+            color: #cccccc;
+            white-space: pre-wrap;
+            line-height: 1.4;
+        }
+        .success { color: #00ff00; }
+        .error { color: #ff4444; }
+        .warning { color: #ffaa00; }
+        .info { color: #4477ff; }
+        .scenario-info {
+            background: #2d2d30;
+            padding: 15px;
+            border-left: 4px solid #007acc;
+            margin: 20px 0;
+        }
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-primary { background: #007acc; color: white; }
+        .btn-success { background: #107c10; color: white; }
+        .btn-danger { background: #d13438; color: white; }
+        .btn-warning { background: #f2c811; color: white; }
+    </style>
+</head>
+<body>
+    <div class="simulator-container">
+        <h1>🎮 Active Directory Scenario Simulators</h1>
+        
+        <!-- P1 Scenario: FSMO Role Failure -->
+        <div class="scenario" id="p1-scenario">
+            <h2>🔧 P1 Scenario: FSMO Role Failure & Recovery</h2>
+            <div class="scenario-info">
+                <p><strong>Scenario:</strong> Your primary Domain Controller (DC01) hosting Schema Master and Domain Naming Master roles has crashed. Users report authentication issues and you cannot create new domains.</p>
+                <p><strong>Objectives:</strong> Identify failed roles, transfer roles to healthy DC, validate functionality</p>
+            </div>
+            
+            <div class="terminal">
+                <div class="output">
+<span class="info">[INFO] Connected to Domain Controller: DC02.corp.contoso.com</span>
+<span class="info">[INFO] Current logged in user: ADMIN\\jdoe</span>
+<span class="warning">[WARNING] Multiple replication partners reporting errors</span>
+<span class="error">[ERROR] Cannot contact DC01 for schema operations</span>
+                </div>
+                
+                <div class="command-line">
+                    <span class="prompt">PS C:\></span>
+                    <input type="text" class="command-input" placeholder="Enter command..." onkeypress="handleP1Command(event)">
+                </div>
+            </div>
+            
+            <div class="buttons">
+                <button class="btn btn-primary" onclick="p1Hint()">💡 Hint</button>
+                <button class="btn btn-success" onclick="p1CheckRoles()">Check FSMO Roles</button>
+                <button class="btn btn-warning" onclick="p1TestConnectivity()">Test Connectivity</button>
+                <button class="btn btn-danger" onclick="p1Reset()">🔄 Reset Scenario</button>
+            </div>
+        </div>
+
+        <hr style="margin: 40px 0; border-color: #444;">
+
+        <!-- P2 Scenario: Replication Failure -->
+        <div class="scenario" id="p2-scenario">
+            <h2>🔄 P2 Scenario: Replication Failure Investigation</h2>
+            <div class="scenario-info">
+                <p><strong>Scenario:</strong> Users report inconsistent group membership and password changes not propagating. Multiple sites reporting connectivity issues.</p>
+                <p><strong>Objectives:</strong> Diagnose replication issues, identify failed partners, restore replication health</p>
+            </div>
+            
+            <div class="terminal">
+                <div class="output">
+<span class="info">[INFO] Connected to Hub Site Domain Controller: DC-HUB.corp.contoso.com</span>
+<span class="warning">[WARNING] Last successful replication: 48 hours ago</span>
+<span class="error">[ERROR] USN values diverging across sites</span>
+                </div>
+                
+                <div class="command-line">
+                    <span class="prompt">PS C:\></span>
+                    <input type="text" class="command-input" placeholder="Enter command..." onkeypress="handleP2Command(event)">
+                </div>
+            </div>
+            
+            <div class="buttons">
+                <button class="btn btn-primary" onclick="p2Hint()">💡 Hint</button>
+                <button class="btn btn-success" onclick="p2ShowRepl()">Show Replication</button>
+                <button class="btn btn-warning" onclick="p2CheckSites()">Check Sites</button>
+                <button class="btn btn-danger" onclick="p2Reset()">🔄 Reset Scenario</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // P1 Scenario Functions
+        function handleP1Command(event) {
+            if (event.key === 'Enter') {
+                const input = event.target.value;
+                const output = document.querySelector('#p1-scenario .output');
+                
+                output.innerHTML += `\n<span class="prompt">PS C:\\></span> ${input}\n`;
+                
+                // Command processing logic
+                if (input.toLowerCase().includes('netdom query fsmo')) {
+                    output.innerHTML += `<span class="output">
+Schema Master               : DC01.corp.contoso.com [UNAVAILABLE]
+Domain Naming Master        : DC01.corp.contoso.com [UNAVAILABLE]
+PDC Emulator                : DC03.corp.contoso.com [OK]
+RID Master                  : DC02.corp.contoso.com [OK]
+Infrastructure Master       : DC04.corp.contoso.com [OK]
+</span>`;
+                } else if (input.toLowerCase().includes('move')) {
+                    output.innerHTML += `<span class="success">[SUCCESS] Roles successfully transferred to DC02</span>`;
+                } else {
+                    output.innerHTML += `<span class="error">[ERROR] Command not recognized or insufficient permissions</span>`;
+                }
+                
+                event.target.value = '';
+                output.scrollTop = output.scrollHeight;
+            }
+        }
+
+        function p1Hint() {
+            const output = document.querySelector('#p1-scenario .output');
+            output.innerHTML += `<span class="info">[HINT] Use 'netdom query fsmo' to check role status, then 'ntdsutil' to transfer roles</span>`;
+            output.scrollTop = output.scrollHeight;
+        }
+
+        // P2 Scenario Functions
+        function handleP2Command(event) {
+            if (event.key === 'Enter') {
+                const input = event.target.value;
+                const output = document.querySelector('#p2-scenario .output');
+                
+                output.innerHTML += `\n<span class="prompt">PS C:\\></span> ${input}\n`;
+                
+                if (input.toLowerCase().includes('repadmin /showrepl')) {
+                    output.innerHTML += `<span class="output">
+DC02→DC01: Last attempt failed (RPC server unavailable)
+DC03→DC01: Replication blocked (USN rollback detected)
+All other partners: Replicating normally
+</span>`;
+                } else if (input.toLowerCase().includes('repadmin /syncall')) {
+                    output.innerHTML += `<span class="success">[SUCCESS] Forced replication initiated. Monitoring progress...</span>`;
+                }
+                
+                event.target.value = '';
+                output.scrollTop = output.scrollHeight;
+            }
+        }
+
+        function p2Hint() {
+            const output = document.querySelector('#p2-scenario .output');
+            output.innerHTML += `<span class="info">[HINT] Check replication status with 'repadmin /showrepl', then force sync if needed</span>`;
+            output.scrollTop = output.scrollHeight;
+        }
+
+        // Reset functions
+        function p1Reset() {
+            document.querySelector('#p1-scenario .output').innerHTML = `
+<span class="info">[INFO] Connected to Domain Controller: DC02.corp.contoso.com</span>
+<span class="info">[INFO] Current logged in user: ADMIN\\jdoe</span>
+<span class="warning">[WARNING] Multiple replication partners reporting errors</span>
+<span class="error">[ERROR] Cannot contact DC01 for schema operations</span>`;
+        }
+
+        function p2Reset() {
+            document.querySelector('#p2-scenario .output').innerHTML = `
+<span class="info">[INFO] Connected to Hub Site Domain Controller: DC-HUB.corp.contoso.com</span>
+<span class="warning">[WARNING] Last successful replication: 48 hours ago</span>
+<span class="error">[ERROR] USN values diverging across sites</span>`;
+        }
+    </script>
+</body>
+</html>
