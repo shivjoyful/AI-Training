@@ -1,0 +1,1875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Active Directory Training Dashboard - Advanced Visuals & Flow</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Calibri', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f2f6fc; /* Light blue-grey background */
+            color: #333333; /* Dark grey default text color */
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            grid-template-rows: auto;
+            grid-template-areas:
+                "sidebar main";
+            min-height: 100vh;
+        }
+        #sidebar {
+            grid-area: sidebar;
+            width: 280px;
+            background-color: #005B9A; /* Deep Microsoft Blue for sidebar */
+            color: #ffffff; /* White text for contrast */
+            padding: 20px;
+            box-shadow: 3px 0 18px rgba(0,0,0,0.4); /* Stronger shadow */
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            box-sizing: border-box;
+            border-radius: 0 15px 15px 0; /* Smoothed right edge */
+        }
+        #sidebar h2 {
+            text-align: center;
+            color: #ffffff; /* White title */
+            margin-bottom: 10px; /* Adjusted margin for logo */
+            font-size: 2em;
+            padding-bottom: 15px;
+        }
+        .gemini-attribution {
+            text-align: center;
+            color: #a0c0e0; /* Lighter blue for subtle attribution */
+            font-size: 0.85em;
+            margin-bottom: 30px; /* Space below attribution */
+            border-bottom: 1px solid rgba(255,255,255,0.2); /* Subtle white border */
+            padding-bottom: 15px;
+        }
+        #sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+        #sidebar ul li {
+            margin-bottom: 10px; /* Slightly more space */
+        }
+        #sidebar ul li a {
+            color: #cccccc; /* Light grey for links */
+            text-decoration: none;
+            padding: 14px 18px; /* Larger clickable area */
+            display: block;
+            border-radius: 10px; /* Smoothed edges */
+            transition: background-color 0.3s, color 0.3s, transform 0.2s;
+            font-size: 0.98em;
+            font-weight: 500;
+        }
+        #sidebar ul li a:hover {
+            background-color: #0078D4; /* Microsoft Blue on hover */
+            color: #ffffff; /* White text on hover */
+            transform: translateX(5px); /* Slight hover effect */
+        }
+        #sidebar ul li a.active {
+            background-color: #0078D4; /* Microsoft Blue for active */
+            color: #ffffff; /* White text for active */
+            box-shadow: inset 3px 0 12px rgba(0,0,0,0.3); /* Inner shadow for active */
+        }
+        #main-content {
+            grid-area: main;
+            flex-grow: 1;
+            padding: 35px; /* Slightly more padding */
+            background-color: #ffffff; /* White background for main content */
+            box-sizing: border-box;
+        }
+        header {
+            background-color: #e0f2f7; /* Very light blue header */
+            padding: 30px 40px; /* More padding */
+            border-radius: 18px; /* Smoothed edges */
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12); /* More prominent shadow */
+            margin-bottom: 40px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 18px;
+        }
+        header h1 {
+            font-size: 3em; /* Larger title */
+            color: #005B9A; /* Darker Microsoft Blue title */
+            margin: 0;
+        }
+        header p {
+            font-size: 1.15em; /* Slightly larger text */
+            color: #555555;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.7;
+        }
+        .header-diagram {
+            margin-top: 25px;
+            background-color: #f7fcfc;
+            border: 1px solid #cce0e6;
+            border-radius: 12px; /* Smoothed edges */
+            padding: 18px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+        .header-diagram svg {
+            max-width: 400px;
+            height: auto;
+        }
+
+        /* Mission Grid Styles */
+        #mission-grid {
+            display: grid; /* Default for the grid */
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 30px; /* Increased gap */
+        }
+        #mission-grid.hidden { /* New class to hide the grid */
+            display: none !important;
+        }
+        .mission-card {
+            background-color: #ffffff;
+            padding: 30px; /* More padding */
+            border-radius: 15px; /* Smoothed edges */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); /* Slightly increased shadow */
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            cursor: pointer;
+            border-left: 7px solid #0078D4; /* Microsoft Blue border highlight */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .mission-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2); /* More prominent hover shadow */
+        }
+        .mission-card h3 {
+            color: #0078D4; /* Microsoft Blue title */
+            font-size: 1.6em;
+            margin-top: 0;
+            margin-bottom: 18px;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        .mission-card p {
+            font-size: 1em; /* Slightly larger text */
+            color: #555555;
+            flex-grow: 1;
+            line-height: 1.6;
+        }
+        .mission-card button {
+            background-color: #0078D4; /* Microsoft Blue button for action */
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px; /* Smoothed edges */
+            cursor: pointer;
+            font-size: 1em;
+            margin-top: 20px;
+            transition: background-color 0.3s, transform 0.2s;
+            align-self: flex-start;
+        }
+        .mission-card button:hover {
+            background-color: #005B9A; /* Darker blue on hover */
+            transform: translateY(-2px);
+        }
+
+        /* Full Mission View Styles */
+        #full-mission-view {
+            background-color: #ffffff;
+            padding: 35px;
+            border-radius: 18px; /* Smoothed edges */
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+            margin-top: 35px;
+            display: none; /* Default to none */
+            flex-direction: column;
+            gap: 25px; /* Increased gap */
+        }
+        #full-mission-view.active {
+            display: flex !important; /* Force display flex when active */
+        }
+        #full-mission-view h3 {
+            color: #0078D4; /* Microsoft Blue title */
+            font-size: 2.2em; /* Larger title */
+            border-bottom: 2px solid #e0f2f7; /* Light blue border */
+            padding-bottom: 18px;
+            margin-bottom: 25px;
+        }
+        #full-mission-view p, #full-mission-view ul, #full-mission-view ol {
+            line-height: 1.9; /* Increased line height for readability */
+            font-size: 1.08em; /* Slightly larger text */
+            color: #333333; /* Dark grey text */
+        }
+        #full-mission-view li {
+            margin-bottom: 10px;
+        }
+        #full-mission-view strong {
+            color: #1a1a1a;
+        }
+        #full-mission-view .fascinating-fact {
+            background-color: #e6f7ff; /* Very light blue background */
+            border-left: 5px solid #0099cc; /* Slightly darker blue border */
+            padding: 15px 20px;
+            margin: 15px 0;
+            border-radius: 10px; /* Smoothed edges */
+            font-style: italic;
+            color: #005B9A; /* Dark blue for fact text */
+            box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+        }
+        #full-mission-view .challenge {
+            background-color: #e0f2f7; /* Lighter background for challenge sections */
+            border-left: 6px solid #0078D4;
+            padding: 25px; /* More padding */
+            border-radius: 12px; /* Smoothed edges */
+            margin-top: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08); /* Subtle shadow for embedded look */
+        }
+        #full-mission-view .challenge h4 {
+            color: #005B9A;
+            margin-top: 0;
+            font-size: 1.4em; /* Larger title */
+            margin-bottom: 18px;
+        }
+        #full-mission-view .challenge button {
+            background-color: #0078D4;
+            color: white;
+            border: none;
+            padding: 14px 28px; /* Larger button */
+            border-radius: 8px; /* Smoothed edges */
+            cursor: pointer;
+            font-size: 1.05em;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        #full-mission-view .challenge button:hover {
+            background-color: #005B9A;
+            transform: translateY(-2px);
+        }
+        #full-mission-view .back-to-dashboard-btn {
+            background-color: #6c757d; /* Grey back button */
+            margin-bottom: 25px;
+            align-self: flex-start;
+            padding: 12px 25px;
+        }
+        #full-mission-view .back-to-dashboard-btn:hover {
+            background-color: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        /* Network Animator Styles */
+        .authSimulationContainer {
+            position: relative;
+            width: 100%; /* Take full width of parent */
+            height: 850px; /* Increased height for more space */
+            border: 1px solid #cce0e6; /* Light blue subtle border */
+            background-color: #f7fcfc; /* Very light background for animation */
+            overflow: auto; /* Allow scrolling if content overflows */
+            margin-top: 25px;
+            border-radius: 12px; /* Smoothed edges */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center; /* Center horizontally */
+            box-shadow: inset 0 0 12px rgba(0,0,0,0.1); /* Inner shadow for depth */
+            padding: 20px; /* Add internal padding */
+            box-sizing: border-box; /* Include padding in width/height */
+        }
+        /* Inner container for centering content when parent is wider than content */
+        .authSimulationContent {
+            position: relative;
+            width: 1200px; /* Explicit width for the content area - Increased for more space */
+            height: 100%; /* Take full height of its parent (after padding) */
+            flex-shrink: 0; /* Prevent content from shrinking */
+        }
+
+        .context-display {
+            position: absolute;
+            top: 20px; /* More space from top */
+            width: calc(100% - 50px);
+            left: 25px; /* Centered with padding */
+            padding: 12px; /* More padding */
+            background-color: rgba(255, 255, 255, 0.98); /* Very opaque */
+            border: 1px solid #d8d8d8; /* Subtle border */
+            border-radius: 10px; /* Smoothed edges */
+            text-align: center;
+            font-weight: bold;
+            color: #333333; /* Darker text */
+            box-shadow: 0 3px 10px rgba(0,0,0,0.15); /* More prominent shadow */
+            z-index: 200;
+        }
+        .device {
+            position: absolute;
+            background-color: #0078D4; /* Microsoft Blue device color */
+            color: white;
+            border-radius: 10px; /* Smoothed edges */
+            padding: 5px; /* Reduced padding */
+            text-align: center;
+            font-size: 0.8em; /* Smaller font */
+            box-shadow: 0 3px 10px rgba(0,0,0,0.25); /* Prominent shadow */
+            transition: transform 0.2s ease-out, background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            min-width: 85px; /* Smaller width */
+            height: 75px; /* Smaller height */
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10; /* Default z-index for devices */
+        }
+        .device:hover {
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.35);
+        }
+        .device.active { /* Highlight for active devices */
+            background-color: #FFC107; /* Amber highlight */
+            box-shadow: 0 0 18px rgba(255, 193, 7, 0.8); /* Stronger glow */
+        }
+        .device-icon {
+            width: 32px; /* Smaller icons */
+            height: 32px;
+            margin-bottom: 3px;
+            color: white;
+        }
+        .device-label {
+            font-size: 0.75em; /* Smaller label font */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 95%;
+        }
+        .packet {
+            position: absolute;
+            width: 22px; /* Slightly smaller packets */
+            height: 22px;
+            border-radius: 50%;
+            background-color: #0099cc; /* Blue packet default */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.75em;
+            transition: transform 4s linear, background-color 0.5s; /* Adjusted transition speed */
+            z-index: 100;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+        .line {
+            position: absolute;
+            height: 2px;
+            background-color: #666666; /* Dark grey lines */
+            z-index: 1;
+        }
+
+        /* Protocol Legend Styles */
+        .protocol-legend {
+            margin-top: 25px;
+            background-color: #f7fcfc;
+            border: 1px solid #cce0e6;
+            border-radius: 12px; /* Smoothed edges */
+            padding: 18px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            width: 100%;
+            box-sizing: border-box;
+            text-align: left;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px 25px; /* Increased gap */
+            justify-content: flex-start;
+            align-items: flex-start;
+        }
+        .protocol-legend h4 {
+            flex-basis: 100%;
+            margin-top: 0;
+            margin-bottom: 18px;
+            color: #005B9A;
+            font-size: 1.3em;
+            border-bottom: 1px solid #e0f2f7;
+            padding-bottom: 10px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 0;
+            font-size: 0.95em;
+            color: #555555;
+            max-width: 48%;
+        }
+        .legend-color-box {
+            width: 22px;
+            height: 22px;
+            border-radius: 6px; /* Smoothed edges */
+            margin-right: 12px;
+            border: 1px solid #d0d0d0;
+            flex-shrink: 0;
+            margin-top: 3px;
+        }
+        .legend-label {
+            color: #555555;
+            line-height: 1.4;
+        }
+
+        /* Site and Forest Boundaries */
+        .network-boundary {
+            position: absolute;
+            border: 3px dashed #0078D4; /* Microsoft Blue dashed for general boundaries */
+            border-radius: 15px; /* Smoothed edges */
+            z-index: 5; /* Base z-index for boundaries */
+            padding: 12px;
+            box-sizing: border-box;
+            background-color: rgba(0, 120, 212, 0.08); /* Light blue tint */
+        }
+        .network-boundary.site {
+            border-color: #0078D4; /* Stronger Microsoft Blue dashed for sites */
+            background-color: rgba(0, 120, 212, 0.08);
+            z-index: 6; /* Sites above default lines */
+        }
+        .network-boundary.forest {
+            border-color: #004578; /* Darker blue for forest boundaries to show hierarchy */
+            background-color: rgba(0, 69, 120, 0.06);
+            z-index: 7; /* Forests above sites */
+        }
+        .network-boundary.wan {
+            border-color: #E74C3C; /* Red dashed for WAN */
+            background-color: rgba(231, 76, 60, 0.05);
+            z-index: 6;
+        }
+        .network-boundary.cloud {
+            border-color: #6A5ACD; /* Slate Blue for Cloud */
+            background-color: rgba(106, 90, 205, 0.08);
+            z-index: 6;
+        }
+        .boundary-label {
+            position: absolute;
+            top: -18px; /* More space from top */
+            left: 12px;
+            background-color: #f7fcfc; /* Matches animation background */
+            padding: 4px 10px;
+            border-radius: 8px; /* Smoothed edges */
+            font-size: 0.85em;
+            font-weight: bold;
+            color: #444444;
+            border: 1px solid #d0d0d0;
+        }
+        .boundary-label.site {
+            border-color: #0078D4;
+            color: #0078D4;
+        }
+        .boundary-label.forest {
+            border-color: #004578;
+            color: #004578;
+        }
+        .boundary-label.wan {
+            border-color: #E74C3C;
+            color: #E74C3C;
+        }
+        .boundary-label.cloud {
+            border-color: #6A5ACD;
+            color: #6A5ACD;
+        }
+
+        /* Image/Diagram specific styles for missions 2,3,4 */
+        .diagram-container {
+            margin-top: 30px;
+            text-align: center;
+            background-color: #f7fcfc;
+            border: 1px solid #cce0e6;
+            border-radius: 12px; /* Smoothed edges */
+            padding: 25px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+        }
+        .diagram-container h4 {
+            color: #005B9A;
+            margin-top: 0;
+            margin-bottom: 18px;
+            font-size: 1.3em;
+        }
+        .diagram-container svg {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #d0d0d0;
+            border-radius: 10px; /* Smoothed edges */
+            background-color: #ffffff;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+         /* Specific SVG element styling for missions 2,3,4 to match new theme */
+        .diagram-container svg rect {
+            fill: inherit; /* Maintain light backgrounds */
+            stroke-width: 1.8; /* Slightly thicker stroke */
+            rx: 8; ry: 8; /* Smoothed edges for SVG rects */
+        }
+        .diagram-container svg text {
+            font-family: 'Calibri', sans-serif;
+            fill: #333333; /* Dark grey for text */
+        }
+        /* Override specific diagram colors for coherence */
+        #full-mission-view .diagram-container svg rect[fill^="#f"] { fill: #e6f7ff; stroke: #0078D4; } /* Light blue for containers */
+        #full-mission-view .diagram-container svg rect[fill^="#e"] { fill: #e0f2f7; stroke: #0078D4; } /* Lighter blue */
+        #full-mission-view .diagram-container svg rect[fill^="#d"] { fill: #d9edf7; stroke: #005B9A; } /* Slightly darker blue */
+        #full-mission-view .diagram-container svg rect[fill="#d4edda"] { fill: #e9ffdf; stroke: #4caf50; } /* Keep green for primary domain */
+        #full-mission-view .diagram-container svg rect[fill="#e0f2f7"] { fill: #e0f2f7; stroke: #42a5f5; } /* Standard blue for domains */
+        #full-mission-view .diagram-container svg rect[fill="#ffe9cc"], /* Orange for child domains (contrasting) */
+        #full-mission-view .diagram-container svg rect[fill="#ffe0b2"] { fill: #fff8e6; stroke: #ff9800; } 
+        
+        #full-mission-view .diagram-container svg rect[fill="#fcf3f6"], /* Domain boundary light blue */
+        #full-mission-view .diagram-container svg rect[fill="#f9eef6"] { fill: #e6f7ff; stroke: #0078D4; } 
+        
+        #full-mission-view .diagram-container svg circle[fill="#4caf50"] { fill: #4caf50; rx: 8; ry: 8;} /* Green for user icons */
+        #full-mission-view .diagram-container svg circle[fill="#42a5f5"] { fill: #42a5f5; rx: 8; ry: 8;} /* Blue for comp icons */
+
+        #full-mission-view .diagram-container svg rect[fill="#f7edf9"] { fill: #e6f7ff; stroke: #0078D4; } /* DC backgrounds */
+        #full-mission-view .diagram-container svg rect[fill="#333333"] { fill: #005B9A; rx: 8; ry: 8;} /* DC small icon blue */
+
+        #full-mission-view .diagram-container svg rect[fill="#eafaf1"] { fill: #e6f7ff; stroke: #0078D4; } /* DC representation */
+        #full-mission-view .diagram-container svg rect[fill="#fdeaea"], /* Schema partition red */
+        #full-mission-view .diagram-container svg rect[fill="#ffe0e0"] { fill: #ffebee; stroke: #e74c3c; } 
+        #full-mission-view .diagram-container svg rect[fill="#fff4e3"], /* Config partition yellow */
+        #full-mission-view .diagram-container svg rect[fill="#fff8e1"] { fill: #fffde7; stroke: #ffeb3b; } 
+        #full-mission-view .diagram-container svg rect[fill="#bbdefb"] { fill: #e3f2fd; stroke: #42a5f5; } /* Domain partition blue */
+        #full-mission-view .diagram-container svg rect[fill="#c8e6c9"] { fill: #e9ffdf; stroke: #4caf50; } /* Application partition green */
+
+        #full-mission-view .diagram-container svg line { stroke: #666666; } /* Dark grey lines */
+        
+        #full-mission-view .diagram-container svg text { fill: #333333; } /* Default text color in diagrams */
+        #full-mission-view .diagram-container svg text[fill="#fff"] { fill: #fff; } /* White text on colored circles/rects */
+        #full-mission-view .diagram-container svg text[fill="#2e7d32"] { fill: #2e7d32; } /* Darker green */
+        #full-mission-view .diagram-container svg text[fill="#ff8c00"] { fill: #ff8c00; } /* Orange */
+        #full-mission-view .diagram-container svg text[fill="#1976d2"] { fill: #1976d2; } /* Darker blue */
+        #full-mission-view .diagram-container svg text[fill="#e74c3c"] { fill: #e74c3c; } /* Red */
+        #full-mission-view .diagram-container svg text[fill="#ffeb3b"] { fill: #ffeb3b; } /* Yellow */
+        #full-mission-view .diagram-container svg text[fill="#005B9A"] { fill: #005B9A; } /* DC icon text */
+    </style>
+</head>
+<body>
+    <div id="sidebar">
+        <h2>AD Trainer</h2>
+        <div class="gemini-attribution">Powered by Gemini</div>
+        <ul>
+            <li><a href="#" onclick="showMissionFromSidebar(1)" data-mission-id="1">1. Introduction to AD & Standards</a></li>
+            <li><a href="#" onclick="showMissionFromSidebar(2)" data-mission-id="2">2. Core AD Concepts</a></li>
+            <li><a href="#" onclick="showMissionFromSidebar(3)" data-mission-id="3">3. AD Structure & Roles</a></li>
+            <li><a href="#" onclick="showMissionFromSidebar(4)" data-mission-id="4">4. AD Partitions Explained</a></li>
+            <li><a href="#" onclick="showMissionFromSidebar(5)" data-mission-id="5">5. DHCP DORA Process (Relay)</a></li>
+            <li><a href="#" onclick="showMissionFromSidebar(6)" data-mission-id="6">6. DNS Resolution (Recursive/Iterative)</a></li>
+            <li><a href="#" onclick="showMissionFromSidebar(7)" data-mission-id="7">7. Kerberos Auth (DC Failover)</a></li>
+            <li><a href="#" onclick="showMissionFromSidebar(8)" data-mission-id="8">8. LDAP Query (Hybrid App)</a></li>
+            <li><a href="#" onclick="showMissionFromSidebar(9)" data-mission-id="9">9. Group Policy Processing (LSDOU)</a></li>
+            <li><a href="#" onclick="showMissionFromSidebar(10)" data-mission-id="10">10. Intra-Site AD Replication</a></li>
+            <li><a href="#" onclick="showMissionFromSidebar(11)" data-mission-id="11">11. Inter-Site AD Replication</a></li>
+            <li><a href="#" onclick="showMissionFromSidebar(12)" data-mission-id="12">12. Global Catalog Query</a></li>
+            <li><a href="#" onclick="showMissionFromSidebar(13)" data-mission-id="13">13. Hybrid Auth Flow (Federation)</a></li>
+            <li><a href="#" onclick="showMissionFromSidebar(14)" data-mission-id="14">14. Complex Hybrid Network</a></li>
+        </ul>
+    </div>
+
+    <div id="main-content">
+        <header>
+            <h1>Active Directory Training Dashboard</h1>
+            <p>Your interactive hub for mastering Active Directory. Explore fundamental concepts, dive into complex protocols, and visualize internal processes with our Network Animator. Click on a mission card to begin!</p>
+            <div class="header-diagram">
+                <svg width="400" height="150" viewBox="0 0 400 150">
+                    <rect x="10" y="10" width="380" height="130" fill="#e6f7ff" stroke="#0078D4" stroke-width="2" rx="10" ry="10"/>
+                    <text x="30" y="35" font-family="Calibri, sans-serif" font-size="16" fill="#333333" font-weight="bold">Active Directory Domain (contoso.com)</text>
+
+                    <!-- DC 1 -->
+                    <rect x="50" y="60" width="80" height="70" fill="#0078D4" stroke="#005B9A" rx="10" ry="10"/>
+                    <g fill="#fff">
+                        <path d="M20 6h-8c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM4 18h8c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2zM12 10h8v2h-8v-2zm-8 0h8v2H4v-2zm0 4h8v2H4v-2z" transform="translate(62, 70) scale(0.6)"/>
+                    </g>
+                    <text x="60" y="120" font-family="Calibri, sans-serif" font-size="10" fill="#fff">DC-01</text>
+
+                    <!-- DC 2 -->
+                    <rect x="160" y="60" width="80" height="70" fill="#0078D4" stroke="#005B9A" rx="10" ry="10"/>
+                    <g fill="#fff">
+                        <path d="M20 6h-8c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM4 18h8c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2zM12 10h8v2h-8v-2zm-8 0h8v2H4v-2zm0 4h8v2H4v-2z" transform="translate(172, 70) scale(0.6)"/>
+                    </g>
+                    <text x="170" y="120" font-family="Calibri, sans-serif" font-size="10" fill="#fff">DC-02</text>
+
+                    <!-- Workstation 1 -->
+                    <rect x="280" y="60" width="80" height="70" fill="#0099CC" stroke="#0078D4" rx="10" ry="10"/>
+                    <g fill="#fff">
+                        <path d="M21 14H3V4h18v10zm-6 3h6v2H3v-2h6v2h6v-2zM2 16h20v4H2v-4zM2 2h20v2H2V2zM2 2" transform="translate(292, 70) scale(0.6)"/>
+                    </g>
+                    <text x="290" y="120" font-family="Calibri, sans-serif" font-size="10" fill="#fff">Client-PC</text>
+
+                    <line x1="130" y1="95" x2="160" y2="95" stroke="#666666" stroke-width="1"/>
+                    <line x1="240" y1="95" x2="280" y2="95" stroke="#666666" stroke-width="1"/>
+                </svg>
+            </div>
+        </header>
+
+        <div id="mission-grid">
+            <!-- Mission cards will be dynamically generated here by JavaScript -->
+        </div>
+
+        <div id="full-mission-view">
+            <button class="next-challenge-btn back-to-dashboard-btn" onclick="closeMission()">Back to Dashboard</button>
+            <div id="full-mission-content">
+                <!-- Content of the active mission will be loaded here by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentMission = null;
+        const PACKET_ANIMATION_SPEED = 4000; // Increased to 4 seconds for smoother perceived performance
+
+        // --- SVG Icons ---
+        function getDeviceSvg(type) {
+            switch (type) {
+                case 'workstation': return `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 14H3V4h18v10zm-6 3h6v2H3v-2h6v2h6v-2zM2 16h20v4H2v-4zM2 2h20v2H2V2zM2 2"></path></svg>`;
+                case 'server': return `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M1 1v22h22V1H1zm20 20H3v-3h18v3zm0-5H3V9h18v7zm0-7H3V3h18v7zM4 18h1v1H4v-1zm0-7h1v1H4v-1zm0-7h1v1H4V4zm3 14h1v1H7v-1zm0-7h1v1H7v-1zm0-7h1v1H7V4zm3 14h1v1h-1v-1zm0-7h1v1h-1v-1zm0-7h1v1h-1V4z"></path></svg>`;
+                case 'dc': return `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 6h-8c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM4 18h8c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2zM12 10h8v2h-8v-2zm-8 0h8v2H4v-2zm0 4h8v2H4v-2z"></path></svg>`;
+                case 'router': return `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 18h-2V7.38L15 10V7l4-3.59L20 4V2h2v16zM4 4h10v2H4zm0 3h7v2H4zm0 3h10v2H4zm0 3h10v2H4zm0 3h10v2H4z"></path></svg>`;
+                case 'appserver': return `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 11H3V8h18v3zm0 4H3v-3h18v3zM2 6h20v2H2V6zm0 6h20v2H2v-2zm0 6h20v2H2v-2z"></path></svg>`;
+                case 'cloud': return `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM19 18H6c-2.21 0-4-1.79-4-4s1.79-4 4-4h.71C7.38 6.54 9.53 5 12 5c3.03 0 5.51 2.41 5.95 5.44C18.66 10.96 19 11.45 19 12c0 1.1-.9 2-2 2v-2h2c1.65 0 3-1.35 3-3s-1.35-3-3-3V7h2V5h-2z"></path></svg>`;
+                default: return `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M1 1v22h22V1H1zm20 20H3v-3h18v3zm0-5H3V9h18v7zm0-7H3V3h18v7zM4 18h1v1H4v-1zm0-7h1v1H4v-1zm0-7h1v1H4V4zm3 14h1v1H7v-1zm0-7h1v1H7v-1zm0-7h1v1H7V4zm3 14h1v1h-1v-1zm0-7h1v1h-1v-1zm0-7h1v1h-1V4z"></path></svg>`;
+            }
+        }
+
+        // --- Core DOM Manipulation Functions ---
+        function createDevice(containerId, deviceId, deviceConfig) {
+            const innerContainer = document.getElementById(containerId).querySelector('.authSimulationContent');
+            if (!innerContainer) { console.error(`Error: Inner container not found for ${containerId} during device creation.`); return null; }
+
+            let device = document.getElementById(deviceId);
+            if (!device) {
+                device = document.createElement('div');
+                device.id = deviceId;
+                device.className = 'device';
+                device.style.zIndex = deviceConfig.zIndex || 10;
+                innerContainer.appendChild(device);
+            }
+            device.style.left = `${deviceConfig.x}px`;
+            device.style.top = `${deviceConfig.y}px`;
+            device.innerHTML = `<div class="device-icon">${getDeviceSvg(deviceConfig.type)}</div><span class="device-label">${deviceConfig.label}</span>`;
+            return device;
+        }
+
+        function createNetworkBoundary(containerId, boundaryId, type, x, y, width, height, label, zIndex) {
+            const innerContainer = document.getElementById(containerId).querySelector('.authSimulationContent');
+            if (!innerContainer) { console.error(`Error: Inner container not found for ${containerId} during boundary creation.`); return null; }
+
+            let boundary = document.getElementById(boundaryId);
+            if (!boundary) {
+                boundary = document.createElement('div');
+                boundary.id = boundaryId;
+                boundary.className = `network-boundary ${type}`;
+                boundary.style.zIndex = zIndex || 5;
+                innerContainer.appendChild(boundary);
+            }
+            boundary.style.left = `${x}px`;
+            boundary.style.top = `${y}px`;
+            boundary.style.width = `${width}px`;
+            boundary.style.height = `${height}px`;
+            boundary.innerHTML = `<div class="boundary-label ${type}">${label}</div>`;
+            return boundary;
+        }
+
+        function createLine(containerId, startDevice, endDevice, color = '#666666', dashed = false) {
+            const innerContainer = document.getElementById(containerId).querySelector('.authSimulationContent');
+            if (!innerContainer) { console.error(`Error: Inner container not found for ${containerId} during line creation.`); return; }
+            if (!startDevice || !endDevice) { console.warn(`Warning: Cannot create line, start or end device is missing for ${containerId}.`); return; }
+
+            const line = document.createElement('div');
+            line.className = 'line';
+            line.style.zIndex = 1; 
+            
+            // Get positions relative to the innerContainer
+            const containerRect = innerContainer.getBoundingClientRect();
+            const startRect = startDevice.getBoundingClientRect();
+            const endRect = endDevice.getBoundingClientRect();
+
+            const x1 = (startRect.left + startRect.width / 2) - containerRect.left;
+            const y1 = (startRect.top + startRect.height / 2) - containerRect.top;
+            const x2 = (endRect.left + endRect.width / 2) - containerRect.left;
+            const y2 = (endRect.top + endRect.height / 2) - containerRect.top;
+
+            const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+            const length = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+
+            line.style.width = `${length}px`;
+            line.style.transform = `rotate(${angle}deg)`;
+            line.style.transformOrigin = `0 0`;
+            line.style.left = `${x1}px`;
+            line.style.top = `${y1}px`;
+            line.style.backgroundColor = color;
+            if (dashed) {
+                line.style.borderTop = `2px dashed ${color}`;
+                line.style.backgroundColor = 'transparent';
+            }
+            innerContainer.appendChild(line);
+        }
+
+        function clearSimulation(containerId, contextDisplayId, legendId) {
+            const innerContainer = document.getElementById(containerId).querySelector('.authSimulationContent');
+            if(innerContainer) {
+                innerContainer.querySelectorAll('.device, .packet, .line, .network-boundary').forEach(el => el.remove());
+            }
+            const contextEl = document.getElementById(contextDisplayId);
+            if (contextEl) contextEl.textContent = "Simulation Ready. Click button to start.";
+            const legendEl = document.getElementById(legendId);
+            if (legendEl) legendEl.innerHTML = '';
+        }
+
+        function updateContextDisplay(contextDisplayId, message) {
+            const displayElement = document.getElementById(contextDisplayId);
+            if (displayElement) {
+                displayElement.textContent = message;
+            }
+        }
+
+        function renderLegend(legendId, legendData) {
+            const legendContainer = document.getElementById(legendId);
+            if (!legendContainer) { console.error(`Error: Legend container not found for ID: ${legendId}`); return; }
+            
+            let legendHtml = '<h4>Protocol Legend</h4>';
+            legendData.forEach(item => {
+                legendHtml += `
+                    <div class="legend-item">
+                        <span class="legend-color-box" style="background-color: ${item.color};"></span>
+                        <span class="legend-label">${item.label} - ${item.description}</span>
+                    </div>
+                `;
+            });
+            legendContainer.innerHTML = legendHtml;
+        }
+
+        async function sendPacket(containerId, fromDevice, toDevice, label, color, contextDisplayId, contextMessage, delay = PACKET_ANIMATION_SPEED) {
+            const innerContainer = document.getElementById(containerId).querySelector('.authSimulationContent');
+            if (!innerContainer) { console.error(`Error: Inner container not found for ${containerId} during packet send.`); return; }
+            if (!fromDevice || !toDevice) { console.warn(`Warning: Cannot send packet, from or to device is missing for ${containerId}.`); return; }
+
+
+            const packet = document.createElement('div');
+            packet.className = 'packet';
+            packet.textContent = label;
+            packet.style.backgroundColor = color;
+            innerContainer.appendChild(packet);
+
+            if (fromDevice) fromDevice.classList.add('active');
+            if (toDevice && fromDevice !== toDevice) toDevice.classList.add('active'); 
+
+            // Get positions relative to the innerContainer
+            const containerRect = innerContainer.getBoundingClientRect();
+            const fromRect = fromDevice.getBoundingClientRect();
+            const toRect = toDevice.getBoundingClientRect();
+
+            const startX = (fromRect.left + fromRect.width / 2) - containerRect.left - packet.offsetWidth / 2;
+            const startY = (fromRect.top + fromRect.height / 2) - containerRect.top - packet.offsetHeight / 2;
+
+            packet.style.left = `${startX}px`;
+            packet.style.top = `${startY}px`;
+            packet.style.transition = `transform ${delay / 1000}s linear, background-color 0.5s`;
+
+            await new Promise(resolve => setTimeout(() => {
+                const targetX = (toRect.left + toRect.width / 2) - containerRect.left - packet.offsetWidth / 2;
+                const targetY = (toRect.top + toRect.height / 2) - containerRect.top - packet.offsetHeight / 2;
+
+                packet.style.transform = `translate(${targetX - startX}px, ${targetY - startY}px)`;
+                updateContextDisplay(contextDisplayId, contextMessage);
+                resolve();
+            }, 100)); // Small delay to ensure initial position is rendered before transition starts
+
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    packet.remove();
+                    if (fromDevice) fromDevice.classList.remove('active');
+                    if (toDevice && fromDevice !== toDevice) toDevice.classList.remove('active');
+                    resolve();
+                }, delay + 100);
+            });
+        }
+
+
+        // --- Simulation Manager Class ---
+        class SimulationManager {
+            constructor(config) {
+                this.config = config;
+                this.devices = {}; // To store references to created device DOM elements
+                this.currentStepIndex = 0;
+                this.isRunning = false;
+            }
+
+            setupTopology() {
+                try {
+                    console.log(`[SIM] Setting up topology for mission ${this.config.missionId}`);
+                    clearSimulation(this.config.containerId, this.config.contextDisplayId, this.config.legendId);
+                    
+                    // Boundaries need to be created first due to z-index
+                    if (this.config.boundaries) {
+                        this.config.boundaries.forEach(b => {
+                            this.devices[b.id] = createNetworkBoundary(this.config.containerId, b.id, b.type, b.x, b.y, b.width, b.height, b.label, b.zIndex);
+                        });
+                    }
+
+                    // Devices must be created before lines
+                    if (this.config.devices) {
+                        this.config.devices.forEach(d => {
+                            this.devices[d.id] = createDevice(this.config.containerId, d.id, d);
+                        });
+                    }
+
+                    // Create lines - must happen AFTER devices are in DOM and positioned
+                    if (this.config.lines) {
+                        this.config.lines.forEach(l => {
+                            // Ensure both devices exist before trying to draw a line
+                            if (this.devices[l.from] && this.devices[l.to]) {
+                                createLine(this.config.containerId, this.devices[l.from], this.devices[l.to], l.color, l.dashed);
+                            } else {
+                                console.warn(`[SIM] Skipping line creation: device ${l.from} or ${l.to} not found.`);
+                            }
+                        });
+                    }
+
+                    renderLegend(this.config.legendId, this.config.legend);
+                    updateContextDisplay(this.config.contextDisplayId, "Simulation Ready. Click button to start.");
+                    console.log(`[SIM] Topology setup complete for mission ${this.config.missionId}`);
+                } catch (error) {
+                    console.error(`[SIM] Error in setupTopology for mission ${this.config.missionId}:`, error);
+                    updateContextDisplay(this.config.contextDisplayId, "Error loading simulation topology. See console.");
+                }
+            }
+
+            async runSimulation() {
+                if (this.isRunning) return;
+                this.isRunning = true;
+                this.currentStepIndex = 0;
+                this.setupTopology(); // Reset topology for fresh run
+
+                // Allow a small pause before starting the first step
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                for (let i = 0; i < this.config.steps.length; i++) {
+                    if (!this.isRunning || currentMission !== this.config.missionId) { 
+                        console.log(`[SIM] Simulation ${this.config.missionId} stopped early.`);
+                        this.isRunning = false;
+                        return;
+                    }
+                    const step = this.config.steps[i];
+                    try {
+                        await this.executeStep(step);
+                    } catch (error) {
+                        console.error(`[SIM] Error executing step ${i} in mission ${this.config.missionId}:`, error);
+                        updateContextDisplay(this.config.contextDisplayId, `Error during simulation step ${i}. See console.`);
+                        this.isRunning = false;
+                        return;
+                    }
+                    this.currentStepIndex = i;
+                }
+                this.isRunning = false;
+                console.log(`[SIM] Simulation ${this.config.missionId} finished.`);
+            }
+
+            async executeStep(step) {
+                const { action, from, to, label, color, message, delay = PACKET_ANIMATION_SPEED } = step;
+
+                if (action === 'sendPacket') {
+                    const fromDevice = this.devices[from];
+                    const toDevice = this.devices[to];
+                    await sendPacket(this.config.containerId, fromDevice, toDevice, label, color, this.config.contextDisplayId, message, delay);
+                } else if (action === 'updateContext') {
+                    updateContextDisplay(this.config.contextDisplayId, message);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                } else if (action === 'customDelay') {
+                    updateContextDisplay(this.config.contextDisplayId, message || "...");
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                } else if (action === 'failDevice') {
+                    const deviceToFail = this.devices[from];
+                    if (deviceToFail) {
+                        deviceToFail.style.backgroundColor = '#dc3545';
+                        deviceToFail.innerHTML = `<div class="device-icon" style="color: black;">&#x2620;</div><span class="device-label">${deviceToFail.querySelector('.device-label').textContent.replace(' (FAILED)', '')} (FAILED)</span>`; 
+                        updateContextDisplay(this.config.contextDisplayId, message);
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                    } else {
+                        console.warn(`[SIM] Attempted to fail non-existent device: ${from}`);
+                    }
+                }
+            }
+
+            stopSimulation() {
+                console.log(`[SIM] Stopping simulation for mission ${this.config.missionId}`);
+                this.isRunning = false;
+                document.querySelectorAll(`#${this.config.containerId} .device.active`).forEach(el => el.classList.remove('active'));
+                
+                // Reset failed devices to original state (for replay)
+                document.querySelectorAll(`#${this.config.containerId} .device`).forEach(el => {
+                    if (el.style.backgroundColor === 'rgb(220, 53, 69)') { // Check for red color
+                        el.style.backgroundColor = '#0078D4'; // Restore blue
+                        
+                        const originalId = el.id;
+                        let originalType;
+                        if (originalId.includes('DC')) originalType = 'dc';
+                        else if (originalId.includes('Client')) originalType = 'workstation';
+                        else if (originalId.includes('Router')) originalType = 'router';
+                        else if (originalId.includes('Server') || originalId.includes('DHCP')) originalType = 'server';
+                        else if (originalId.includes('Azure_AD')) originalType = 'cloud';
+                        else if (originalId.includes('Cloud_App_Server')) originalType = 'appserver';
+                        else originalType = 'server'; // Default if none match
+
+                        el.innerHTML = `<div class="device-icon">${getDeviceSvg(originalType)}</div><span class="device-label">${el.querySelector('.device-label').textContent.replace(' (FAILED)', '')}</span>`;
+                    }
+                });
+                // Remove all packets that might still be in transit
+                document.querySelectorAll(`#${this.config.containerId} .packet`).forEach(p => p.remove());
+                console.log(`[SIM] Simulation ${this.config.missionId} stopped and devices reset.`);
+            }
+        }
+
+        // --- Base Hybrid Simulation Configuration (Common to Missions 5-14) ---
+        const BaseHybridSimulationConfig = {
+            devices: [
+                // Branch Office
+                { id: 'Branch_Client', type: 'workstation', label: "Branch Client", x: 50, y: 100, zIndex: 10 },
+                { id: 'Branch_DC', type: 'dc', label: "Branch DC", x: 50, y: 200, zIndex: 10 },
+                { id: 'Router_Branch', type: 'router', label: "Branch Router", x: 200, y: 150, zIndex: 10 },
+
+                // On-Premises (HQ) - Increased DCs for Mission 10
+                { id: 'Router_OnPrem', type: 'router', label: "HQ Router", x: 400, y: 250, zIndex: 10 }, 
+                { id: 'OnPrem_DHCP', type: 'server', label: "HQ DHCP", x: 550, y: 100, zIndex: 10 },
+                { id: 'HQ_DC1', type: 'dc', label: "HQ DC1", x: 500, y: 250, zIndex: 10 },
+                { id: 'HQ_DC2', type: 'dc', label: "HQ DC2", x: 600, y: 250, zIndex: 10 },
+                { id: 'HQ_DC3', type: 'dc', label: "HQ DC3", x: 700, y: 250, zIndex: 10 },
+                { id: 'OnPrem_Client', type: 'workstation', label: "HQ Client", x: 550, y: 400, zIndex: 10 },
+                { id: 'OnPrem_FileServer', type: 'server', label: "HQ File Server", x: 600, y: 500, zIndex: 10 },
+
+                // Cloud
+                { id: 'Azure_AD', type: 'cloud', label: "Azure AD", x: 900, y: 100, zIndex: 10 },
+                { id: 'Cloud_App_Server', type: 'appserver', label: "Cloud App", x: 900, y: 250, zIndex: 10 }
+            ],
+            lines: [
+                // Branch Office
+                { from: 'Branch_Client', to: 'Router_Branch' },
+                { from: 'Branch_DC', to: 'Router_Branch' },
+
+                // WAN Link
+                { from: 'Router_Branch', to: 'Router_OnPrem', color: '#E74C3C', dashed: true },
+
+                // On-Premises
+                { from: 'Router_OnPrem', to: 'OnPrem_DHCP' },
+                { from: 'Router_OnPrem', to: 'HQ_DC1' },
+                { from: 'Router_OnPrem', to: 'HQ_DC2' }, 
+                { from: 'Router_OnPrem', to: 'HQ_DC3' }, 
+                { from: 'Router_OnPrem', to: 'OnPrem_FileServer' },
+                { from: 'Router_OnPrem', to: 'OnPrem_Client' },
+                // Direct internal communication lines (within same logical subnet/site without explicit router hop for protocol)
+                { from: 'OnPrem_Client', to: 'HQ_DC1' }, 
+                { from: 'OnPrem_Client', to: 'HQ_DC2' }, 
+                { from: 'OnPrem_Client', to: 'HQ_DC3' }, 
+                { from: 'HQ_DC1', to: 'OnPrem_FileServer' }, 
+                { from: 'HQ_DC2', to: 'OnPrem_FileServer' }, 
+                { from: 'HQ_DC3', to: 'OnPrem_FileServer' }, 
+                // Intra-site replication lines
+                { from: 'HQ_DC1', to: 'HQ_DC2' }, 
+                { from: 'HQ_DC1', to: 'HQ_DC3' },
+                { from: 'HQ_DC2', to: 'HQ_DC3' },
+
+                // Cloud Connection (simplified)
+                { from: 'Router_OnPrem', to: 'Azure_AD', color: '#6A5ACD', dashed: true },
+                { from: 'Azure_AD', to: 'Cloud_App_Server' }
+            ],
+            boundaries: [
+                { id: 'Branch_Site_Boundary', type: 'site', x: 20, y: 50, width: 250, height: 250, label: 'Branch Office Site', zIndex: 6 },
+                { id: 'WAN_Boundary', type: 'wan', x: 220, y: 140, width: 250, height: 160, label: 'WAN Link', zIndex: 6 }, /* Adjusted for better visibility */
+                { id: 'OnPrem_Site_Boundary', type: 'site', x: 350, y: 50, width: 450, height: 580, label: 'HQ Site (On-Premises)', zIndex: 6 }, 
+                { id: 'Cloud_Boundary', type: 'cloud', x: 850, y: 50, width: 200, height: 250, label: 'Cloud Environment', zIndex: 6 }
+            ]
+        };
+
+        // --- Missions Data (Configuration for Simulations) ---
+        const missions = [
+            {
+                id: 1,
+                title: "1. Introduction to AD & Standards",
+                shortDesc: "Understand what Active Directory is, its purpose, and the standards it's built upon.",
+                content: `
+                    <h3>1. Introduction to Active Directory & Standards</h3>
+                    <p>Welcome to your first mission! Active Directory (AD) is Microsoft's directory service for Windows domain networks. It is a central database that stores information about network resources, such as users, computers, and other devices, and makes this information available to users and applications.</p>
+                    <div class="fascinating-fact">
+                        <strong>Fascinating Fact:</strong> Active Directory launched with Windows 2000, revolutionizing network management. Before AD, Windows NT domains struggled with scalability, handling only tens of thousands of objects efficiently. AD brought enterprise-grade scalability and management!
+                    </div>
+                    <p>Think of it as the brain of your Windows network. It provides authentication and authorization services, allowing users to log in once and access various resources seamlessly (Single Sign-On - SSO). It also centralizes management, making it easier for administrators to control network resources.</p>
+                    <h4>AD Standards and Foundation:</h4>
+                    <p>Active Directory isn't built in a vacuum; it leverages and extends well-established industry standards:</p>
+                    <ul>
+                        <li><strong>X.500 Directory Services:</strong> AD is fundamentally based on the X.500 standard for directory services. X.500 defines a hierarchical, distributed information repository. While AD is not a pure X.500 implementation, it uses many of its core concepts like the Directory Information Tree (DIT) for its hierarchical structure.</li>
+                        <li><strong>LDAP (Lightweight Directory Access Protocol):</strong> This is the primary protocol used to access and query the Active Directory database. LDAP is a lightweight client-server protocol for accessing and maintaining distributed directory information services. It defines how clients (applications, administrators) talk to the directory server (Domain Controllers).
+                        <div class="fascinating-fact">
+                            <strong>Fascinating Fact:</strong> LDAP (Lightweight Directory Access Protocol) is *so* fundamental that it underpins almost all directory services, not just Active Directory, making it a universal language for accessing distributed directories!
+                        </div>
+                        </li>
+                        <li><strong>DNS (Domain Name System):</b> Crucial for AD. DNS is used for naming and locating services and Domain Controllers within the AD forest. AD uses special SRV (Service Location) records in DNS to help clients find DCs, Global Catalog servers, and other services.</li>
+                        <li><strong>Kerberos:</strong> The default and primary security protocol used for authentication within Active Directory. It provides strong authentication by issuing "tickets" to users and services, allowing single sign-on capabilities.</li>
+                    </ul>
+                    <p>In this training, we will break down AD into manageable chunks, starting with the basics and moving to more complex internal processes. You'll learn not just *what* AD is, but *how* it works!</p>
+                `
+            },
+            {
+                id: 2,
+                title: "2. Core AD Concepts",
+                shortDesc: "Grasp the hierarchy: Domains, Trees, and Forests.",
+                content: `
+                    <h3>2. Core AD Concepts: Domains, Forests, and Trees</h3>
+                    <p>Before diving into the technical details, let's establish some core AD terminology:</p>
+                    <ul>
+                        <li><strong>Domain:</strong> A logical group of network objects (users, computers, devices) that share a common directory database. It's the primary administrative unit in AD and is identified by a DNS name (e.g., \`contoso.com\`).</li>
+                        <li><strong>Tree:</strong> A collection of one or more domains that share a contiguous DNS namespace. For example, \`sales.contoso.com\` and \`marketing.contoso.com\` would be child domains in the \`contoso.com\` tree.
+                        <div class="fascinating-fact">
+                            <strong>Fascinating Fact:</strong> The concept of a 'tree' in Active Directory implies a contiguous DNS namespace. This means \`sales.contoso.com\` must be a child of \`contoso.com\`, maintaining a clear, unbroken hierarchy!
+                        </div>
+                        </li>
+                        <li><strong>Forest:</strong> The highest-level logical boundary in Active Directory. It's a collection of one or more AD trees that share a common schema (definition of objects), configuration, and Global Catalog. All domains in a forest implicitly trust each other.
+                        <div class="fascinating-fact">
+                            <strong>Fascinating Fact:</strong> A single Active Directory Forest can theoretically contain over 1 billion objects, making it one of the largest directory systems in the world capable of managing massive enterprises!
+                        </div>
+                        </li>
+                    </ul>
+                    <p>Understanding these hierarchical structures is key to grasping how Active Directory organizes and manages resources across an entire organization.</p>
+                    <div class="diagram-container">
+                        <h4>Active Directory Hierarchy</h4>
+                        <svg width="600" height="350" viewBox="0 0 600 350">
+                            <rect x="10" y="10" width="580" height="330" fill="#e6f7ff" stroke="#0078D4" stroke-width="2" rx="10" ry="10"/>
+                            <text x="30" y="35" font-family="Calibri, sans-serif" font-size="18" fill="#333333" font-weight="bold">Forest: MyEnterprise.com</text>
+
+                            <rect x="50" y="60" width="230" height="260" fill="#e0f2f7" stroke="#0078D4" stroke-width="1.8" rx="8" ry="8"/>
+                            <text x="70" y="85" font-family="Calibri, sans-serif" font-size="16" fill="#333333" font-weight="bold">Tree 1: contoso.com</text>
+
+                            <rect x="70" y="100" width="190" height="80" fill="#e9ffdf" stroke="#4caf50" stroke-width="1.8" rx="8" ry="8"/>
+                            <text x="80" y="130" font-family="Calibri, sans-serif" font-size="14" fill="#2e7d32">Domain: contoso.com</text>
+                            <text x="80" y="150" font-family="Calibri, sans-serif" font-size="12" fill="#2e7d32">Root Domain</text>
+
+                            <rect x="70" y="190" width="190" height="80" fill="#fff8e6" stroke="#ff9800" stroke-width="1.8" rx="8" ry="8"/>
+                            <text x="80" y="220" font-family="Calibri, sans-serif" font-size="14" fill="#ff8c00">Domain: sales.contoso.com</text>
+                            <text x="80" y="240" font-family="Calibri, sans-serif" font-size="12" fill="#ff8c00">Child Domain</text>
+                            
+                            <line x1="165" y1="180" x2="165" y2="190" stroke="#666666" stroke-width="1.8" stroke-dasharray="2"/>
+                            <text x="170" y="185" font-family="Calibri, sans-serif" font-size="10" fill="#555555">Trust</text>
+
+                            <rect x="320" y="60" width="230" height="180" fill="#e0f2f7" stroke="#0078D4" stroke-width="1.8" rx="8" ry="8"/>
+                            <text x="340" y="85" font-family="Calibri, sans-serif" font-size="16" fill="#333333" font-weight="bold">Tree 2: fabrikam.net</text>
+
+                            <rect x="340" y="100" width="190" height="80" fill="#e3f2fd" stroke="#42a5f5" stroke-width="1.8" rx="8" ry="8"/>
+                            <text x="350" y="130" font-family="Calibri, sans-serif" font-size="14" fill="#1976d2">Domain: fabrikam.net</text>
+                            <text x="350" y="150" font-family="Calibri, sans-serif" font-size="12" fill="#1976d2">Root Domain</text>
+                        </svg>
+                    </div>
+                `
+            },
+            {
+                id: 3,
+                title: "3. AD Structure & Roles",
+                shortDesc: "Learn about Domain Controllers, OUs, and FSMO roles.",
+                content: `
+                    <h3>3. AD Structure & Roles: Domain Controllers, OUs, and FSMOs</h3>
+                    <p>Let's look at some key components:</p>
+                    <ul>
+                        <li><strong>Domain Controller (DC):</strong> A server that runs the Active Directory Domain Services (AD DS) role. It stores a copy of the AD database, authenticates users, and manages network resources. All changes to AD are made on a DC and then replicated to other DCs.
+                        <div class="fascinating-fact">
+                            <strong>Fascinating Fact:</strong> The term 'Domain Controller' actually means 'Domain Controller for Active Directory Domain Services' – a server running the AD DS role. In Windows NT 4.0 and earlier, DCs were simply 'Primary' or 'Backup' Domain Controllers with single-master operation limitations.
+                        </div>
+                        </li>
+                        <li><strong>Organizational Unit (OU):</b> A container within a domain that you can use to organize users, groups, computers, and other OUs. OUs are the smallest scope to which you can apply Group Policy settings or delegate administrative authority.
+                        <div class="fascinating-fact">
+                            <strong>Fascinating Fact:</strong> OUs are crucial for administrative delegation! You can give a junior admin rights to manage users in just the 'Sales' OU without giving them control over the entire domain, embodying the principle of least privilege.
+                        </div>
+                        </li>
+                        <li><strong>Flexible Single Master Operations (FSMO) Roles:</b> Special roles assigned to specific Domain Controllers that perform unique, forest- or domain-wide operations. There are 5 FSMO roles (Schema Master, Domain Naming Master, RID Master, PDC Emulator, Infrastructure Master), each critical for AD's health and functionality. (Detailed in Mission 14)</li>
+                    </ul>
+                    <p>These elements form the backbone of your Active Directory environment, enabling robust management and security.</p>
+                    <div class="diagram-container">
+                        <h4>Active Directory Domain Structure</h4>
+                        <svg width="600" height="350" viewBox="0 0 600 350">
+                            <!-- Domain Boundary -->
+                            <rect x="20" y="20" width="560" height="310" fill="#e6f7ff" stroke="#0078D4" stroke-width="2" rx="10" ry="10"/>
+                            <text x="40" y="45" font-family="Calibri, sans-serif" font-size="18" fill="#333333" font-weight="bold">Domain: contoso.com</text>
+
+                            <!-- OU 1 -->
+                            <rect x="50" y="70" width="200" height="120" fill="#e0f2f7" stroke="#0078D4" stroke-width="1.8" rx="8" ry="8"/>
+                            <text x="60" y="95" font-family="Calibri, sans-serif" font-size="14" fill="#333333" font-weight="bold">OU: Sales</text>
+                            <circle cx="100" cy="140" r="15" fill="#4caf50" rx="8" ry="8"/>
+                            <text x="90" y="145" font-family="Calibri, sans-serif" font-size="12" fill="#fff" font-weight="bold">U</text>
+                            <text x="125" y="145" font-family="Calibri, sans-serif" font-size="12" fill="#555555">User: John Doe</text>
+                            <circle cx="100" cy="170" r="15" fill="#42a5f5" rx="8" ry="8"/>
+                            <text x="90" y="175" font-family="Calibri, sans-serif" font-size="12" fill="#fff" font-weight="bold">C</text>
+                            <text x="125" y="175" font-family="Calibri, sans-serif" font-size="12" fill="#555555">Computer: SalesPC1</text>
+
+                            <!-- Domain Controllers -->
+                            <rect x="300" y="70" width="250" height="100" fill="#e0f2f7" stroke="#0078D4" stroke-width="1.8" rx="8" ry="8"/>
+                            <rect x="310" y="80" width="30" height="30" fill="#005B9A" rx="8" ry="8"/>
+                            <text x="315" y="100" font-family="Calibri, sans-serif" font-size="18" fill="#fff" font-weight="bold">DC</text>
+                            <text x="350" y="100" font-family="Calibri, sans-serif" font-size="14" fill="#555555">DC-01 (KDC, LDAP)</text>
+                            <text x="350" y="120" font-family="Calibri, sans-serif" font-size="12" fill="#7f8c8d">PDC Emulator, RID Master</text>
+                            <text x="350" y="140" font-family="Calibri, sans-serif" font-size="12" fill="#7f8c8d">Global Catalog</text>
+
+                            <rect x="300" y="220" width="250" height="100" fill="#e0f2f7" stroke="#0078D4" stroke-width="1.8" rx="8" ry="8"/>
+                            <rect x="310" y="230" width="30" height="30" fill="#005B9A" rx="8" ry="8"/>
+                            <text x="315" y="250" font-family="Calibri, sans-serif" font-size="18" fill="#fff" font-weight="bold">DC</text>
+                            <text x="350" y="250" font-family="Calibri, sans-serif" font-size="14" fill="#555555">DC-02 (KDC, LDAP)</text>
+                            <text x="350" y="270" font-family="Calibri, sans-serif" font-size="12" fill="#7f8c8d">Global Catalog</text>
+                        </svg>
+                    </div>
+                `
+            },
+            {
+                id: 4,
+                title: "4. AD Partitions Explained",
+                shortDesc: "Discover how Active Directory database is divided and replicated.",
+                content: `
+                    <h3>4. AD Partitions Explained: How Data is Organized and Replicated</h3>
+                    <p>Active Directory's database (NTDS.DIT) isn't just one big blob of data; it's logically divided into several distinct **partitions** (also called Naming Contexts). Each partition serves a specific purpose and has its own replication scope, defining which Domain Controllers receive copies of that data.</p>
+                    <p>Understanding partitions is crucial for comprehending how AD data is managed, replicated, and accessed efficiently across your forest.</p>
+                    <ul>
+                        <li><strong>Schema Partition (Schema Naming Context):</strong>
+                            <ul>
+                                <li><strong>What it stores:</strong> Defines all the objects and their attributes that can be created in the entire Active Directory forest. It's the blueprint for AD.</li>
+                                <li><strong>Replication Scope:</strong> Replicates to *every* Domain Controller in the *entire forest*.</li>
+                                <li><strong>Why:</strong> All DCs need to know what types of objects and attributes are valid to maintain consistency.</li>
+                            </ul>
+                            <div class="fascinating-fact">
+                                <strong>Fascinating Fact:</strong> The Schema partition is so critical that any change to it must be carefully planned and tested. It cannot be undone without a full forest recovery, highlighting its fundamental importance!
+                            </div>
+                        </li>
+                        <li><strong>Configuration Partition (Configuration Naming Context):</strong>
+                            <ul>
+                                <li><strong>What it stores:</strong> Stores information about the logical structure of the forest itself, including sites, subnets, site links, publishing information for services, and information about all domain controllers and their roles.</li>
+                                <li><strong>Replication Scope:</strong> Replicates to *every* Domain Controller in the *entire forest*.</li>
+                                <li><strong>Why:</strong> All DCs need to know the forest topology and other DCs to function correctly and facilitate replication.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Domain Partition (Domain Naming Context):</strong>
+                            <ul>
+                                <li><strong>What it stores:</b> Contains all the domain-specific objects like users, groups, computers, OUs, and policies for *that particular domain*. Each domain in a forest has its own domain partition.</li>
+                                <li><strong>Replication Scope:</strong> Replicates only to Domain Controllers *within its own domain*.</li>
+                                <li><strong>Why:</strong> This keeps domain-specific data localized, reducing replication traffic across the forest.</li>
+                            </ul>
+                            <div class="fascinating-fact">
+                                <strong>Fascinating Fact:</strong> A typical Domain Controller (DC) can handle tens of thousands of LDAP operations per second, making Active Directory incredibly responsive for authentication and directory lookups in large environments!
+                            </div>
+                        </li>
+                        <li><strong>Application Partitions (Custom Partitions):</strong>
+                            <ul>
+                                <li><strong>What it stores:</strong> Optional partitions that can be created by applications or services (e.g., DNS, Exchange, custom applications) to store their own specific data within Active Directory.</li>
+                                <li><strong>Replication Scope:</b> Can be configured to replicate to a specific set of Domain Controllers, often across multiple domains or sites, as defined by the application.</li>
+                                <li><strong>Why:</strong> Allows applications to leverage AD's replication and security features for their own data, separate from the core AD partitions. DNS zones in AD-integrated DNS are a common example.</li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <p>By segmenting the directory into these partitions, Active Directory optimizes replication, enhances security, and provides flexibility for different data types and their distribution needs.</p>
+                    <div class="diagram-container">
+                        <h4>Active Directory Database Partitions on a DC</h4>
+                        <svg width="600" height="350" viewBox="0 0 600 350">
+                            <!-- DC Representation -->
+                            <rect x="150" y="20" width="300" height="310" fill="#e6f7ff" stroke="#0078D4" stroke-width="2" rx="10" ry="10"/>
+                            <text x="170" y="45" font-family="Calibri, sans-serif" font-size="18" fill="#333333" font-weight="bold">Domain Controller</text>
+                            <text x="170" y="65" font-family="Calibri, sans-serif" font-size="14" fill="#005B9A">(NTDS.DIT Database)</text>
+
+                            <!-- Schema Partition -->
+                            <rect x="170" y="80" width="260" height="50" fill="#ffebee" stroke="#e74c3c" stroke-width="1.8" rx="8" ry="8"/>
+                            <text x="180" y="105" font-family="Calibri, sans-serif" font-size="14" fill="#e74c3c">Schema Partition (Forest-wide)</text>
+
+                            <!-- Configuration Partition -->
+                            <rect x="170" y="140" width="260" height="50" fill="#fffde7" stroke="#ffeb3b" stroke-width="1.8" rx="8" ry="8"/>
+                            <text x="180" y="165" font-family="Calibri, sans-serif" font-size="14" fill="#ffeb3b">Configuration Partition (Forest-wide)</text>
+
+                            <!-- Domain Partition -->
+                            <rect x="170" y="200" width="260" height="50" fill="#e3f2fd" stroke="#42a5f5" stroke-width="1.8" rx="8" ry="8"/>
+                            <text x="180" y="225" font-family="Calibri, sans-serif" font-size="14" fill="#1976d2">Domain Partition (Domain-specific)</text>
+                            <text x="180" y="240" font-family="Calibri, sans-serif" font-size="10" fill="#1976d2">e.g., contoso.com</text>
+
+                            <!-- Application Partition -->
+                            <rect x="170" y="260" width="260" height="50" fill="#e9ffdf" stroke="#4caf50" stroke-width="1.8" rx="8" ry="8"/>
+                            <text x="180" y="285" font-family="Calibri, sans-serif" font-size="14" fill="#2e7d32">Application Partition (DNS Zone, etc.)</text>
+                        </svg>
+                    </div>
+                `
+            },
+            {
+                id: 5,
+                title: "5. DHCP DORA Process (Relay)",
+                shortDesc: "Visualize how your device gets an IP address on-premises.",
+                content: `
+                    <h3>5. DHCP DORA Process: Getting an IP Address On-Premises</h3>
+                    <p>In a typical corporate network, clients obtain their IP addresses automatically from a DHCP server. When the client and DHCP server are on **different network segments (subnets)**, a router often acts as a **DHCP Relay Agent** (configured with IP Helper) to forward the DHCP messages. In our hybrid environment, the "HQ Client" demonstrates this, using the "HQ Router" to reach the "HQ DHCP Server" within the On-Premises site.</p>
+                    <div class="fascinating-fact">
+                        <strong>Fascinating Fact:</strong> Did you know that without a DHCP Relay, clients on different subnets would never be able to obtain IP addresses automatically from a remote DHCP server? The broadcast nature of DHCP Discover is limited to its local subnet!
+                    </div>
+                    <p>Watch the animation below to see how the "HQ Client" obtains its IP address from the "HQ DHCP Server" in the On-Premises network, with the router facilitating the request as a relay.</p>
+                    <div class="challenge">
+                        <h4>Mission 5.1: Simulate On-Premises DHCP DORA Process</h4>
+                        <p>Click the button to visualize the Discover, Offer, Request, and Acknowledge steps for the HQ Client.</p>
+                        <button onclick="simulateMission(5)">Simulate DHCP DORA Process</button>
+                        <div id="authSimulationContainer5" class="authSimulationContainer">
+                            <div class="context-display" id="contextDisplay5">Waiting for simulation...</div>
+                            <div class="authSimulationContent"></div>
+                        </div>
+                        <div class="protocol-legend" id="legend5"></div>
+                    </div>
+                `,
+                simulationConfig: {
+                    missionId: 5,
+                    containerId: 'authSimulationContainer5',
+                    contextDisplayId: 'contextDisplay5',
+                    legendId: 'legend5',
+                    devices: BaseHybridSimulationConfig.devices,
+                    lines: BaseHybridSimulationConfig.lines,
+                    boundaries: BaseHybridSimulationConfig.boundaries,
+                    legend: [
+                        { label: 'DHCP D', color: '#ff8c00', description: 'DHCP Discover (Client broadcast)' }, /* Orange for Discover */
+                        { label: 'DHCP O', color: '#ffd700', description: 'DHCP Offer (Server unicast)' }, /* Yellow for Offer */
+                        { label: 'DHCP R', color: '#E74C3C', description: 'DHCP Request (Client broadcast)' }, /* Red for Request */
+                        { label: 'DHCP ACK', color: '#32CD32', description: 'DHCP Acknowledge (Server unicast)' }, /* Lime Green for ACK */
+                        { label: 'Router FWD', color: '#444444', description: 'Router Forwarding Traffic' } /* Dark Grey for general routing */
+                    ],
+                    steps: [
+                        { action: 'sendPacket', from: 'OnPrem_Client', to: 'Router_OnPrem', label: 'DHCP D', color: '#ff8c00', message: '1. HQ Client broadcasts DHCP Discover, which is received by the HQ Router (acting as a relay).' },
+                        { action: 'sendPacket', from: 'Router_OnPrem', to: 'OnPrem_DHCP', label: 'Router FWD', color: '#444444', message: '2. HQ Router forwards Discover as a unicast message to the HQ DHCP Server.' },
+                        { action: 'sendPacket', from: 'OnPrem_DHCP', to: 'Router_OnPrem', label: 'DHCP O', color: '#ffd700', message: '3. HQ DHCP Server sends a unicast Offer back to the HQ Router.' },
+                        { action: 'sendPacket', from: 'Router_OnPrem', to: 'OnPrem_Client', label: 'Router FWD', color: '#444444', message: '4. HQ Router forwards the Offer to the HQ Client.' },
+                        { action: 'sendPacket', from: 'OnPrem_Client', to: 'Router_OnPrem', label: 'DHCP R', color: '#E74C3C', message: '5. HQ Client sends a DHCP Request to the HQ Router, accepting the offer.' },
+                        { action: 'sendPacket', from: 'Router_OnPrem', to: 'OnPrem_DHCP', label: 'Router FWD', color: '#444444', message: '6. HQ Router forwards the Request as a unicast message to the HQ DHCP Server.' },
+                        { action: 'sendPacket', from: 'OnPrem_DHCP', to: 'Router_OnPrem', label: 'DHCP ACK', color: '#32CD32', message: '7. HQ DHCP Server sends a unicast ACK to the HQ Router, confirming the IP lease.' },
+                        { action: 'sendPacket', from: 'Router_OnPrem', to: 'OnPrem_Client', label: 'Router FWD', color: '#444444', message: '8. HQ Router forwards the ACK to the HQ Client. IP lease complete!' },
+                        { action: 'updateContext', message: 'DHCP DORA process complete! HQ Client has an IP address.', delay: PACKET_ANIMATION_SPEED }
+                    ]
+                }
+            },
+            {
+                id: 6,
+                title: "6. DNS Resolution (Recursive/Iterative)",
+                shortDesc: "See how DNS resolves a name on-premises.",
+                content: `
+                    <h3>6. DNS Resolution: On-Premises Recursive & Iterative Queries</h3>
+                    <p>DNS (Domain Name System) is fundamental for locating resources. This animation demonstrates how the "HQ Client" resolves a hostname (e.g., to find an internal server or external website). It will query its local DNS server, which is typically an Active Directory Domain Controller.</p>
+                    <div class="fascinating-fact">
+                        <strong>Fascinating Fact:</strong> The entire internet relies on the 13 logical Root DNS servers worldwide. If they went down, virtually all domain name lookups would fail, effectively breaking internet navigation!
+                    </div>
+                    <p>Watch the detailed flow below as the "HQ Client" uses "HQ DC1" for DNS resolution. If "HQ DC1" cannot resolve the name internally, it will forward or iteratively query external DNS servers, routing through the "HQ Router".</p>
+                    <div class="challenge">
+                        <h4>Mission 6.1: Simulate On-Premises DNS Resolution</h4>
+                        <p>Click the button to visualize the DNS lookup process for the HQ Client within the hybrid network.</p>
+                        <button onclick="simulateMission(6)">Simulate DNS Resolution Process</button>
+                        <div id="authSimulationContainer6" class="authSimulationContainer">
+                            <div class="context-display" id="contextDisplay6">Waiting for simulation...</div>
+                            <div class="authSimulationContent"></div>
+                        </div>
+                        <div class="protocol-legend" id="legend6"></div>
+                    </div>
+                `,
+                simulationConfig: {
+                    missionId: 6,
+                    containerId: 'authSimulationContainer6',
+                    contextDisplayId: 'contextDisplay6',
+                    legendId: 'legend6',
+                    devices: BaseHybridSimulationConfig.devices,
+                    lines: BaseHybridSimulationConfig.lines,
+                    boundaries: BaseHybridSimulationConfig.boundaries,
+                    legend: [
+                        { label: 'DNS Q (REC)', color: '#0078D4', description: 'DNS Recursive Query (Client to Local DNS)' },
+                        { label: 'DNS FWD Q', color: '#FF4500', description: 'DNS Forwarded Query (Local DNS to External)' }, /* Orange Red for external query */
+                        { label: 'DNS FWD R', color: '#32CD32', description: 'DNS Response from External (via Router)' }, /* Lime Green from external */
+                        { label: 'DNS R (REC)', color: '#FFD700', description: 'DNS Recursive Response (Local DNS to Client)' }, /* Gold for result */
+                        { label: 'Router FWD', color: '#444444', description: 'Router Forwarding Traffic' }
+                    ],
+                    steps: [
+                        { action: 'sendPacket', from: 'OnPrem_Client', to: 'HQ_DC1', label: 'DNS Q (REC)', color: '#0078D4', message: '1. HQ Client sends a recursive DNS query for "www.external.com" to HQ DC1 (its configured local DNS server).' },
+                        { action: 'customDelay', delay: PACKET_ANIMATION_SPEED * 0.5, message: '2. HQ DC1 determines it cannot resolve "www.external.com" from its internal zones and needs to forward the query externally.' },
+                        { action: 'sendPacket', from: 'HQ_DC1', to: 'Router_OnPrem', label: 'DNS FWD Q', color: '#FF4500', message: '3. HQ DC1 forwards the DNS query to the HQ Router to reach external DNS servers.' },
+                        { action: 'sendPacket', from: 'Router_OnPrem', to: 'Router_OnPrem', label: 'Router FWD', color: '#444444', message: '4. (Implied) The HQ Router routes the query to external DNS servers, and receives the authoritative response.' },
+                        { action: 'sendPacket', from: 'Router_OnPrem', to: 'HQ_DC1', label: 'Router FWD', color: '#444444', message: '5. The HQ Router receives the authoritative DNS response and sends it back to HQ DC1.' },
+                        { action: 'sendPacket', from: 'HQ_DC1', to: 'OnPrem_Client', label: 'DNS R (REC)', color: '#FFD700', message: '6. HQ DC1 caches the answer and sends the recursive response (IP address for www.external.com) to HQ Client.' },
+                        { action: 'updateContext', message: 'DNS Resolution Complete: HQ Client now has the IP address for www.external.com, resolved via its local DNS and external routing.', delay: PACKET_ANIMATION_SPEED }
+                    ]
+                }
+            },
+            {
+                id: 7,
+                title: "7. Kerberos Auth (DC Failover)",
+                shortDesc: "Simulate DC failover during on-premises Kerberos authentication.",
+                content: `
+                    <h3>7. Kerberos Authentication: On-Premises with DC Failover</h3>
+                    <p>Kerberos is the primary authentication protocol for Active Directory, providing strong authentication and Single Sign-On. In a robust AD environment, multiple Domain Controllers ensure high availability. This mission simulates a critical scenario: a **Domain Controller failure** during the Kerberos authentication process.</p>
+                    <div class="fascinating-fact">
+                        <strong>Fascinating Fact:</strong> Kerberos tickets, by default, have a maximum lifetime of 10 hours (600 minutes). This means users automatically renew their tickets in the background without re-entering credentials, enhancing security and user experience!
+                    </div>
+                    <p>Watch as the "HQ Client" initially attempts to authenticate with "HQ DC1". When "HQ DC1" becomes unavailable, the client dynamically discovers and seamlessly continues its authentication with "HQ DC2", demonstrating AD's built-in fault tolerance. Communication between the client and DCs is direct within the HQ site's logical network.</p>
+                    <div class="challenge">
+                        <h4>Mission 7.1: Simulate On-Premises Kerberos Authentication with DC Failover</h4>
+                        <p>Click the button to visualize the Kerberos authentication flow, including a mid-process DC failure and subsequent client rerouting.</p>
+                        <button onclick="simulateMission(7)">Simulate Kerberos Auth (DC Failover)</button>
+                        <div id="authSimulationContainer7" class="authSimulationContainer">
+                            <div class="context-display" id="contextDisplay7">Waiting for simulation...</div>
+                            <div class="authSimulationContent"></div>
+                        </div>
+                        <div class="protocol-legend" id="legend7"></div>
+                    </div>
+                `,
+                simulationConfig: {
+                    missionId: 7,
+                    containerId: 'authSimulationContainer7',
+                    contextDisplayId: 'contextDisplay7',
+                    legendId: 'legend7',
+                    devices: BaseHybridSimulationConfig.devices,
+                    lines: BaseHybridSimulationConfig.lines,
+                    boundaries: BaseHybridSimulationConfig.boundaries,
+                    legend: [
+                        { label: 'AS-REQ', color: '#E74C3C', description: 'Authentication Service Request (for TGT)' }, /* Red */
+                        { label: 'AS-REP', color: '#FFD700', description: 'Authentication Service Reply (TGT granted)' }, /* Gold */
+                        { label: 'TGS-REQ', color: '#0078D4', description: 'Ticket Granting Service Request (for Service Ticket)' },
+                        { label: 'TGS-REP', color: '#32CD32', description: 'Ticket Granting Service Reply (Service Ticket granted)' }, /* Lime Green */
+                        { label: 'AP-REQ', color: '#6A5ACD', description: 'Application Service Request (present Service Ticket)' }, /* Slate Blue */
+                        { label: 'DC FAILED', color: '#dc3545', description: 'Domain Controller Failure' } /* Red for Failure */
+                    ],
+                    steps: [
+                        { action: 'sendPacket', from: 'OnPrem_Client', to: 'HQ_DC1', label: 'AS-REQ', color: '#E74C3C', message: '1. HQ Client requests a TGT from HQ DC1 (its local KDC) for initial authentication.' },
+                        { action: 'sendPacket', from: 'HQ_DC1', to: 'OnPrem_Client', label: 'AS-REP', color: '#FFD700', message: '2. HQ DC1 grants TGT to HQ Client. Client now has a TGT for the domain.' },
+                        { action: 'customDelay', delay: PACKET_ANIMATION_SPEED * 0.7, message: '3. HQ Client attempts to get a Service Ticket for HQ File Server, but...', delay: PACKET_ANIMATION_SPEED * 0.7 },
+                        { action: 'failDevice', from: 'HQ_DC1', message: '4. **CRITICAL FAILURE: HQ DC1 suddenly goes offline!**', delay: PACKET_ANIMATION_SPEED * 1.5 },
+                        { action: 'updateContext', message: '5. HQ Client detects HQ DC1 is unresponsive. It dynamically discovers HQ DC2 via DNS/NetLogon for failover.', delay: PACKET_ANIMATION_SPEED * 1.5 },
+                        { action: 'sendPacket', from: 'OnPrem_Client', to: 'HQ_DC2', label: 'TGS-REQ', color: '#0078D4', message: '6. HQ Client presents its existing TGT to HQ DC2 (the available KDC) and requests a Service Ticket (ST) for HQ File Server.' },
+                        { action: 'sendPacket', from: 'HQ_DC2', to: 'OnPrem_Client', label: 'TGS-REP', color: '#32CD32', message: '7. HQ DC2 grants ST for HQ File Server to HQ Client.' },
+                        { action: 'sendPacket', from: 'OnPrem_Client', to: 'OnPrem_FileServer', label: 'AP-REQ', color: '#6A5ACD', message: '8. HQ Client presents the Service Ticket to HQ File Server. File Server decrypts ST using its own key.' },
+                        { action: 'updateContext', message: '9. Authorization: HQ File Server verifies ST and grants access. Authentication complete, demonstrating successful DC failover!', delay: PACKET_ANIMATION_SPEED }
+                    ]
+                }
+            },
+            {
+                id: 8,
+                title: "8. LDAP Query (Hybrid App)",
+                shortDesc: "How a Cloud Application queries On-Premises AD (Hybrid Identity).",
+                content: `
+                    <h3>8. LDAP Query Explained: Cloud App Querying On-Premises AD (Hybrid Identity)</h3>
+                    <p>In a hybrid environment, applications hosted in the cloud might need to query your on-premises Active Directory for user attributes or group memberships. This typically happens through Azure AD Connect, synchronizing objects, or via a secure LDAP proxy or VPN if direct access is required for specific attributes. For simplicity, this animation shows a conceptual flow where a "Cloud App Server" queries "HQ DC1" for directory information.</p>
+                    <div class="fascinating-fact">
+                        <strong>Fascinating Fact:</strong> The 'Lightweight' in LDAP truly means it – it's designed for efficiency over networks, making it ideal for fast, frequent queries from applications without consuming excessive bandwidth or processing power!
+                    </div>
+                    <p>Witness how the "Cloud App Server" fetches information from "HQ DC1" in the On-Premises network, traversing the "Cloud Environment" boundary and the "HQ Router". The "HQ Router" acts as the network gateway, forwarding the traffic.</p>
+                    <div class="challenge">
+                        <h4>Mission 8.1: Simulate Cloud App LDAP Query to On-Prem AD</h4>
+                        <p>Click the button to visualize a Cloud Application querying an On-Premises Domain Controller for directory information.</p>
+                        <button onclick="simulateMission(8)">Simulate LDAP Query Process</button>
+                        <div id="authSimulationContainer8" class="authSimulationContainer">
+                            <div class="context-display" id="contextDisplay8">Waiting for simulation...</div>
+                            <div class="authSimulationContent"></div>
+                        </div>
+                        <div class="protocol-legend" id="legend8"></div>
+                    </div>
+                `,
+                simulationConfig: {
+                    missionId: 8,
+                    containerId: 'authSimulationContainer8',
+                    contextDisplayId: 'contextDisplay8',
+                    legendId: 'legend8',
+                    devices: BaseHybridSimulationConfig.devices,
+                    lines: BaseHybridSimulationConfig.lines,
+                    boundaries: BaseHybridSimulationConfig.boundaries,
+                    legend: [
+                        { label: 'LDAP Q', color: '#0078D4', description: 'LDAP Application Query' },
+                        { label: 'LDAP R', color: '#32CD32', description: 'LDAP Server Response' }, /* Lime Green */
+                        { label: 'Cloud Traffic', color: '#6A5ACD', description: 'Traffic within Cloud Environment' },
+                        { label: 'Router FWD', color: '#444444', description: 'Router Forwarding Traffic' }
+                    ],
+                    steps: [
+                        { action: 'sendPacket', from: 'Cloud_App_Server', to: 'Azure_AD', label: 'Cloud Traffic', color: '#6A5ACD', message: '1. Cloud App Server initiates directory lookup by sending a request to Azure AD (for hybrid sync/proxy).' },
+                        { action: 'sendPacket', from: 'Azure_AD', to: 'Router_OnPrem', label: 'Router FWD', color: '#444444', message: '2. Azure AD (or implied proxy) sends an LDAP query to the HQ Router to reach HQ DC1.' },
+                        { action: 'sendPacket', from: 'Router_OnPrem', to: 'HQ_DC1', label: 'Router FWD', color: '#444444', message: '3. HQ Router forwards the LDAP query to HQ DC1.' },
+                        { action: 'sendPacket', from: 'HQ_DC1', to: 'Router_OnPrem', label: 'LDAP R', color: '#32CD32', message: '4. HQ DC1 processes the query and returns the results to the HQ Router.' },
+                        { action: 'sendPacket', from: 'Router_OnPrem', to: 'Azure_AD', label: 'Router FWD', color: '#444444', message: '5. HQ Router sends the LDAP response back to Azure AD.' },
+                        { action: 'sendPacket', from: 'Azure_AD', to: 'Cloud_App_Server', label: 'Cloud Traffic', color: '#6A5ACD', message: '6. Azure AD provides the directory data to the Cloud App Server.' },
+                        { action: 'updateContext', message: 'LDAP query complete! Cloud Application receives directory data from On-Premises Active Directory, with the router facilitating the connection.', delay: PACKET_ANIMATION_SPEED }
+                    ]
+                }
+            },
+            {
+                id: 9,
+                title: "9. Group Policy Processing (LSDOU)",
+                shortDesc: "Observe how GPOs are applied to on-premises clients.",
+                content: `
+                    <h3>9. Group Policy Processing: On-Premises Client Applying GPOs (LSDOU Order)</h3>
+                    <p>Group Policy Objects (GPOs) are central to managing user and computer configurations within your on-premises domain. They are applied in a specific, cumulative order known as **LSDOU** (Local, Site, Domain, Organizational Unit). The "HQ Client" will demonstrate this process, fetching GPOs from "HQ DC1".</p>
+                    <div class="fascinating-fact">
+                        <strong>Fascinating Fact:</strong> Group Policy is so powerful, it can configure over 5,000 different settings on Windows clients and servers, ranging from granular security policies to desktop wallpapers!
+                    </div>
+                    <p>This animation depicts the "HQ Client's" interaction with "HQ DC1" to discover and download GPOs, followed by the internal processing in LSDOU order. The communication between client and DC for GPO retrieval is direct within the HQ site's logical network.</p>
+                    <div class="challenge">
+                        <h4>Mission 9.1: Simulate On-Premises Group Policy Processing (LSDOU)</h4>
+                        <p>Click the button to visualize the HQ Client applying Group Policies within the hybrid network.</p>
+                        <button onclick="simulateMission(9)">Simulate Group Policy Processing</button>
+                        <div id="authSimulationContainer9" class="authSimulationContainer">
+                            <div class="context-display" id="contextDisplay9">Waiting for simulation...</div>
+                            <div class="authSimulationContent"></div>
+                        </div>
+                        <div class="protocol-legend" id="legend9"></div>
+                    </div>
+                `,
+                simulationConfig: {
+                    missionId: 9,
+                    containerId: 'authSimulationContainer9',
+                    contextDisplayId: 'contextDisplay9',
+                    legendId: 'legend9',
+                    devices: BaseHybridSimulationConfig.devices,
+                    lines: BaseHybridSimulationConfig.lines,
+                    boundaries: BaseHybridSimulationConfig.boundaries,
+                    legend: [
+                        { label: 'GPO Q (LDAP/DNS)', color: '#FF4500', description: 'Client queries DC for applicable GPOs' }, /* Orange Red */
+                        { label: 'GPO List R', color: '#FFD700', description: 'DC responds with list of applicable GPOs' }, /* Gold */
+                        { label: 'SMB Download Q', color: '#0078D4', description: 'Client requests GPO files from SYSVOL' },
+                        { label: 'SMB File Data', color: '#32CD32', description: 'DC sends GPO files to client' }, /* Lime Green */
+                        { label: 'Apply Local', color: '#87CEFA', description: 'Client applies Local Group Policy' }, /* Light Blue */
+                        { label: 'Apply Site', color: '#6A5ACD', description: 'Client applies Site Group Policy' }, /* Slate Blue */
+                        { label: 'Apply Domain', color: '#0099CC', description: 'Client applies Domain Group Policy' }, /* Deeper Blue */
+                        { label: 'Apply OU', color: '#E74C3C', description: 'Client applies OU Group Policy' } /* Red */
+                    ],
+                    steps: [
+                        { action: 'sendPacket', from: 'OnPrem_Client', to: 'HQ_DC1', label: 'GPO Q (LDAP/DNS)', color: '#FF4500', message: '1. HQ Client initiates GPO processing by querying HQ DC1 for applicable Group Policies (LDAP/DNS).' },
+                        { action: 'sendPacket', from: 'HQ_DC1', to: 'OnPrem_Client', label: 'GPO List R', color: '#FFD700', message: '2. HQ DC1 responds with a list of applicable GPOs and their locations in SYSVOL.' },
+                        { action: 'sendPacket', from: 'OnPrem_Client', to: 'HQ_DC1', label: 'SMB Download Q', color: '#0078D4', message: '3. HQ Client connects directly to the SYSVOL share on HQ DC1 (via SMB) to request GPO files.' },
+                        { action: 'sendPacket', from: 'HQ_DC1', to: 'OnPrem_Client', label: 'SMB File Data', color: '#32CD32', message: '4. HQ DC1 sends the actual GPO configuration files from SYSVOL to the HQ Client.' },
+                        { action: 'sendPacket', from: 'OnPrem_Client', to: 'OnPrem_Client', label: 'Apply Local', color: '#87CEFA', message: '5. LSDOU Order: HQ Client processes and applies **Local** Group Policy settings.' },
+                        { action: 'sendPacket', from: 'OnPrem_Client', to: 'OnPrem_Client', label: 'Apply Site', color: '#6A5ACD', message: '6. LSDOU Order: HQ Client processes and applies **Site** Group Policy settings (for the HQ Site).' },
+                        { action: 'sendPacket', from: 'OnPrem_Client', to: 'OnPrem_Client', label: 'Apply Domain', color: '#0099CC', message: '7. LSDOU Order: HQ Client processes and applies **Domain** Group Policy settings (for its domain).' },
+                        { action: 'sendPacket', from: 'OnPrem_Client', to: 'OnPrem_Client', label: 'Apply OU', color: '#E74C3C', message: '8. LSDOU Order: HQ Client processes and applies **Organizational Unit (OU)** Group Policy settings, which override previous settings if conflicts exist.' },
+                        { action: 'updateContext', message: '9. GPO Processing Complete! All applicable policies have been processed in LSDOU order for the HQ Client.', delay: PACKET_ANIMATION_SPEED }
+                    ]
+                }
+            },
+            {
+                id: 10,
+                title: "10. Intra-Site AD Replication",
+                shortDesc: "How Active Directory database updates internally within the HQ site.",
+                content: `
+                    <h3>10. Intra-Site AD Replication: How the AD Database Updates Internally (HQ Site)</h3>
+                    <p>Within the On-Premises (HQ) site of our hybrid network, when a change occurs on one Domain Controller (DC), that change needs to be replicated quickly to all other DCs in the same domain and site. This intra-site replication is uncompressed and occurs frequently over high-bandwidth, low-latency links.</p>
+                    <div class="fascinating-fact">
+                        <strong>Fascinating Fact:</strong> Intra-site replication between Domain Controllers is incredibly fast – it happens within 15 seconds of a change by default! This ensures rapid consistency across DCs in the same physical location.
+                    </div>
+                    <p>Witness how a change made on "HQ DC1" is replicated to "HQ DC2" and "HQ DC3" within the same HQ site, demonstrating the rapid internal database update process across multiple DCs and potentially traversing the "HQ Router" (if logical subnets are involved). Direct communication is assumed within the logical network segments of the HQ site.</p>
+                    <div class="challenge">
+                        <h4>Mission 10.1: Simulate Intra-Site AD Replication (HQ Site)</h4>
+                        <p>Click the button to visualize an object change on one HQ DC replicating to multiple other HQ DCs in the same site of the hybrid network.</p>
+                        <button onclick="simulateMission(10)">Simulate Intra-Site AD Replication Process</button>
+                        <div id="authSimulationContainer10" class="authSimulationContainer">
+                            <div class="context-display" id="contextDisplay10">Waiting for simulation...</div>
+                            <div class="authSimulationContent"></div>
+                        </div>
+                        <div class="protocol-legend" id="legend10"></div>
+                    </div>
+                `,
+                simulationConfig: {
+                    missionId: 10,
+                    containerId: 'authSimulationContainer10',
+                    contextDisplayId: 'contextDisplay10',
+                    legendId: 'legend10',
+                    devices: BaseHybridSimulationConfig.devices,
+                    lines: BaseHybridSimulationConfig.lines,
+                    boundaries: BaseHybridSimulationConfig.boundaries,
+                    legend: [
+                        { label: 'Update DB', color: '#FFD700', description: 'Internal Database (NTDS.DIT) Partition Update' }, /* Gold */
+                        { label: 'RPC/LDAP Trigger', color: '#E74C3C', description: 'Replication Notification / Request (RPC/LDAP)' }, /* Red */
+                        { label: 'REPLICATE Data', color: '#0078D4', description: 'Data Transfer (actual partition replication)' }
+                    ],
+                    steps: [
+                        { action: 'sendPacket', from: 'HQ_DC1', to: 'HQ_DC1', label: 'Update DB', color: '#FFD700', message: '1. Internal Database Update: A new user object is created on HQ DC1. The NTDS.DIT is updated locally.' },
+                        { action: 'customDelay', delay: PACKET_ANIMATION_SPEED * 0.5, message: '2. HQ DC1 detects the change and prepares to notify its replication partners (HQ DC2 and HQ DC3).' },
+                        { action: 'sendPacket', from: 'HQ_DC1', to: 'HQ_DC2', label: 'RPC/LDAP Trigger', color: '#E74C3C', message: '3. HQ DC1 notifies HQ DC2 of the change.' },
+                        { action: 'sendPacket', from: 'HQ_DC1', to: 'HQ_DC3', label: 'RPC/LDAP Trigger', color: '#E74C3C', message: '4. HQ DC1 also notifies HQ DC3 of the change.' },
+                        { action: 'sendPacket', from: 'HQ_DC1', to: 'HQ_DC2', label: 'REPLICATE Data', color: '#0078D4', message: '5. HQ DC1 sends the updated directory information to HQ DC2.' },
+                        { action: 'sendPacket', from: 'HQ_DC2', to: 'HQ_DC2', label: 'Update DB', color: '#FFD700', message: '5a. HQ DC2 updates its local NTDS.DIT.' },
+                        { action: 'sendPacket', from: 'HQ_DC1', to: 'HQ_DC3', label: 'REPLICATE Data', color: '#0078D4', message: '6. HQ DC1 sends the updated directory information to HQ DC3.' },
+                        { action: 'sendPacket', from: 'HQ_DC3', to: 'HQ_DC3', label: 'Update DB', color: '#FFD700', message: '6a. HQ DC3 updates its local NTDS.DIT.' },
+                        { action: 'updateContext', message: '7. All DCs in the HQ Site have updated their internal databases and are now synchronized. (Intra-site replication is fast and uncompressed).', delay: PACKET_ANIMATION_SPEED }
+                    ]
+                }
+            },
+            {
+                id: 11,
+                title: "11. Inter-Site AD Replication",
+                shortDesc: "How Active Directory data replicates between Branch Office and HQ.",
+                content: `
+                    <h3>11. Inter-Site AD Replication: Bridging the WAN Gap (Branch to HQ)</h3>
+                    <p>Inter-site replication manages how Active Directory changes propagate between Domain Controllers located in *different Active Directory sites*. In our hybrid network, this refers to changes between the "Branch Office Site" and the "HQ Site". Since these are connected by a "WAN Link", replication is compressed and scheduled to conserve bandwidth.</p>
+                    <div class="fascinating-fact">
+                        <strong>Fascinating Fact:</strong> Unlike intra-site replication, inter-site replication is compressed (saving up to 80% bandwidth!) and scheduled, typically occurring every 3 hours by default. This is crucial for optimizing traffic over slower WAN links.
+                    </div>
+                    <p>Observe how a change made on "Branch DC" (Branch Office Site) eventually updates "HQ DC1" (HQ Site) across the "WAN Link", showcasing the database update process across geographical boundaries. The routers (\`Router_Branch\` and \`Router_OnPrem\`) facilitate the traffic over the WAN.</p>
+                    <div class="challenge">
+                        <h4>Mission 11.1: Simulate Inter-Site AD Replication (Branch to HQ)</h4>
+                        <p>Click the button to visualize an object change replicating between the Branch Office Site and the HQ Site.</p>
+                        <button onclick="simulateMission(11)">Simulate Inter-Site AD Replication Process</button>
+                        <div id="authSimulationContainer11" class="authSimulationContainer">
+                            <div class="context-display" id="contextDisplay11">Waiting for simulation...</div>
+                            <div class="authSimulationContent"></div>
+                        </div>
+                        <div class="protocol-legend" id="legend11"></div>
+                    </div>
+                `,
+                simulationConfig: {
+                    missionId: 11,
+                    containerId: 'authSimulationContainer11',
+                    contextDisplayId: 'contextDisplay11',
+                    legendId: 'legend11',
+                    devices: BaseHybridSimulationConfig.devices,
+                    lines: BaseHybridSimulationConfig.lines,
+                    boundaries: BaseHybridSimulationConfig.boundaries,
+                    legend: [
+                        { label: 'Update DB', color: '#FFD700', description: 'Internal Database (NTDS.DIT) Partition Update' }, /* Gold */
+                        { label: 'REPLICATE (intra)', color: '#0078D4', description: 'Intra-Site Replication (uncompressed)' },
+                        { label: 'COMPRESS Data', color: '#FF8C00', description: 'Data Compression for WAN' }, /* Dark Orange */
+                        { label: 'WAN Transfer', color: '#E74C3C', description: 'WAN Link Transfer (RPC, compressed)' }, /* Red */
+                        { label: 'Router FWD', color: '#444444', description: 'Router Forwarding Traffic' }
+                    ],
+                    steps: [
+                        { action: 'sendPacket', from: 'Branch_DC', to: 'Branch_DC', label: 'Update DB', color: '#FFD700', message: '1. Internal Database Update: A user object is updated on Branch DC. The NTDS.DIT is updated locally.' },
+                        { action: 'customDelay', delay: PACKET_ANIMATION_SPEED * 0.5, message: '2. Branch DC detects the change needs to be replicated to HQ, and waits for its scheduled replication time.' },
+                        { action: 'sendPacket', from: 'Branch_DC', to: 'Branch_DC', label: 'COMPRESS Data', color: '#FF8C00', message: '3. Branch DC compresses the replication data for efficient WAN transfer.' },
+                        { action: 'sendPacket', from: 'Branch_DC', to: 'Router_Branch', label: 'WAN Transfer', color: '#E74C3C', message: '4. Compressed data is sent from Branch DC to Branch Router for WAN transfer.' },
+                        { action: 'sendPacket', from: 'Router_Branch', to: 'Router_OnPrem', label: 'WAN Transfer', color: '#E74C3C', message: '5. Compressed data travels across the WAN Link from Branch Router to HQ Router.' },
+                        { action: 'sendPacket', from: 'Router_OnPrem', to: 'HQ_DC1', label: 'Router FWD', color: '#444444', message: '6. HQ Router delivers the compressed data to HQ DC1.' },
+                        { action: 'sendPacket', from: 'HQ_DC1', to: 'HQ_DC1', label: 'Update DB', color: '#FFD700', message: '7. HQ DC1 receives and unpacks the data, then updates its local NTDS.DIT.' },
+                        { action: 'sendPacket', from: 'HQ_DC1', to: 'HQ_DC2', label: 'REPLICATE (intra)', color: '#0078D4', message: '8. HQ DC1 replicates the change to HQ DC2 (intra-site).' },
+                        { action: 'sendPacket', from: 'HQ_DC1', to: 'HQ_DC3', label: 'REPLICATE (intra)', color: '#0078D4', message: '9. HQ DC1 replicates the change to HQ DC3 (intra-site).' },
+                        { action: 'updateContext', message: '10. Inter-site replication complete! All DCs in both sites are now synchronized.', delay: PACKET_ANIMATION_SPEED }
+                    ]
+                }
+            },
+            {
+                id: 12,
+                title: "12. Global Catalog Query",
+                shortDesc: "Perform forest-wide searches for directory objects within the hybrid network.",
+                content: `
+                    <h3>12. Global Catalog Query: Forest-Wide Search in a Hybrid Network</h3>
+                    <p>The Global Catalog (GC) is a specialized role on some Domain Controllers, storing a partial, read-only copy of every object in the entire forest. This allows users and applications to search for objects across all domains in the forest without needing to know which specific domain an object resides in.</p>
+                    <div class="fascinating-fact">
+                        <strong>Fascinating Fact:</strong> The Global Catalog is fundamental for user logon in multi-domain forests. Without a reachable GC, users in child domains cannot log on because it's needed to find universal group memberships and the user object itself!
+                    </div>
+                    <p>This mission illustrates how the "HQ Client" can quickly find information about a user from the "Branch Office Site" (which conceptually has its own domain within the same forest) by querying "HQ DC1" (acting as a Global Catalog server) in the On-Premises network. Communication between the client and GC is direct within the HQ site's logical network.</p>
+                    <div class="challenge">
+                        <h4>Mission 12.1: Simulate a Global Catalog Query (HQ Client)</h4>
+                        <p>Click the button to visualize the HQ Client querying a Global Catalog server for forest-wide information.</p>
+                        <button onclick="simulateMission(12)">Simulate Global Catalog Query</button>
+                        <div id="authSimulationContainer12" class="authSimulationContainer">
+                            <div class="context-display" id="contextDisplay12">Waiting for simulation...</div>
+                            <div class="authSimulationContent"></div>
+                        </div>
+                        <div class="protocol-legend" id="legend12"></div>
+                    </div>
+                `,
+                simulationConfig: {
+                    missionId: 12,
+                    containerId: 'authSimulationContainer12',
+                    contextDisplayId: 'contextDisplay12',
+                    legendId: 'legend12',
+                    devices: BaseHybridSimulationConfig.devices,
+                    lines: BaseHybridSimulationConfig.lines,
+                    boundaries: BaseHybridSimulationConfig.boundaries,
+                    legend: [
+                        { label: 'LDAP GC Q', color: '#FFD700', description: 'LDAP Global Catalog Query (port 3268)' }, /* Gold */
+                        { label: 'LDAP GC R', color: '#0078D4', description: 'LDAP Global Catalog Response' }
+                    ],
+                    steps: [
+                        { action: 'updateContext', message: '1. HQ Client needs to find a user from the Branch Office domain (same forest). It queries its local GC (HQ DC1).' },
+                        { action: 'sendPacket', from: 'OnPrem_Client', to: 'HQ_DC1', label: 'LDAP GC Q', color: '#FFD700', message: '2. HQ Client sends an LDAP query directly to HQ DC1 (configured as a Global Catalog server).' },
+                        { action: 'sendPacket', from: 'HQ_DC1', to: 'OnPrem_Client', label: 'LDAP GC R', color: '#0078D4', message: '3. HQ DC1, containing partial attributes for all forest objects (including from the Branch Office domain), returns the result.' },
+                        { action: 'updateContext', message: '4. Result: HQ Client successfully finds information about a user from the Branch Office domain, without directly contacting the Branch DC. Efficient for forest-wide lookups!', delay: PACKET_ANIMATION_SPEED }
+                    ]
+                }
+            },
+            {
+                id: 13,
+                title: "13. Hybrid Auth Flow (Federation)",
+                shortDesc: "Understand authentication from On-Premises to Cloud using federation.",
+                content: `
+                    <h3>13. Hybrid Authentication Flow: On-Premises to Cloud (Federation)</h3>
+                    <p>In a hybrid environment, users whose accounts are managed On-Premises in Active Directory often need to access applications hosted in the Cloud (e.g., SaaS apps using Azure AD). This typically involves a **federated authentication** flow, where the cloud identity provider (like Azure AD) trusts the on-premises Active Directory to authenticate the user.</p>
+                    <div class="fascinating-fact">
+                        <strong>Fascinating Fact:</strong> Forest trusts enable true single sign-on across separate Active Directory forests, allowing users from one company to seamlessly access resources in an acquired company's AD environment, for instance! (For hybrid, think of federation as a 'trust' for identities).
+                    </div>
+                    <p>This simulation illustrates how an "HQ Client" user, whose account is in the on-premises Active Directory, authenticates to a "Cloud App Server" through "Azure AD", leveraging a trust relationship (federation) between the on-premises and cloud environments. The "HQ Router" acts as the network gateway for cloud communication.</p>
+                    <div class="challenge">
+                        <h4>Mission 13.1: Simulate Hybrid Authentication Flow</h4>
+                        <p>Click the button to visualize an On-Premises user authenticating to a Cloud application via Azure AD in the hybrid network.</p>
+                        <button onclick="simulateMission(13)">Simulate Hybrid Authentication</button>
+                        <div id="authSimulationContainer13" class="authSimulationContainer">
+                            <div class="context-display" id="contextDisplay13">Waiting for simulation...</div>
+                            <div class="authSimulationContent"></div>
+                        </div>
+                        <div class="protocol-legend" id="legend13"></div>
+                    </div>
+                `,
+                simulationConfig: {
+                    missionId: 13,
+                    containerId: 'authSimulationContainer13',
+                    contextDisplayId: 'contextDisplay13',
+                    legendId: 'legend13',
+                    devices: BaseHybridSimulationConfig.devices,
+                    lines: BaseHybridSimulationConfig.lines,
+                    boundaries: BaseHybridSimulationConfig.boundaries,
+                    legend: [
+                        { label: 'Cloud Auth Q', color: '#6A5ACD', description: 'Cloud Authentication Query (e.g., SAML/OAuth)' },
+                        { label: 'On-Prem Auth Q', color: '#0078D4', description: 'On-Premises Authentication Query (e.g., Kerberos)' },
+                        { label: 'On-Prem Auth R', color: '#FFD700', description: 'On-Premises Authentication Response (Ticket/Assertion)' },
+                        { label: 'Cloud Auth R', color: '#87CEFA', description: 'Cloud Authentication Response (Token)' },
+                        { label: 'App Access', color: '#28A745', description: 'Cloud Application Access (with Token)' },
+                        { label: 'Router FWD', color: '#444444', description: 'Router Forwarding Traffic' }
+                    ],
+                    steps: [
+                        { action: 'sendPacket', from: 'OnPrem_Client', to: 'Router_OnPrem', label: 'Cloud Auth Q', color: '#6A5ACD', message: '1. HQ Client requests access to a Cloud App, redirecting to Azure AD for authentication (traffic passes HQ Router).' },
+                        { action: 'sendPacket', from: 'Router_OnPrem', to: 'Azure_AD', label: 'Router FWD', color: '#444444', message: '2. HQ Router forwards authentication request to Azure AD.' },
+                        { action: 'sendPacket', from: 'Azure_AD', to: 'Router_OnPrem', label: 'On-Prem Auth Q', color: '#0078D4', message: '3. Azure AD (trusting On-Prem AD) redirects the authentication challenge back to the On-Premises environment via HQ Router.' },
+                        { action: 'sendPacket', from: 'Router_OnPrem', to: 'HQ_DC1', label: 'Router FWD', color: '#444444', message: '4. HQ Router forwards authentication challenge to HQ DC1 for actual user validation.' },
+                        { action: 'sendPacket', from: 'HQ_DC1', to: 'Router_OnPrem', label: 'On-Prem Auth R', color: '#FFD700', message: '5. HQ DC1 authenticates user and returns a security assertion/ticket to HQ Router.' },
+                        { action: 'sendPacket', from: 'Router_OnPrem', to: 'Azure_AD', label: 'Router FWD', color: '#444444', message: '6. HQ Router sends the assertion back to Azure AD.' },
+                        { action: 'sendPacket', from: 'Azure_AD', to: 'Router_OnPrem', label: 'Cloud Auth R', color: '#87CEFA', message: '7. Azure AD issues a cloud token/assertion to the HQ Client (via Router) based on successful on-prem authentication.' },
+                        { action: 'sendPacket', from: 'Router_OnPrem', to: 'OnPrem_Client', label: 'Router FWD', color: '#444444', message: '8. HQ Router delivers the cloud token to HQ Client.' },
+                        { action: 'sendPacket', from: 'OnPrem_Client', to: 'Cloud_App_Server', label: 'App Access', color: '#28A745', message: '9. HQ Client presents the cloud token to Cloud Application Server for access.' },
+                        { action: 'sendPacket', from: 'Cloud_App_Server', to: 'OnPrem_Client', label: 'App Access', color: '#28A745', message: '10. Cloud Application grants access to HQ Client.' },
+                        { action: 'updateContext', message: 'Hybrid Authentication Complete! On-Premises user successfully accessed Cloud Application via federation, facilitated by the HQ Router.', delay: PACKET_ANIMATION_SPEED }
+                    ]
+                }
+            },
+            {
+                id: 14,
+                title: "14. Complex Hybrid Network",
+                shortDesc: "A comprehensive simulation of DHCP, Hybrid Auth, and WAN File Access.",
+                content: `
+                    <h3>14. Complex Corporate Hybrid Network Simulation</h3>
+                    <p>This mission brings together multiple Active Directory and networking concepts in a single, comprehensive simulation, mimicking a real-world corporate hybrid environment. It will demonstrate three key scenarios:</p>
+                    <ol>
+                        <li><strong>DHCP Request:</strong> An On-Premises client obtains an IP address from the local DHCP server.</li>
+                        <li><strong>Hybrid Authentication Flow:</strong> An On-Premises user accesses a cloud application, leveraging a federated identity model between on-premises Active Directory and Azure AD.</li>
+                        <li><strong>Branch Office File Share Access:</b> A Branch Office user accesses a file share located in the On-Premises data center, traversing the WAN link.</li>
+                    </ol>
+                    <div class="fascinating-fact">
+                        <strong>Fascinating Fact:</strong> Modern hybrid identity solutions (like Azure AD Connect) combine on-premises Active Directory with cloud services, enabling seamless user experience and centralized management across diverse environments.
+                    </div>
+                    <p>Observe the intricate interactions between clients, servers, routers, and cloud services as these critical network and authentication processes unfold across different sites and environments.</p>
+                    <div class="challenge">
+                        <h4>Mission 14.1: Simulate Complex Hybrid Network Scenarios</h4>
+                        <p>Click the button to visualize a complex corporate network involving On-Premises, Branch Office, and Cloud environments, demonstrating multiple interconnected AD and networking processes.</p>
+                        <button onclick="simulateMission(14)">Simulate Complex Hybrid Network</button>
+                        <div id="authSimulationContainer14" class="authSimulationContainer">
+                            <div class="context-display" id="contextDisplay14">Waiting for simulation...</div>
+                            <div class="authSimulationContent"></div>
+                        </div>
+                        <div class="protocol-legend" id="legend14"></div>
+                    </div>
+                `,
+                simulationConfig: { // This mission's config is explicitly for the full scenario
+                    missionId: 14,
+                    containerId: 'authSimulationContainer14',
+                    contextDisplayId: 'contextDisplay14',
+                    legendId: 'legend14',
+                    devices: BaseHybridSimulationConfig.devices,
+                    lines: BaseHybridSimulationConfig.lines,
+                    boundaries: BaseHybridSimulationConfig.boundaries,
+                    legend: [
+                        { label: 'DHCP D', color: '#ff8c00', description: 'DHCP Discover' },
+                        { label: 'DHCP O', color: '#ffd700', description: 'DHCP Offer' },
+                        { label: 'DHCP R', color: '#E74C3C', description: 'DHCP Request' },
+                        { label: 'DHCP ACK', color: '#32CD32', description: 'DHCP Acknowledge' },
+                        { label: 'Kerberos Req', color: '#0078D4', description: 'Kerberos Authentication Request' },
+                        { label: 'Kerberos Rep', color: '#FFD700', description: 'Kerberos Authentication Reply/Ticket' },
+                        { label: 'Cloud Auth Q', color: '#6A5ACD', description: 'Cloud Authentication Query' },
+                        { label: 'Cloud Auth R', color: '#87CEFA', description: 'Cloud Authentication Response (Token)' },
+                        { label: 'App Access', color: '#28A745', description: 'Cloud Application Access' },
+                        { label: 'SMB Req', color: '#FF4500', description: 'SMB File Share Request' },
+                        { label: 'SMB Data', color: '#0099CC', description: 'SMB File Data Transfer' },
+                        { label: 'Router FWD', color: '#444444', description: 'Router Forwarding Traffic' }, // Consolidated WAN traffic to be specific to Router FWD
+                        { label: 'WAN Traffic', color: '#E74C3C', description: 'Data over WAN (Router FWD)' }
+                    ],
+                    steps: [
+                        // Scenario 1: On-Premises DHCP Request
+                        { action: 'updateContext', message: 'Scenario 1: On-Premises Client requests an IP via DHCP.', delay: 2000 },
+                        { action: 'sendPacket', from: 'OnPrem_Client', to: 'Router_OnPrem', label: 'DHCP D', color: '#ff8c00', message: '1. HQ Client broadcasts DHCP Discover to HQ Router.' },
+                        { action: 'sendPacket', from: 'Router_OnPrem', to: 'OnPrem_DHCP', label: 'Router FWD', color: '#444444', message: '2. HQ Router forwards Discover as unicast to HQ DHCP Server.' },
+                        { action: 'sendPacket', from: 'OnPrem_DHCP', to: 'Router_OnPrem', label: 'DHCP O', color: '#ffd700', message: '3. HQ DHCP Server sends Offer to HQ Router.' },
+                        { action: 'sendPacket', from: 'Router_OnPrem', to: 'OnPrem_Client', label: 'Router FWD', color: '#444444', message: '4. HQ Router forwards Offer to HQ Client.' },
+                        { action: 'sendPacket', from: 'OnPrem_Client', to: 'Router_OnPrem', label: 'DHCP R', color: '#E74C3C', message: '5. HQ Client sends DHCP Request to HQ Router, accepting the offer.' },
+                        { action: 'sendPacket', from: 'Router_OnPrem', to: 'OnPrem_DHCP', label: 'Router FWD', color: '#444444', message: '6. HQ Router forwards Request as unicast to HQ DHCP Server.' },
+                        { action: 'sendPacket', from: 'OnPrem_DHCP', to: 'Router_OnPrem', label: 'DHCP ACK', color: '#32CD32', message: '7. HQ DHCP Server sends ACK to HQ Router, confirming IP lease.' },
+                        { action: 'sendPacket', from: 'Router_OnPrem', to: 'OnPrem_Client', label: 'Router FWD', color: '#444444', message: '8. HQ Router forwards ACK to HQ Client. IP lease complete.' },
+                        { action: 'customDelay', message: 'DHCP process for HQ Client complete.', delay: 2000 },
+
+                        // Scenario 2: On-Prem User Authenticates to Cloud App
+                        { action: 'updateContext', message: 'Scenario 2: On-Premises User accesses a Cloud Application (Hybrid Authentication).', delay: 2000 },
+                        { action: 'sendPacket', from: 'OnPrem_Client', to: 'Router_OnPrem', label: 'Cloud Auth Q', color: '#6A5ACD', message: '9. HQ Client attempts to access Cloud App, initiating a cloud authentication flow.' },
+                        { action: 'sendPacket', from: 'Router_OnPrem', to: 'Azure_AD', label: 'Router FWD', color: '#444444', message: '10. HQ Router forwards authentication request to Azure AD.' },
+                        { action: 'sendPacket', from: 'Azure_AD', to: 'Router_OnPrem', label: 'On-Prem Auth Q', color: '#0078D4', message: '11. Azure AD redirects authentication challenge back to On-Prem AD via HQ Router.' },
+                        { action: 'sendPacket', from: 'Router_OnPrem', to: 'HQ_DC1', label: 'Router FWD', color: '#444444', message: '12. HQ Router forwards authentication challenge to HQ DC1 for user validation.' },
+                        { action: 'sendPacket', from: 'HQ_DC1', to: 'Router_OnPrem', label: 'On-Prem Auth R', color: '#FFD700', message: '13. HQ DC1 authenticates user and returns assertion to HQ Router.' },
+                        { action: 'sendPacket', from: 'Router_OnPrem', to: 'Azure_AD', label: 'Router FWD', color: '#444444', message: '14. HQ Router sends assertion back to Azure AD.' },
+                        { action: 'sendPacket', from: 'Azure_AD', to: 'Router_OnPrem', label: 'Cloud Auth R', color: '#87CEFA', message: '15. Azure AD issues cloud token to HQ Client (via Router) based on successful on-prem authentication.' },
+                        { action: 'sendPacket', from: 'Router_OnPrem', to: 'OnPrem_Client', label: 'Router FWD', color: '#444444', message: '16. HQ Router delivers the cloud token to HQ Client.' },
+                        { action: 'sendPacket', from: 'OnPrem_Client', to: 'Cloud_App_Server', label: 'App Access', color: '#28A745', message: '17. HQ Client presents cloud token to Cloud Application Server for access.' },
+                        { action: 'sendPacket', from: 'Cloud_App_Server', to: 'OnPrem_Client', label: 'App Access', color: '#28A745', message: '18. Cloud Application grants access to HQ Client.' },
+                        { action: 'customDelay', message: 'Cloud Application access complete for HQ Client.', delay: 2000 },
+
+                        // Scenario 3: Branch Office User Accessing File Share over WAN
+                        { action: 'updateContext', message: 'Scenario 3: Branch Office User accesses an On-Premises File Share over WAN Link.', delay: 2000 },
+                        { action: 'sendPacket', from: 'Branch_Client', to: 'Branch_DC', label: 'Kerberos Req', color: '#0078D4', message: '19. Branch Client requests TGT from Branch DC for initial authentication.' },
+                        { action: 'sendPacket', from: 'Branch_DC', to: 'Branch_Client', label: 'Kerberos Rep', color: '#FFD700', message: '20. Branch DC grants TGT to Branch Client. Client then requests ST for HQ File Server.' },
+                        { action: 'sendPacket', from: 'Branch_DC', to: 'Router_Branch', label: 'WAN Traffic', color: '#E74C3C', message: '21. Branch DC (as KDC) issues a referral for the HQ domain, sent to Branch Router.' },
+                        { action: 'sendPacket', from: 'Router_Branch', to: 'Router_OnPrem', label: 'WAN Traffic', color: '#E74C3C', message: '22. Referral travels across the WAN from Branch Router to HQ Router.' },
+                        { action: 'sendPacket', from: 'Router_OnPrem', to: 'HQ_DC1', label: 'Router FWD', color: '#444444', message: '23. HQ Router forwards referral to HQ DC1. Branch Client implicitly requests ST from HQ DC1.' },
+                        { action: 'sendPacket', from: 'HQ_DC1', to: 'Router_OnPrem', label: 'Kerberos Rep', color: '#FFD700', message: '24. HQ DC1 grants Service Ticket for HQ File Server, sent to HQ Router.' },
+                        { action: 'sendPacket', from: 'Router_OnPrem', to: 'Router_Branch', label: 'WAN Traffic', color: '#E74C3C', message: '25. Service Ticket travels across WAN to Branch Router.' },
+                        { action: 'sendPacket', from: 'Router_Branch', to: 'Branch_Client', label: 'WAN Traffic', color: '#E74C3C', message: '26. Branch Router forwards ST to Branch Client.' },
+                        { action: 'sendPacket', from: 'Branch_Client', to: 'Router_Branch', label: 'SMB Req', color: '#FF4500', message: '27. Branch Client uses ST to send SMB request for file share access to HQ File Server, via Branch Router.' },
+                        { action: 'sendPacket', from: 'Router_Branch', to: 'Router_OnPrem', label: 'WAN Traffic', color: '#E74C3C', message: '28. SMB Request travels over WAN to HQ Router.' },
+                        { action: 'sendPacket', from: 'Router_OnPrem', to: 'OnPrem_FileServer', label: 'Router FWD', color: '#444444', message: '29. HQ Router forwards SMB request to HQ File Server.' },
+                        { action: 'sendPacket', from: 'OnPrem_FileServer', to: 'Router_OnPrem', label: 'SMB Data', color: '#0099CC', message: '30. HQ File Server sends requested file data back to HQ Router.' },
+                        { action: 'sendPacket', from: 'Router_OnPrem', to: 'Router_Branch', label: 'WAN Traffic', color: '#E74C3C', message: '31. File data travels over WAN to Branch Router.' },
+                        { action: 'sendPacket', from: 'Router_Branch', to: 'Branch_Client', label: 'WAN Traffic', color: '#E74C3C', message: '32. Branch Router forwards file data to Branch Client. Access granted!' },
+                        { action: 'updateContext', message: 'Complex Hybrid Network Simulation Complete! All scenarios demonstrated.', delay: 3000 }
+                    ]
+                }
+            }
+        ];
+
+        // Global map to store active SimulationManager instances
+        const activeSimulations = new Map();
+
+        // --- Dashboard / Navigation Functions ---
+        function renderMissionCards() {
+            const missionGrid = document.getElementById('mission-grid');
+            if (!missionGrid) { console.error('Error: #mission-grid element not found!'); return; }
+            missionGrid.innerHTML = '';
+            missions.forEach(mission => {
+                const card = document.createElement('div');
+                card.className = 'mission-card';
+                card.onclick = () => showMissionFromSidebar(mission.id); // Use showMissionFromSidebar
+                card.innerHTML = `
+                    <h3>${mission.title}</h3>
+                    <p>${mission.shortDesc}</p>
+                    <button>Start Mission</button>
+                `;
+                missionGrid.appendChild(card);
+            });
+        }
+
+        function openMission(id) {
+            console.log('[UI] openMission called for ID:', id);
+            try {
+                const mission = missions.find(m => m.id === id);
+                if (!mission) {
+                    console.error(`[UI] Error: Mission with ID ${id} not found.`);
+                    return;
+                }
+
+                const missionGrid = document.getElementById('mission-grid');
+                if (!missionGrid) { console.error('[UI] Error: #mission-grid element not found!'); return; }
+                
+                // Add new class to hide with !important in CSS
+                missionGrid.classList.add('hidden');
+                console.log('[UI] Mission grid hidden via class.');
+
+                const fullMissionView = document.getElementById('full-mission-view');
+                if (!fullMissionView) { console.error('[UI] Error: #full-mission-view element not found!'); return; }
+                
+                // Add class and rely on !important in CSS for display: flex
+                fullMissionView.classList.add('active');
+                console.log('[UI] #full-mission-view activated via class.');
+                
+                const fullMissionContent = document.getElementById('full-mission-content');
+                if (!fullMissionContent) { console.error('[UI] Error: #full-mission-content element not found!'); return; }
+                fullMissionContent.innerHTML = mission.content;
+                console.log('[UI] #full-mission-content populated.');
+                
+                document.querySelectorAll('#sidebar ul li a').forEach(el => el.classList.remove('active'));
+                const sidebarLink = document.querySelector(`#sidebar ul li a[data-mission-id="${id}"]`);
+                if (sidebarLink) {
+                    sidebarLink.classList.add('active');
+                    console.log('[UI] Sidebar link activated for ID:', id);
+                }
+
+                if (activeSimulations.has(currentMission)) {
+                    console.log('[UI] Stopping previous simulation for ID:', currentMission);
+                    activeSimulations.get(currentMission).stopSimulation();
+                    activeSimulations.delete(currentMission);
+                }
+                currentMission = id;
+                console.log('[UI] Current mission set to:', currentMission);
+
+                if (mission.simulationConfig) {
+                    console.log('[UI] Mission has simulation config, setting up topology for ID:', id);
+                    const simManager = new SimulationManager(mission.simulationConfig);
+                    activeSimulations.set(id, simManager);
+                    simManager.setupTopology(); // Initialize topology without running animation
+                    console.log('[UI] Simulation topology setup complete for ID:', id);
+                } else {
+                    console.log('[UI] Mission has no simulation config. Ensuring no simulation is active for it.');
+                    const containerId = 'authSimulationContainer' + id;
+                    const container = document.getElementById(containerId);
+                    if (container) {
+                        const innerContent = container.querySelector('.authSimulationContent');
+                        if (innerContent) innerContent.innerHTML = '';
+                        const contextDisplay = container.querySelector('.context-display');
+                        if (contextDisplay) contextDisplay.textContent = '';
+                        const legend = document.getElementById('legend' + id);
+                        if (legend) legend.innerHTML = '';
+                        console.log('[UI] Cleaned up potential simulation area for non-simulation mission.');
+                    }
+                }
+            } catch (error) {
+                console.error('[UI] Error in openMission:', error);
+                // Attempt to revert UI state if an error occurs
+                const missionGrid = document.getElementById('mission-grid');
+                if (missionGrid) missionGrid.classList.remove('hidden'); // Show grid again
+                const fullMissionView = document.getElementById('full-mission-view');
+                if (fullMissionView) {
+                    fullMissionView.classList.remove('active');
+                }
+                alert('An error occurred while loading the mission. Please check the browser console (F12) for details.');
+            }
+            console.log('[UI] openMission function finished for ID:', id);
+        }
+
+        function closeMission() {
+            console.log('[UI] closeMission called.');
+            try {
+                if (activeSimulations.has(currentMission)) {
+                    console.log('[UI] Stopping active simulation for ID:', currentMission);
+                    activeSimulations.get(currentMission).stopSimulation();
+                    activeSimulations.delete(currentMission);
+                }
+
+                const fullMissionView = document.getElementById('full-mission-view');
+                if (!fullMissionView) { console.error('[UI] Error: #full-mission-view element not found in closeMission!'); return; }
+                fullMissionView.classList.remove('active');
+                console.log('[UI] #full-mission-view deactivated.');
+
+                const missionGrid = document.getElementById('mission-grid');
+                if (!missionGrid) { console.error('[UI] Error: #mission-grid-element not found in closeMission!'); return; }
+                missionGrid.classList.remove('hidden'); // Show grid again
+                console.log('[UI] Returning to mission grid.');
+                
+                document.querySelectorAll('#sidebar ul li a').forEach(el => el.classList.remove('active'));
+                currentMission = null;
+                console.log('[UI] currentMission reset to null.');
+            } catch (error) {
+                console.error('[UI] Error in closeMission:', error);
+            }
+            console.log('[UI] closeMission function finished.');
+        }
+
+        function showMissionFromSidebar(missionNumber) {
+            console.log('[UI] showMissionFromSidebar called for:', missionNumber);
+            openMission(missionNumber); 
+        }
+
+        // Function to be called by the "Simulate" buttons
+        function simulateMission(missionId) {
+            console.log('[UI] simulateMission called for ID:', missionId);
+            const simManager = activeSimulations.get(missionId);
+            if (simManager) {
+                simManager.runSimulation();
+            } else {
+                console.error(`[UI] Error: Simulation manager not found for mission ID: ${missionId}`);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('[UI] DOM Content Loaded. Rendering mission cards.');
+            renderMissionCards();
+        });
+    </script>
+</body>
+</html>
