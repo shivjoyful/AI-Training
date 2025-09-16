@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Security Architecture: CISSP, CIA, TOGAF, Zachman (V4) - Powered by Gemini</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px 0;
+            box-sizing: border-box;
+        }
+        #simulator-container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            width: 950px; /* Slightly wider */
+            max-width: 98%;
+            padding: 2rem;
+            box-sizing: border-box;
+        }
+        h1 {
+            color: #1c3d5a;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 0.5rem;
+            margin-top: 0;
+            font-size: 1.8em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        h1 .gemini-tag {
+            font-size: 0.6em;
+            color: #666;
+            font-weight: normal;
+            background-color: #e0e0e0;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        h2 {
+            color: #00529B;
+            font-size: 1.3em;
+            margin-top: 1.5rem;
+            margin-bottom: 0.8rem;
+        }
+        #network-animation {
+            background-color: #0d1117;
+            color: #c9d1d9;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 1rem;
+            border-radius: 6px;
+            white-space: pre;
+            font-size: 14px;
+            overflow-x: auto;
+            min-height: 220px; /* Taller for more complex diagrams */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+        .framework-focus {
+            font-weight: bold;
+            font-size: 1.3rem;
+            color: #00529B;
+        }
+        .section-title {
+            font-weight: bold;
+            color: #1c3d5a;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+        }
+        .section-title.briefing-title::before {
+            content: "📚 Scenario Overview: ";
+            color: #007bff;
+            margin-right: 5px;
+        }
+        .section-title.task-title::before {
+            content: "❓ Your Architectural Challenge: ";
+            color: #dc3545; /* Red for challenges */
+            margin-right: 5px;
+        }
+
+        .briefing, .step-description {
+            margin: 0.5rem 0 1rem 0;
+            line-height: 1.6;
+            background-color: #e6f7ff;
+            border-left: 4px solid #007bff;
+            padding: 0.8rem 1rem;
+            border-radius: 4px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+        }
+        .step-description {
+            background-color: #f0fdf4;
+            border-left-color: #28a745;
+        }
+        .task {
+            margin: 0.5rem 0 1rem 0;
+            font-weight: normal;
+            font-size: 1em;
+            color: #333;
+            background-color: #fff3cd; /* Warning yellow for tasks */
+            border-left: 4px solid #ffc107;
+            padding: 0.8rem 1rem;
+            border-radius: 4px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+        }
+        #choices {
+            margin-top: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            text-align: left;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        button:hover {
+            background-color: #0056b3;
+            transform: translateY(-1px);
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        #interaction-area {
+            display: none;
+        }
+        .final-message {
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+            color: #0c5460;
+            padding: 1.5rem;
+            text-align: center;
+            font-size: 1.2rem;
+            margin-top: 2rem;
+        }
+        .waiting-message {
+            text-align: center;
+            margin-top: 1rem;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+<div id="simulator-container">
+    <h1>
+        Enterprise Security Architecture: CISSP, CIA, TOGAF, Zachman (V4)
+        <span class="gemini-tag">Powered by Gemini</span>
+    </h1>
+    <div id="step-content">
+        <h2 class="framework-focus" id="framework-focus"></h2>
+        <div class="section-title briefing-title"></div>
+        <div class="briefing" id="briefing"></div>
+        <pre id="network-animation"></pre>
+        <div class="step-description" id="step-description"></div>
+        <div id="interaction-area">
+            <div class="section-title task-title"></div>
+            <div class="task" id="task"></div>
+            <div id="choices"></div>
+        </div>
+        <div class="waiting-message" id="waiting-message" style="display: none;">Animating concept... Please wait.</div>
+    </div>
+</div>
+
+<script>
+    // --- ANIMATION CONFIGURATION (Simplified for conceptual diagrams) ---
+    const ANIMATION_DURATION_PER_FRAME = 2000; // Milliseconds per static conceptual frame
+
+    // --- SIMULATOR DATA ---
+    const scenarioSteps = {
+        "start": {
+            focus: "Welcome: Enterprise Security Architecture - The Integrated View",
+            briefing: "This simulator will challenge your understanding of Enterprise Security Architecture by combining CISSP domains, the CIA Triad, TOGAF's ADM, and the Zachman Framework. Prepare to think strategically across multiple architectural perspectives and domains.",
+            animatedSequence: [
+                {
+                    staticNetwork: `      C O N F I D E N T I A L I T Y
+                         / | \\
+                       /   |   \\
+                    I N T E G R I T Y --- A V A I L A B I L I T Y
+                    
+        [TOGAF ADM]         [ZACHMAN FRAMEWORK]
+        (Architecture       (Enterprise Ontology)
+         Development Process)  (What, How, Where, Who, When, Why)
+        
+         (CISSP Knowledge Domains underpinning all decisions)
+    
+           (The Integrated Foundations of Enterprise Security)`,
+                    description: "Understanding the synergy: CIA Triad as security goals, CISSP for knowledge domains, TOGAF for the process, and Zachman for the structured representation of enterprise security from various perspectives.",
+                    duration: 4000
+                }
+            ],
+            task: "Let's begin by establishing the foundational vision. Click 'Continue' to proceed to the first scenario.",
+            choices: [
+                {
+                    text: "Continue to Enterprise Security Vision & Strategy",
+                    outcomeBriefing: "Excellent. A clear and secure vision is the bedrock of any successful enterprise transformation.",
+                    nextStepId: "scenario1_vision"
+                }
+            ]
+        },
+        "scenario1_vision": {
+            focus: "Scenario 1: Enterprise Security Vision & Strategy (TOGAF Phase A, Zachman Planner/Owner - 'Why')",
+            briefing: "Your organization is undergoing a major digital transformation. As the Chief Security Architect, your task is to ensure security is interwoven into the enterprise's strategic vision and business architecture. This means defining overarching security motivations and aligning them with business goals. This is about defining the 'Why' for security at the **Zachman Planner (Scope)** and **Owner (Business Concepts)** levels, deeply impacting the fundamental **Confidentiality**, **Integrity**, and **Availability** of future operations.",
+            animatedSequence: [
+                {
+                    staticNetwork: `      [TOGAF ADM: Phase A - Architecture Vision]
+         |
+      [ZACHMAN: PLANNER (Scope) & OWNER (Business Concepts) - 'WHY']
+         |
+    .----'-----.
+   |           |
+[📜]         [📊]
+Business    Strategic
+Goals       Risk Appetite
+   |           |
+   '----.----'----'----'
+        |    |         |
+      [GOV]  [POL]     [COMP]
+    Security  Enterprise  Regulatory
+    Governance Policies    Compliance
+    
+    (Defining the 'Why' for Enterprise Security)`,
+                    description: "Visualizing the strategic security landscape: aligning business goals, risk appetite, governance, policies, and compliance at the 'Why' level (CISSP Domain 1: Security and Risk Management).",
+                    duration: 4000
+                }
+            ],
+            task: "To successfully embed security into the enterprise vision, how do you best articulate and integrate security as a strategic enabler from the Zachman Planner/Owner 'Why' perspective, leveraging TOGAF's Architecture Vision?",
+            choices: [
+                {
+                    text: "Develop a 'Security Architecture Principles' document that links directly to business objectives and risk appetite, formalizing it within the TOGAF Architecture Vision, and gaining executive buy-in. (CISSP D1)",
+                    outcomeBriefing: "Correct. By articulating clear 'Security Architecture Principles' at the **Zachman Planner** and **Owner** levels (the 'Why' of the enterprise), you establish security as a strategic business requirement, not an optional add-on. This ensures proactive consideration of **Confidentiality**, **Integrity**, and **Availability** from the outset (CISSP Domain 1: Security and Risk Management) within TOGAF's Architecture Vision.",
+                    nextStepId: "scenario2_data"
+                },
+                {
+                    text: "Recommend a significant budget increase for security tools and personnel in the next fiscal year. (CISSP D1, D7)",
+                    outcomeBriefing: "While resources are important, this is a tactical response rather than a strategic integration. It doesn't define the 'Why' of security within the enterprise vision. Simply adding tools without foundational principles (Zachman 'Why') will not guarantee protection of the **CIA Triad** or align with strategic objectives.",
+                    nextStepId: "scenario2_data"
+                }
+            ]
+        },
+        "scenario2_data": {
+            focus: "Scenario 2: Secure Data Architecture Design (TOGAF Phase C, Zachman Designer - 'What')",
+            briefing: "Moving to Data Architecture, your focus is on designing the logical data structures for sensitive customer information. This involves defining what data exists, its criticality, and its relationships. Your decisions here directly impact the 'What' (data entities) at the **Zachman Designer (System Logic)** level, safeguarding **Confidentiality** (privacy), **Integrity** (accuracy), and **Availability** (retrievability) of information assets.",
+            animatedSequence: [
+                {
+                    staticNetwork: `      [TOGAF ADM: Phase C - Data Architecture]
+         |
+      [ZACHMAN: DESIGNER (System Logic) - 'WHAT' (Logical Data Model)]
+         |
+    .----'-----.
+   |           |
+[📚]         [🏷️]
+Data        Classification
+Inventory   Labels
+   |           |
+   '----.----'----'----'
+        |    |         |
+      [FLOW]  [OWN]     [RETENT]
+    Data      Data      Data
+    Flows     Ownership Retention
+    Diagrams           Policies
+    
+    (Defining the 'What' of Enterprise Data Security)`,
+                    description: "Focusing on data entities and their attributes: inventory, classification, ownership, and retention policies, all critical for data security. (CISSP Domain 2: Asset Security)",
+                    duration: 4000
+                }
+            ],
+            task: "To establish a secure and compliant data architecture for sensitive customer data, what is the most effective approach for defining and classifying 'What' (data entities) at the Zachman Designer level?",
+            choices: [
+                {
+                    text: "Develop a comprehensive data catalog, defining data ownership and classifying all data assets based on sensitivity and regulatory requirements (e.g., PII, Restricted, Public). This classification will drive logical access controls and encryption requirements. (CISSP D2, D3)",
+                    outcomeBriefing: "Correct. A detailed data catalog with defined ownership and a robust classification scheme directly addresses the 'What' from the **Zachman Designer** perspective. This ensures that the logical data model inherently includes security attributes, dictating protection mechanisms like encryption for **Confidentiality** and access rules for **Integrity** and **Availability** (CISSP Domains 2: Asset Security and 3: Security Architecture and Engineering) within TOGAF's Data Architecture.",
+                    nextStepId: "scenario3_application"
+                },
+                {
+                    text: "Propose a new data storage solution that is certified to a high-security standard. (CISSP D3)",
+                    outcomeBriefing: "While a highly secure storage solution is beneficial (CISSP Domain 3), it's a 'Where' (technology) consideration rather than primarily defining the 'What' (data entities) and their characteristics. Without a clear understanding of what data is being stored and its classification, even the most secure storage might be misconfigured or misused, leading to **Confidentiality** or **Integrity** breaches.",
+                    nextStepId: "scenario3_application"
+                }
+            ]
+        },
+        "scenario3_application": {
+            focus: "Scenario 3: Secure Application Architecture Design (TOGAF Phase C, Zachman Builder - 'How')",
+            briefing: "You are designing the logical functions and physical implementations for a new critical, customer-facing web application. Security must be integrated into every step of how the application works. This involves defining the 'How' (application functions and processes) at the **Zachman Builder (Technology Physical)** level, directly impacting **Integrity** (correct processing), **Confidentiality** (user data protection), and **Availability** (reliable application access).",
+            animatedSequence: [
+                {
+                    staticNetwork: `      [TOGAF ADM: Phase C - Application Architecture]
+         |
+      [ZACHMAN: BUILDER (Technology Physical) - 'HOW' (Physical Functions)]
+         |
+    .----'-----.
+   |           |
+[⚙️]         [🔄]
+Secure      SSDLC
+Coding      Phases
+Practices   (Design, Code, Test)
+   |           |
+   '----.----'----'----'
+        |    |         |
+      [APIS]  [AUTHZ]    [TEST]
+    Secure    Access      Security
+    API       Authorization Testing
+    Design    Logic       (SAST/DAST)
+    
+    (Defining the 'How' for Enterprise Application Security)`,
+                    description: "Focusing on the application's functionality: secure coding practices, SSDLC integration, API security, robust authorization logic, and continuous security testing. (CISSP Domain 8: Software Development Security)",
+                    duration: 4000
+                }
+            ],
+            task: "To ensure the secure operation of the new customer-facing application, what is the most effective architectural approach to embed security into the 'How' (functions and processes) at the Zachman Builder level?",
+            choices: [
+                {
+                    text: "Mandate a 'Secure Software Development Life Cycle' (SSDLC) that includes threat modeling during design, secure coding standards (e.g., OWASP Top 10), static/dynamic application security testing (SAST/DAST), and peer code reviews for all application functions. (CISSP D8)",
+                    outcomeBriefing: "Correct. Implementing a comprehensive SSDLC at the **Zachman Builder** level (the 'How' of physical application functions) ensures security is built-in from the ground up, not added later. This proactive integration (CISSP Domain 8: Software Development Security) directly enhances **Confidentiality** through secure data handling, **Integrity** via robust validation, and **Availability** by reducing exploitable flaws within TOGAF's Application Architecture.",
+                    nextStepId: "scenario4_tech"
+                },
+                {
+                    text: "Prioritize rapid development to meet market demand, with security reviews performed only after the application is in production. (CISSP D8)",
+                    outcomeBriefing: "Delaying security reviews until production is a high-risk strategy, directly contradicting the 'Secure-by-Design' principle. It significantly increases the cost and difficulty of remediation, potentially exposing the application to vulnerabilities that compromise **Confidentiality**, **Integrity**, and **Availability**. This reactive approach is incompatible with the 'How' of secure architecture.",
+                    nextStepId: "scenario4_tech"
+                }
+            ]
+        },
+        "scenario4_tech": {
+            focus: "Scenario 4: Secure Technology Architecture (TOGAF Phase D, Zachman Designer - 'Where')",
+            briefing: "You are now designing the underlying technology infrastructure, including networks, servers, and cloud environments. Your choices determine 'Where' (location and interconnectivity) components reside and operate, at the **Zachman Designer (System Logic)** and **Builder (Technology Physical)** levels. This is critical for protecting the **Confidentiality**, **Integrity**, and **Availability** of the entire system.",
+            animatedSequence: [
+                {
+                    staticNetwork: `      [TOGAF ADM: Phase D - Technology Architecture]
+         |
+      [ZACHMAN: DESIGNER (System Logic) / BUILDER (Technology Physical) - 'WHERE']
+         |
+    .----'-----.
+   |           |
+[🌐]         [🛡️]
+Network     Infrastructure
+Segmentation   Hardening
+Diagrams    Baselines
+   |           |
+   '----.----'----'----'
+        |    |         |
+      [CLOUD] [SDN]    [PATCH]
+    Cloud     Software   Vulnerability
+    Security  Defined    Management
+    Controls  Networking 
+    
+    (Defining the 'Where' for Enterprise Technology Security)`,
+                    description: "Focusing on the 'Where' of technology: network segmentation, infrastructure hardening, cloud security, and comprehensive vulnerability management. (CISSP Domain 3: Security Architecture and Engineering, CISSP Domain 4: Communication and Network Security)",
+                    duration: 4000
+                }
+            ],
+            task: "When designing the Technology Architecture, what is the most effective strategy to ensure network security and infrastructure hardening from the Zachman Designer/Builder 'Where' perspective?",
+            choices: [
+                {
+                    text: "Implement granular network segmentation (e.g., micro-segmentation, zero-trust principles), deploy automated configuration management to enforce security baselines, and establish a robust vulnerability management program across all infrastructure, on-premise and cloud. (CISSP D4, D3)",
+                    outcomeBriefing: "Correct. Granular network segmentation (CISSP Domain 4: Communication and Network Security) and infrastructure hardening (CISSP Domain 3: Security Architecture and Engineering), defining the 'Where' at both **Zachman Designer** and **Builder** levels, significantly reduce the attack surface. This enhances **Confidentiality** by isolating sensitive areas, ensures **Integrity** by controlling data flows, and bolsters **Availability** by preventing widespread compromise, all critical within TOGAF's Technology Architecture.",
+                    nextStepId: "scenario5_iamops"
+                },
+                {
+                    text: "Focus primarily on a strong perimeter firewall at the enterprise border to block external threats. (CISSP D4, D7)",
+                    outcomeBriefing: "A strong perimeter firewall is necessary but insufficient. Modern threats often originate internally or bypass traditional perimeters. Relying solely on a perimeter defense (CISSP Domains 4 & 7) neglects the internal 'Where' and leaves the enterprise vulnerable, potentially compromising all three aspects of the **CIA Triad** from insider threats or sophisticated external attacks.",
+                    nextStepId: "scenario5_iamops"
+                }
+            ]
+        },
+        "scenario5_iamops": {
+            focus: "Scenario 5: Identity & Access Management and Security Operations (TOGAF Phases E, F, G; Zachman Integrator/Worker - 'Who'/'When')",
+            briefing: "Now moving into the implementation, migration, and operational governance phases. You need to ensure that the 'Who' (people and roles) can access the right resources 'When' (at the right time, for the right duration) and that security operations are effective. This impacts **Confidentiality** (preventing unauthorized access), **Integrity** (authorized actions), and **Availability** (legitimate access and system uptime). This is defining the security of enterprise operations at the **Zachman Integrator (Component Detail)** and **Worker (Functioning Enterprise)** levels.",
+            animatedSequence: [
+                {
+                    staticNetwork: `      [TOGAF ADM: Phases E/F/G - Solutions, Migration, Impl. Governance]
+         |
+      [ZACHMAN: INTEGRATOR (Component) / WORKER (Functioning Enterprise) - 'WHO' / 'WHEN']
+         |
+    .----'-----.
+   |           |
+[👤]         [🔑]
+Identity    Access
+Lifecycle   Management
+Mgmt        (RBAC/ABAC/JIT)
+   |           |
+   '----.----'----'----'
+        |    |         |
+      [MFA]  [SOC]     [DR]
+    Multi-Factor  Security   Disaster
+    Authentication Operations Recovery
+                  Center
+    (Defining the 'Who' and 'When' for Enterprise Security Operations)`,
+                    description: "Focusing on the 'Who' (identities, roles) and 'When' (events, processes): identity lifecycle management, advanced access controls (RBAC/ABAC/JIT), MFA, SOC for continuous monitoring, and robust disaster recovery. (CISSP Domain 5: IAM, CISSP Domain 7: Security Operations)",
+                    duration: 4000
+                }
+            ],
+            task: "To ensure effective Identity and Access Management and robust security operations in the implemented architecture, how do you integrate these functions into ongoing enterprise governance, considering TOGAF's later ADM phases and Zachman's 'Who' and 'When' views?",
+            choices: [
+                {
+                    text: "Implement a centralized IAM system with Multi-Factor Authentication (MFA), Just-In-Time (JIT) access, and Role-Based Access Control (RBAC) driven by automated provisioning/de-provisioning. Establish a Security Operations Center (SOC) for 24/7 continuous monitoring, incident response, and regular access reviews. (CISSP D5, D7)",
+                    outcomeBriefing: "Correct. A robust IAM system (CISSP Domain 5: IAM) with MFA, JIT, and RBAC defines the secure 'Who' (people and roles) at the **Zachman Integrator/Worker** levels, ensuring **Confidentiality** and **Integrity**. A 24/7 SOC (CISSP Domain 7: Security Operations) addresses the 'When' (events and timelines) by enabling continuous monitoring and rapid incident response to maintain **Availability**. This comprehensive approach is vital for operational security governance in TOGAF's later ADM phases.",
+                    nextStepId: "scenario6_change"
+                },
+                {
+                    text: "Delegate all access control decisions to individual department heads to speed up onboarding processes. (CISSP D5)",
+                    outcomeBriefing: "Decentralizing access control without a unified policy (CISSP Domain 5: IAM) creates inconsistencies and significant security risks. It hinders the ability to manage the 'Who' effectively from the **Zachman Integrator/Worker** perspective, potentially leading to unauthorized access and severe compromises of **Confidentiality** and **Integrity**. This approach would severely undermine enterprise security.",
+                    nextStepId: "scenario6_change"
+                }
+            ]
+        },
+        "scenario6_change": {
+            focus: "Scenario 6: Architecture Change Management & Improvement (TOGAF Phase H, Zachman Owner/Planner - 'Why')",
+            briefing: "Enterprise Architecture is never static. You must establish a continuous process for managing changes, adapting to new threats, and improving the security posture. This re-evaluates the 'Why' (motivations, goals) at the **Zachman Owner (Business Concepts)** and **Planner (Scope)** levels, ensuring the long-term sustainability of **Confidentiality**, **Integrity**, and **Availability**.",
+            animatedSequence: [
+                {
+                    staticNetwork: `      [TOGAF ADM: Phase H - Architecture Change Management]
+         |
+      [ZACHMAN: OWNER (Business Concepts) / PLANNER (Scope) - 'WHY']
+         |
+    .----'-----.
+   |           |
+[🔄]         [📈]
+Continuous    Security
+Monitoring    Metrics & KPIs
+   |           |
+   '----.----'----'----'
+        |    |         |
+      [AUDIT] [LESSON] [POLICY]
+    Regular   Lessons   Policy
+    Audits    Learned   Updates
+    
+    (Re-evaluating the 'Why' for Enterprise Security Adaptation)`,
+                    description: "Focusing on continuous improvement: architecture change management, continuous security monitoring, security metrics, regular audits, lessons learned, and policy updates. (CISSP Domain 6: Security Assessment and Testing, CISSP Domain 1: Security and Risk Management)",
+                    duration: 4000
+                }
+            ],
+            task: "To ensure the enterprise's security architecture remains effective and adaptable to evolving threats and business needs, what is the most critical process to establish for continuous improvement and change management, combining TOGAF's Phase H with Zachman's high-level 'Why' perspective?",
+            choices: [
+                {
+                    text: "Implement a formal 'Architecture Change Management' process (TOGAF Phase H) that includes security impact assessments for all changes, continuous security monitoring with actionable metrics, regular vulnerability assessments and penetration testing (CISSP D6), and an iterative 'Lessons Learned' framework to update security policies and strategies (CISSP D1).",
+                    outcomeBriefing: "Correct. A robust Architecture Change Management process, as per TOGAF Phase H, is vital for long-term security. By integrating security impact assessments, continuous monitoring, and regular testing (CISSP Domain 6: Security Assessment and Testing), we ensure that changes do not inadvertently compromise **Confidentiality**, **Integrity**, or **Availability**. 'Lessons Learned' reviews (CISSP Domain 1: Security and Risk Management) tie back to the **Zachman Owner** and **Planner** 'Why' (our goals and motivations), driving continuous adaptation and improvement of the enterprise's security posture.",
+                    nextStepId: "end"
+                },
+                {
+                    text: "Conduct an annual enterprise-wide security review and adjust the security posture only if significant audit findings or breaches occur. (CISSP D1, D7)",
+                    outcomeBriefing: "A purely annual and reactive review cycle is insufficient for dynamic threat landscapes. Waiting for significant incidents or audits to trigger change means vulnerabilities can persist for extended periods, significantly jeopardizing **Confidentiality**, **Integrity**, and **Availability**. A continuous and proactive approach to change management is fundamental for a resilient security architecture, addressing the evolving 'Why' of enterprise security.",
+                    nextStepId: "end"
+                }
+            ]
+        },
+        "end": {
+            focus: "Simulation Complete: Integrated Enterprise Security Architecture Mastery!",
+            briefing: "Congratulations! You have successfully navigated complex scenarios demonstrating mastery of CISSP domains, the CIA Triad, TOGAF's ADM, and the Zachman Framework. This holistic, multi-perspective approach is essential for architecting and maintaining truly secure and resilient enterprises in today's dynamic environment.",
+            animatedSequence: [
+                {
+                    staticNetwork: `      C O N F I D E N T I A L I T Y
+                         / | \\
+                       /   |   \\
+                    I N T E G R I T Y --- A V A I L A B I L I T Y
+                    
+       [TOGAF ADM: Process for Architecture Development]
+         |
+       [ZACHMAN FRAMEWORK: Ontology of the Enterprise]
+         | (What, How, Where, Who, When, Why)
+       [CISSP Domains: Knowledge & Best Practices]
+       
+     🏆 YOU'VE MASTERED THE ENTERPRISE SECURITY ARCHITECTURE! 🏆
+     
+              Powered by Gemini`,
+                    description: "A final overview of the integrated frameworks, highlighting the comprehensive nature of Enterprise Security Architecture, from strategic vision to operational reality.",
+                    duration: 5000
+                }
+            ],
+            task: "Thank you for participating in this advanced simulator. Your dedication to extensive knowledge across these frameworks is truly commendable!",
+            choices: []
+        }
+    };
+
+    // --- SIMULATOR ENGINE ---
+    let currentStepId = "start";
+    let mainAnimationTimeout;
+
+    const frameworkFocusEl = document.getElementById('framework-focus');
+    const briefingEl = document.getElementById('briefing');
+    const networkEl = document.getElementById('network-animation');
+    const stepDescriptionEl = document.getElementById('step-description');
+    const taskEl = document.getElementById('task');
+    const choicesEl = document.getElementById('choices');
+    const interactionAreaEl = document.getElementById('interaction-area');
+    const waitingMessageEl = document.getElementById('waiting-message');
+    const briefingTitleEl = document.querySelector('.section-title.briefing-title');
+    const taskTitleEl = document.querySelector('.section-title.task-title');
+
+
+    function stopCurrentAnimations() {
+        clearTimeout(mainAnimationTimeout);
+    }
+
+    async function animateSequence(sequence) {
+        stopCurrentAnimations(); // Clear any running animations
+        interactionAreaEl.style.display = 'none';
+        waitingMessageEl.style.display = 'block';
+
+        for (let i = 0; i < sequence.length; i++) {
+            const frame = sequence[i];
+            stepDescriptionEl.textContent = frame.description;
+            stepDescriptionEl.style.display = 'flex';
+
+            if (frame.staticNetwork) {
+                networkEl.textContent = frame.staticNetwork;
+                await new Promise(resolve => mainAnimationTimeout = setTimeout(resolve, frame.duration));
+            }
+        }
+
+        waitingMessageEl.style.display = 'none';
+        interactionAreaEl.style.display = 'block';
+    }
+
+    async function displayStep(stepId) {
+        const step = scenarioSteps[stepId];
+        if (!step) {
+            console.error("Step not found:", stepId);
+            return;
+        }
+
+        currentStepId = stepId;
+
+        stopCurrentAnimations(); // Ensure all previous animations are stopped
+
+        // Reset elements
+        stepDescriptionEl.style.display = 'none';
+        stepDescriptionEl.innerHTML = '';
+        choicesEl.innerHTML = '';
+        interactionAreaEl.style.display = 'none';
+        taskEl.className = 'task'; // Reset class for task
+        briefingTitleEl.style.display = 'block';
+        taskTitleEl.style.display = 'block';
+
+
+        // Populate initial step content
+        frameworkFocusEl.textContent = step.focus;
+        briefingEl.textContent = step.briefing;
+        taskEl.textContent = step.task;
+
+        if (stepId === "end") {
+            briefingTitleEl.style.display = 'none'; // Hide briefing title for final message
+            taskTitleEl.style.display = 'none'; // Hide task title for final message
+            briefingEl.style.display = 'none'; // Hide briefing content for final message
+            choicesEl.style.display = 'none';
+            taskEl.className = 'final-message';
+        } else {
+            briefingEl.style.display = 'flex';
+            choicesEl.style.display = 'flex';
+        }
+
+        // Run the animated sequence
+        await animateSequence(step.animatedSequence);
+
+        // After animation, set up choices
+        if (step.choices && step.choices.length > 0) {
+            step.choices.forEach((choice, index) => {
+                const button = document.createElement('button');
+                button.textContent = choice.text;
+                button.addEventListener('click', () => handleChoice(choice));
+                choicesEl.appendChild(button);
+            });
+        }
+    }
+
+    function handleChoice(selectedChoice) {
+        // Display the outcome briefing in the stepDescription area
+        stepDescriptionEl.innerHTML = selectedChoice.outcomeBriefing;
+        stepDescriptionEl.style.display = 'flex';
+
+        // Disable all choice buttons
+        Array.from(choicesEl.children).forEach(button => button.disabled = true);
+        
+        // Prepare for next step
+        const nextStepId = selectedChoice.nextStepId;
+        if (nextStepId) {
+            // Add a small delay for user to read outcome, then go to next step
+            setTimeout(() => {
+                displayStep(nextStepId);
+            }, 5000); // 5 seconds to read outcome and explanation
+        }
+    }
+
+    // --- START SIMULATION ---
+    displayStep(currentStepId);
+
+</script>
+</body>
+</html>
