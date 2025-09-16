@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IT Service Improvement: Six Sigma & PMP Simulator (V6) - Powered by Gemini</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px 0;
+            box-sizing: border-box;
+        }
+        #simulator-container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            width: 950px;
+            max-width: 98%;
+            padding: 2rem;
+            box-sizing: border-box;
+        }
+        h1 {
+            color: #1c3d5a;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 0.5rem;
+            margin-top: 0;
+            font-size: 1.8em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        h1 .gemini-tag {
+            font-size: 0.6em;
+            color: #666;
+            font-weight: normal;
+            background-color: #e0e0e0;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        h2 {
+            color: #007bff; /* Blue for Six Sigma focus */
+            font-size: 1.3em;
+            margin-top: 1.5rem;
+            margin-bottom: 0.8rem;
+        }
+        #network-animation {
+            background-color: #0d1117;
+            color: #c9d1d9;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 1rem;
+            border-radius: 6px;
+            white-space: pre;
+            font-size: 14px;
+            overflow-x: auto;
+            min-height: 220px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+        .section-title {
+            font-weight: bold;
+            color: #1c3d5a;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+        }
+        .section-title.briefing-title::before {
+            content: "📚 Scenario Overview: ";
+            color: #007bff;
+            margin-right: 5px;
+        }
+        .section-title.task-title::before {
+            content: "❓ Your Six Sigma & PMP Challenge: ";
+            color: #dc3545;
+            margin-right: 5px;
+        }
+
+        .briefing, .step-description {
+            margin: 0.5rem 0 1rem 0;
+            line-height: 1.6;
+            background-color: #e6f7ff;
+            border-left: 4px solid #007bff;
+            padding: 0.8rem 1rem;
+            border-radius: 4px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+        }
+        .step-description {
+            background-color: #f0fdf4;
+            border-left-color: #28a745;
+        }
+        .task {
+            margin: 0.5rem 0 1rem 0;
+            font-weight: normal;
+            font-size: 1em;
+            color: #333;
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 0.8rem 1rem;
+            border-radius: 4px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+        }
+        #choices {
+            margin-top: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            text-align: left;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        button:hover {
+            background-color: #0056b3;
+            transform: translateY(-1px);
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        #interaction-area {
+            display: none;
+        }
+        .final-message {
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+            color: #0c5460;
+            padding: 1.5rem;
+            text-align: center;
+            font-size: 1.2rem;
+            margin-top: 2rem;
+        }
+        .waiting-message {
+            text-align: center;
+            margin-top: 1rem;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+<div id="simulator-container">
+    <h1>
+        IT Service Improvement: Six Sigma & PMP Simulator (V6)
+        <span class="gemini-tag">Powered by Gemini</span>
+    </h1>
+    <div id="step-content">
+        <h2 class="framework-focus" id="framework-focus"></h2>
+        <div class="section-title briefing-title"></div>
+        <div class="briefing" id="briefing"></div>
+        <pre id="network-animation"></pre>
+        <div class="step-description" id="step-description"></div>
+        <div id="interaction-area">
+            <div class="section-title task-title"></div>
+            <div class="task" id="task"></div>
+            <div id="choices"></div>
+        </div>
+        <div class="waiting-message" id="waiting-message" style="display: none;">Animating concept... Please wait.</div>
+    </div>
+</div>
+
+<script>
+    // --- ANIMATION CONFIGURATION (Simplified for conceptual diagrams) ---
+    const ANIMATION_DURATION_PER_FRAME = 2000; // Milliseconds per static conceptual frame
+
+    // --- SIMULATOR DATA ---
+    const scenarioSteps = {
+        "start": {
+            focus: "Welcome: IT Service Improvement - Six Sigma & PMP (DMAIC + PMP Process Groups)",
+            briefing: "This simulator integrates Six Sigma's DMAIC methodology with PMP's project management principles to optimize IT services. Each DMAIC phase will be framed within relevant PMP Process Groups.",
+            animatedSequence: [
+                {
+                    staticNetwork: `      [PMP: INITIATING]
+             |
+             V
+      D E F I N E    [PMP: PLANNING]
+        /       \\   /
+     /           \\ /
+  M E A S U R E --- A N A L Y Z E  [PMP: EXECUTING]
+     \\           / \\
+        \\       /   \\
+          I M P R O V E  [PMP: MONITORING & CONTROLLING]
+              |
+              V
+          C O N T R O L
+              |
+              V
+      [PMP: CLOSING]
+    
+    (The Integrated DMAIC Cycle with PMP Structure)`,
+                    description: "Introducing the integrated framework: DMAIC for process improvement, structured by PMP Process Groups for effective project execution and control.",
+                    duration: 4000
+                }
+            ],
+            task: "Our journey begins by formally initiating and defining an IT service improvement project. Click 'Continue' to start.",
+            choices: [
+                {
+                    text: "Continue to 'Define' Phase: IT Incident Management",
+                    outcomeBriefing: "Excellent. A well-defined project with clear scope and identified stakeholders is the cornerstone of successful improvement.",
+                    nextStepId: "scenario1_define"
+                }
+            ]
+        },
+        "scenario1_define": {
+            focus: "Phase 1: DEFINE (PMP: Initiating/Planning) - High IT Incident Backlog",
+            briefing: "Your IT department faces a growing backlog of unresolved incidents, impacting user satisfaction and system stability. As the Project Manager for this Six Sigma initiative, in the 'Define' phase, you must create a Project Charter, identify key stakeholders, and clearly articulate the problem, scope, and Critical To Quality (CTQ) metrics from the business perspective.",
+            animatedSequence: [
+                {
+                    staticNetwork: `    [PMP: INITIATING - Develop Project Charter]
+             |
+             V
+          [PROJECT CHARTER]
+          +-----------------+
+          | Problem: High   |
+          | Incident Backlog|
+          | Scope: L1/L2    |
+          | Incident Process|
+          | Stakeholders:   |
+          |  Users, Service |
+          |  Desk, IT Mgmt  |
+          +-----------------+
+             |
+             V
+           [CTQs]
+    'Reduced Wait Times'
+    'Faster Resolution'
+    'Proactive Communication'
+    
+    (Defining the Six Sigma Project and its PMP Foundation)`,
+                    description: "Visualizing the 'Define' phase: Crafting the Project Charter, identifying stakeholders, and establishing CTQs critical for the IT Incident Management improvement project.",
+                    duration: 4000
+                }
+            ],
+            task: "To successfully initiate and define this project, which action best integrates Six Sigma's CTQ identification with PMP's stakeholder management?",
+            choices: [
+                {
+                    text: "Facilitate a workshop with key business stakeholders (identified via PMP's 'Identify Stakeholders' process) to collaboratively define the project's high-level objectives and translate their needs into measurable Critical To Quality (CTQ) requirements for incident resolution.",
+                    outcomeBriefing: "Correct. This approach seamlessly integrates PMP's 'Identify Stakeholders' and 'Develop Project Charter' processes with Six Sigma's CTQ identification. By involving stakeholders directly, you ensure the project's objectives align with business value, setting a strong foundation for both the improvement initiative and its project management.",
+                    nextStepId: "scenario2_measure"
+                },
+                {
+                    text: "Draft the Project Charter and CTQs internally based on IT department data, then present it to stakeholders for approval.",
+                    outcomeBriefing: "While efficient, this approach risks misalignment. PMP emphasizes early and continuous stakeholder engagement to ensure buy-in and accurately capture requirements. Drafting without direct input might lead to CTQs that don't fully address customer needs or a Project Charter that lacks broader organizational support, complicating later project phases.",
+                    nextStepId: "scenario2_measure"
+                }
+            ]
+        },
+        "scenario2_measure": {
+            focus: "Phase 2: MEASURE (PMP: Planning/Executing) - Current Incident Resolution Performance",
+            briefing: "With the project defined, you're now in the 'Measure' phase. PMP's 'Planning' process group (e.g., Plan Quality Management, Plan Scope Management) dictates how you'll collect accurate baseline data on current incident resolution performance. This requires identifying current process steps, data sources, and ensuring data integrity to quantify the problem.",
+            animatedSequence: [
+                {
+                    staticNetwork: `    [PMP: PLANNING - Plan Quality & Scope Management]
+             |
+             V
+          [PROCESS FLOW]
+          [Incident Creation] -> [Triage] -> [Resolution] -> [Closure]
+             |                   |              |                 |
+             V                   V              V                 V
+          [DATA POINTS]     [BASELINE METRICS] [DATA COLLECTION PLAN]
+          'Time in Queue'   'Avg. Resolution  'Source: Ticketing DB'
+          'Escalation Cnt'   Time: X hrs'    'Method: SQL queries'
+          'First Contact Res.' 'Defects per Unit' 'Period: Last Quarter'
+    
+    (Quantifying Performance with PMP-Planned Data Collection)`,
+                    description: "Visualizing the 'Measure' phase: Mapping the incident process, establishing baseline metrics with PMP-planned data collection, and quantifying 'defects' (e.g., incidents exceeding SLAs).",
+                    duration: 4000
+                }
+            ],
+            task: "To accurately measure the current state of incident resolution and establish a reliable baseline, how do you best combine Six Sigma's data focus with PMP's planning and quality considerations?",
+            choices: [
+                {
+                    text: "Develop a detailed Data Collection Plan (PMP artifact) outlining specific metrics, data sources (e.g., ticketing system), collection frequency, and validation methods to ensure data accuracy and consistency, then execute this plan.",
+                    outcomeBriefing: "Correct. A robust Data Collection Plan is a key PMP output (part of 'Plan Quality Management' and 'Collect Requirements'). By rigorously planning and validating data collection, you establish a solid, unbiased baseline (Six Sigma 'Measure' phase) against which all future improvements will be compared. This ensures the data is both accurate and relevant to the project's CTQs.",
+                    nextStepId: "scenario3_analyze"
+                },
+                {
+                    text: "Immediately pull reports from the ticketing system for the last month and assume they represent the current state.",
+                    outcomeBriefing: "Relying on readily available reports without a formal Data Collection Plan might lead to inaccurate or incomplete data. PMP emphasizes careful planning to ensure data relevance, quality, and statistical significance. A month's data might not reveal long-term trends or capture all variations, potentially skewing your 'Measure' phase and misdirecting subsequent analysis.",
+                    nextStepId: "scenario3_analyze"
+                }
+            ]
+        },
+        "scenario3_analyze": {
+            focus: "Phase 3: ANALYZE (PMP: Executing/Monitoring & Controlling) - Root Cause Identification",
+            briefing: "With precise data collected, the 'Analyze' phase begins. You'll apply Six Sigma tools to identify the root causes of the high incident backlog. From a PMP perspective (part of 'Monitoring & Controlling'), this involves performing root cause analysis, managing findings, and reporting progress to stakeholders.",
+            animatedSequence: [
+                {
+                    staticNetwork: `    [PMP: EXECUTING - Direct & Manage Project Work / MONITORING & CONTROLLING - Perform Quality Control]
+             |
+             V
+          [DATA ANALYSIS]
+          +-----------------+
+          | Pareto Chart    |
+          | (Top 20% causes |
+          |  80% problems)  |
+          | Fishbone Diagram|
+          | (Causes: People,|
+          |  Process, Tool, |
+          |  Environment)   |
+          +-----------------+
+             |
+             V
+          [ROOT CAUSES]
+    'Lack of Self-Service Options'
+    'Inadequate Knowledge Base'
+    'Complex Escalation Path'
+    
+    (PMP-Managed Analysis for Six Sigma Root Causes)`,
+                    description: "Visualizing the 'Analyze' phase: Employing Six Sigma tools (Pareto, Fishbone) for root cause analysis, while managing findings and communicating progress as per PMP guidelines.",
+                    duration: 4000
+                }
+            ],
+            task: "You've identified that 'frequent escalations to L2 support for simple issues due to inadequate L1 training and knowledge base' is a leading cause of backlog. How do you confirm this as a verifiable root cause, integrating Six Sigma analysis with PMP's information dissemination?",
+            choices: [
+                {
+                    text: "Perform a '5 Whys' analysis on a representative sample of escalated incidents, create a 'Root Cause Analysis Report' (PMP 'Work Performance Information') validating the findings, and review it with the project team and relevant stakeholders.",
+                    outcomeBriefing: "Correct. Using the '5 Whys' is a classic Six Sigma analytical tool. Documenting the findings in a formal report (a PMP output for 'Perform Quality Control') and reviewing it with stakeholders ensures that the root cause is validated and understood by all, facilitating informed decision-making for the 'Improve' phase and ensuring alignment with project communication plans.",
+                    nextStepId: "scenario4_improve"
+                },
+                {
+                    text: "Present the preliminary data to L1 management and ask them to confirm if lack of training is the problem.",
+                    outcomeBriefing: "While gaining L1 management's perspective is valuable, it doesn't constitute a data-driven confirmation of a root cause. PMP emphasizes objective data and analysis before concluding. Relying on anecdotal confirmation without deeper analysis can lead to addressing symptoms rather than true root causes, compromising the Six Sigma project's effectiveness.",
+                    nextStepId: "scenario4_improve"
+                }
+            ]
+        },
+        "scenario4_improve": {
+            focus: "Phase 4: IMPROVE (PMP: Executing/Monitoring & Controlling) - Solution Implementation",
+            briefing: "With verified root causes, you're now in the 'Improve' phase. From a PMP perspective (primarily 'Direct and Manage Project Work' and 'Implement Risk Responses'), you'll develop and implement solutions. This involves designing changes, conducting pilot tests, and managing the rollout while monitoring progress.",
+            animatedSequence: [
+                {
+                    staticNetwork: `    [PMP: EXECUTING - Direct & Manage Project Work / MONITORING & CONTROLLING - Control Changes]
+             |
+             V
+          [SOLUTION DESIGN]
+          +-----------------+
+          | Implement new   |
+          | Knowledge Base  |
+          | (Easy search,   |
+          |  peer review)   |
+          | L1 Training     |
+          | Program (Skills |
+          |  gap addressed) |
+          +-----------------+
+             |
+             V
+          [PILOT & VALIDATE]
+          'Test with subset
+           of L1 agents'
+             |
+             V
+          [DEPLOY SOLUTIONS]
+          'Roll out to all
+           L1 / Service Desk'
+    
+    (PMP-Managed Implementation of Six Sigma Solutions)`,
+                    description: "Visualizing the 'Improve' phase: Designing targeted solutions (e.g., Knowledge Base, Training), piloting them, and managing the controlled deployment of changes within the project scope.",
+                    duration: 4000
+                }
+            ],
+            task: "To effectively implement the solution (enhanced knowledge base and L1 training) and manage its deployment, how do you best integrate Six Sigma's improvement actions with PMP's execution and control?",
+            choices: [
+                {
+                    text: "Develop a 'Change Management Plan' (PMP artifact) for rolling out the new knowledge base and training. Conduct a pilot program with a small group of L1 agents, collect feedback, validate effectiveness against CTQs, and then update the plan for full deployment.",
+                    outcomeBriefing: "Correct. This action exemplifies excellent integration. A PMP 'Change Management Plan' provides the structure for rollout. Piloting (a Six Sigma 'Improve' technique) allows for testing and validation of the solution's effectiveness before full deployment. This controlled, iterative approach ensures the improvement delivers expected results and minimizes negative impacts, crucial for both Six Sigma success and PMP project execution.",
+                    nextStepId: "scenario5_control"
+                },
+                {
+                    text: "Immediately roll out the new knowledge base and training to all L1 agents simultaneously to achieve rapid improvement.",
+                    outcomeBriefing: "A rapid, wide-scale rollout without prior piloting or a structured change management plan carries significant risks. PMP emphasizes managing change carefully to avoid disruptions. Without validation in a controlled environment, unforeseen issues might arise, undermining the effectiveness of the Six Sigma improvement and potentially causing new problems for IT service delivery.",
+                    nextStepId: "scenario5_control"
+                }
+            ]
+        },
+        "scenario5_control": {
+            focus: "Phase 5: CONTROL (PMP: Monitoring & Controlling/Closing) - Sustaining Improvements",
+            briefing: "After successful implementation, the 'Control' phase ensures that the gains are sustained. From a PMP perspective (primarily 'Perform Quality Control' and 'Close Project or Phase'), this involves establishing ongoing monitoring, updating process documentation, and transitioning the improved process to operations.",
+            animatedSequence: [
+                {
+                    staticNetwork: `    [PMP: MONITORING & CONTROLLING - Perform Quality Control / CLOSING - Close Project or Phase]
+             |
+             V
+          [CONTROL PLAN]
+          +-----------------+
+          | SPC Charts      |
+          | (Monitor key    |
+          |  metrics)       |
+          | Audits: KB      |
+          |  accuracy       |
+          | Training:       |
+          |  New L1 agents  |
+          +-----------------+
+             |
+             V
+          [TRANSITION PLAN]
+          'Handover to Operations'
+          'Lessons Learned'
+          'Project Closeout'
+    
+    (PMP-Controlled Sustainment of Six Sigma Gains)`,
+                    description: "Visualizing the 'Control' phase: Implementing a robust control plan with SPC, audits, and ongoing training, coupled with PMP's transition planning and project closeout activities.",
+                    duration: 4000
+                }
+            ],
+            task: "To ensure the improved incident resolution process, particularly the enhanced knowledge base and L1 training, remains effective long-term, what is the most critical 'Control' phase action, encompassing both Six Sigma sustainment and PMP project closure elements?",
+            choices: [
+                {
+                    text: "Develop and implement a 'Control Plan' (Six Sigma) including Statistical Process Control (SPC) charts for resolution times, a schedule for regular knowledge base content reviews/updates, and a 'Transition Plan' (PMP) to formally hand over the improved process to IT Operations, along with a 'Lessons Learned' register.",
+                    outcomeBriefing: "Correct. This action represents a strong 'Control' phase. SPC charts (Six Sigma) provide continuous, data-driven monitoring. Regular audits ensure knowledge base quality. The PMP 'Transition Plan' and 'Lessons Learned' are crucial for formal handover and future project improvement. This comprehensive approach ensures sustainability, prevents regression, and successfully concludes the improvement project.",
+                    nextStepId: "end"
+                },
+                {
+                    text: "Announce the project's success to stakeholders and move the project team to a new initiative, assuming the improvements will naturally persist.",
+                    outcomeBriefing: "Assuming improvements will naturally persist without a formal 'Control Plan' (Six Sigma) and a structured 'Transition Plan' (PMP) is a common project failure. Without continuous monitoring, maintenance, and defined operational ownership, processes often revert to their previous state, losing all the gains achieved. PMP's 'Close Project or Phase' emphasizes formal closure and handover to prevent this.",
+                    nextStepId: "end"
+                }
+            ]
+        },
+        "end": {
+            focus: "Simulation Complete: IT Service Improvement through Six Sigma & PMP!",
+            briefing: "Congratulations! You have successfully applied the combined power of Six Sigma's DMAIC methodology and PMP's project management principles to improve IT service delivery. This integrated approach ensures both effective process optimization and efficient project execution.",
+            animatedSequence: [
+                {
+                    staticNetwork: `      [PMP: INITIATING]
+             |
+             V
+      D E F I N E    [PMP: PLANNING]
+        /       \\   /
+     /           \\ /
+  M E A S U R E --- A N A L Y Z E  [PMP: EXECUTING]
+     \\           / \\
+        \\       /   \\
+          I M P R O V E  [PMP: MONITORING & CONTROLLING]
+              |
+              V
+          C O N T R O L
+              |
+              V
+      [PMP: CLOSING]
+    
+    🏆 YOU'VE MASTERED IT SERVICE IMPROVEMENT WITH SIX SIGMA & PMP! 🏆
+    
+                     Powered by Gemini`,
+                    description: "A final overview of the complete DMAIC cycle, underpinned by PMP Process Groups, highlighting the synergy for robust IT service improvement.",
+                    duration: 5000
+                }
+            ],
+            task: "Thank you for participating in this advanced Six Sigma & PMP simulator. Your integrated project management and process improvement skills are invaluable!",
+            choices: []
+        }
+    };
+
+    // --- SIMULATOR ENGINE ---
+    let currentStepId = "start";
+    let mainAnimationTimeout;
+
+    const frameworkFocusEl = document.getElementById('framework-focus');
+    const briefingEl = document.getElementById('briefing');
+    const networkEl = document.getElementById('network-animation');
+    const stepDescriptionEl = document.getElementById('step-description');
+    const taskEl = document.getElementById('task');
+    const choicesEl = document.getElementById('choices');
+    const interactionAreaEl = document.getElementById('interaction-area');
+    const waitingMessageEl = document.getElementById('waiting-message');
+    const briefingTitleEl = document.querySelector('.section-title.briefing-title');
+    const taskTitleEl = document.querySelector('.section-title.task-title');
+
+
+    function stopCurrentAnimations() {
+        clearTimeout(mainAnimationTimeout);
+    }
+
+    async function animateSequence(sequence) {
+        stopCurrentAnimations(); // Clear any running animations
+        interactionAreaEl.style.display = 'none';
+        waitingMessageEl.style.display = 'block';
+
+        for (let i = 0; i < sequence.length; i++) {
+            const frame = sequence[i];
+            stepDescriptionEl.textContent = frame.description;
+            stepDescriptionEl.style.display = 'flex';
+
+            if (frame.staticNetwork) {
+                networkEl.textContent = frame.staticNetwork;
+                await new Promise(resolve => mainAnimationTimeout = setTimeout(resolve, frame.duration));
+            }
+        }
+
+        waitingMessageEl.style.display = 'none';
+        interactionAreaEl.style.display = 'block';
+    }
+
+    async function displayStep(stepId) {
+        const step = scenarioSteps[stepId];
+        if (!step) {
+            console.error("Step not found:", stepId);
+            return;
+        }
+
+        currentStepId = stepId;
+
+        stopCurrentAnimations(); // Ensure all previous animations are stopped
+
+        // Reset elements
+        stepDescriptionEl.style.display = 'none';
+        stepDescriptionEl.innerHTML = '';
+        choicesEl.innerHTML = '';
+        interactionAreaEl.style.display = 'none';
+        taskEl.className = 'task'; // Reset class for task
+        briefingTitleEl.style.display = 'block';
+        taskTitleEl.style.display = 'block';
+
+
+        // Populate initial step content
+        frameworkFocusEl.textContent = step.focus;
+        briefingEl.textContent = step.briefing;
+        taskEl.textContent = step.task;
+
+        if (stepId === "end") {
+            briefingTitleEl.style.display = 'none'; // Hide briefing title for final message
+            briefingEl.style.display = 'none'; // Hide briefing content for final message
+            taskTitleEl.style.display = 'none';
+            choicesEl.style.display = 'none';
+            taskEl.className = 'final-message';
+        } else {
+            briefingEl.style.display = 'flex';
+            choicesEl.style.display = 'flex';
+        }
+
+        // Run the animated sequence
+        await animateSequence(step.animatedSequence);
+
+        // After animation, set up choices
+        if (step.choices && step.choices.length > 0) {
+            step.choices.forEach((choice, index) => {
+                const button = document.createElement('button');
+                button.textContent = choice.text;
+                button.addEventListener('click', () => handleChoice(choice));
+                choicesEl.appendChild(button);
+            });
+        }
+    }
+
+    function handleChoice(selectedChoice) {
+        // Display the outcome briefing in the stepDescription area
+        stepDescriptionEl.innerHTML = selectedChoice.outcomeBriefing;
+        stepDescriptionEl.style.display = 'flex';
+
+        // Disable all choice buttons
+        Array.from(choicesEl.children).forEach(button => button.disabled = true);
+        
+        // Prepare for next step
+        const nextStepId = selectedChoice.nextStepId;
+        if (nextStepId) {
+            // Add a small delay for user to read outcome, then go to next step
+            setTimeout(() => {
+                displayStep(nextStepId);
+            }, 5000); // 5 seconds to read outcome and explanation
+        }
+    }
+
+    // --- START SIMULATION ---
+    displayStep(currentStepId);
+
+</script>
+</body>
+</html>
