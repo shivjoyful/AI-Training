@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CISSP Domains & CIA Triad Simulator</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px 0;
+            box-sizing: border-box;
+        }
+        #simulator-container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            width: 900px;
+            max-width: 95%;
+            padding: 2rem;
+            box-sizing: border-box;
+        }
+        h1, h2 {
+            color: #1c3d5a;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 0.5rem;
+            margin-top: 0;
+        }
+        #network-animation {
+            background-color: #0d1117;
+            color: #c9d1d9;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 1rem;
+            border-radius: 6px;
+            white-space: pre;
+            font-size: 14px;
+            overflow-x: auto;
+            min-height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+        .domain-title {
+            font-weight: bold;
+            font-size: 1.3rem;
+            color: #00529B;
+        }
+        .section-title {
+            font-weight: bold;
+            color: #1c3d5a;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+        }
+        .section-title.briefing-title::before {
+            content: "💡 Scenario & Triad: ";
+            color: #007bff;
+            margin-right: 5px;
+        }
+        .section-title.task-title::before {
+            content: "❓ Your Challenge: ";
+            color: #dc3545; /* Red for challenges */
+            margin-right: 5px;
+        }
+
+        .briefing, .step-description {
+            margin: 0.5rem 0 1rem 0;
+            line-height: 1.6;
+            background-color: #e6f7ff;
+            border-left: 4px solid #007bff;
+            padding: 0.8rem 1rem;
+            border-radius: 4px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+        }
+        .step-description {
+            background-color: #f0fdf4;
+            border-left-color: #28a745;
+        }
+        .task {
+            margin: 0.5rem 0 1rem 0;
+            font-weight: normal;
+            font-size: 1em;
+            color: #333;
+            background-color: #fff3cd; /* Warning yellow for tasks */
+            border-left: 4px solid #ffc107;
+            padding: 0.8rem 1rem;
+            border-radius: 4px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+        }
+        #choices {
+            margin-top: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            text-align: left;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        button:hover {
+            background-color: #0056b3;
+            transform: translateY(-1px);
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        #interaction-area {
+            display: none;
+        }
+        .final-message {
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+            color: #0c5460;
+            padding: 1.5rem;
+            text-align: center;
+            font-size: 1.2rem;
+            margin-top: 2rem;
+        }
+        .waiting-message {
+            text-align: center;
+            margin-top: 1rem;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+<div id="simulator-container">
+    <h1>CISSP Domains & CIA Triad Simulator</h1>
+    <div id="step-content">
+        <h2 class="domain-title" id="domain-title"></h2>
+        <div class="section-title briefing-title"></div>
+        <div class="briefing" id="briefing"></div>
+        <pre id="network-animation"></pre>
+        <div class="step-description" id="step-description"></div>
+        <div id="interaction-area">
+            <div class="section-title task-title"></div>
+            <div class="task" id="task"></div>
+            <div id="choices"></div>
+        </div>
+        <div class="waiting-message" id="waiting-message" style="display: none;">Animating concept... Please wait.</div>
+    </div>
+</div>
+
+<script>
+    // --- ANIMATION CONFIGURATION (Simplified for conceptual diagrams) ---
+    const ANIMATION_DURATION_PER_FRAME = 2000; // Milliseconds per static conceptual frame
+
+    // --- SIMULATOR DATA ---
+    const scenarioSteps = {
+        "start": {
+            domain: "Welcome to the CISSP & CIA Triad Simulator",
+            briefing: "This simulator will test your understanding of the 8 CISSP Domains and how they relate to the core security principles of Confidentiality, Integrity, and Availability (the CIA Triad). Each scenario presents a challenge; select the best response to demonstrate your extensive knowledge.",
+            animatedSequence: [
+                {
+                    staticNetwork: `      C O N F I D E N T I A L I T Y
+                         / | \\
+                       /   |   \\
+                    I N T E G R I T Y --- A V A I L A B I L I T Y
+                    
+           (The foundational CIA Triad of Information Security)`,
+                    description: "The CIA Triad: Confidentiality (preventing unauthorized disclosure), Integrity (maintaining accuracy and completeness), and Availability (ensuring timely and reliable access).",
+                    duration: 4000
+                }
+            ],
+            task: "Let's begin with CISSP Domain 1: Security and Risk Management. Click 'Continue' to proceed.",
+            choices: [
+                {
+                    text: "Continue to Domain 1: Security and Risk Management",
+                    outcomeBriefing: "Excellent. Domain 1 sets the foundation for a robust security program by defining policies and managing risks.",
+                    nextStepId: "domain1"
+                }
+            ]
+        },
+        "domain1": {
+            domain: "CISSP Domain 1: Security and Risk Management",
+            briefing: "You're tasked with performing a risk assessment for a new cloud-based customer relationship management (CRM) system that will store highly sensitive personal data. Your organization's leadership is primarily concerned with regulatory compliance and avoiding data breaches. This directly impacts **Confidentiality** (data privacy), **Integrity** (accurate customer records), and **Availability** (CRM system uptime).",
+            animatedSequence: [
+                {
+                    staticNetwork: `      [🛡️] Security Governance
+         |
+      [📊] Risk Assessment
+         |
+    .----'-----.
+   |           |
+[📜]         [⚖️]
+Policies    Compliance
+   |           |
+   '----.----'----'----'
+        |    |         |
+      [☁️]  [💰]       [👥]
+    Cloud    Financial  Customers
+    CRM     Impact`,
+                    description: "Visualizing the components of Security and Risk Management: Governance, Risk Assessment, Policies, Compliance, and their impact on cloud systems, finances, and customers.",
+                    duration: 3000
+                }
+            ],
+            task: "Which of the following approaches best addresses the primary concerns for the new CRM system, considering the CIA Triad?",
+            choices: [
+                {
+                    text: "Implement a comprehensive Enterprise Risk Management (ERM) framework, focusing on identifying, assessing, mitigating, and monitoring risks related to data privacy, system uptime, and data accuracy.",
+                    outcomeBriefing: "Correct. An ERM framework provides a holistic approach to risk, encompassing all aspects of the CIA Triad, legal obligations (Confidentiality), data quality (Integrity), and business continuity (Availability). This aligns perfectly with the principles of Domain 1.",
+                    nextStepId: "domain2"
+                },
+                {
+                    text: "Prioritize purchasing cyber insurance to cover potential losses from data breaches, as this addresses financial impact.",
+                    outcomeBriefing: "While cyber insurance is part of risk transference, it's a reactive control and doesn't proactively reduce the likelihood or impact of a breach. It mainly mitigates financial Availability impact, but does little for Confidentiality or Integrity directly. Domain 1 emphasizes proactive risk management.",
+                    nextStepId: "domain2"
+                },
+                {
+                    text: "Focus solely on technical controls like encryption for data at rest and in transit.",
+                    outcomeBriefing: "Encryption is vital for **Confidentiality**, but this approach neglects other critical aspects like user access, patching, and disaster recovery. A comprehensive risk management strategy considers administrative, technical, and physical controls to protect all aspects of the CIA Triad.",
+                    nextStepId: "domain2"
+                }
+            ]
+        },
+        "domain2": {
+            domain: "CISSP Domain 2: Asset Security",
+            briefing: "You've identified various data assets within your organization: highly sensitive customer PII, internal proprietary source code, and public-facing marketing material. Proper classification is crucial for determining appropriate protection. This directly relates to preserving **Confidentiality**, **Integrity**, and **Availability** based on the asset's value and sensitivity.",
+            animatedSequence: [
+                {
+                    staticNetwork: `      [📁] Data Assets
+         |
+    .----'-----.
+   |           |
+[🔒]         [✨]
+PII (Sensitive)   Source Code (Proprietary)
+   |           |
+   '----.----'----'----'
+        |    |         |
+      [🌍]  [🏷️]       [⏳]
+    Public    Classification  Retention
+    Material  Labels          Policies`,
+                    description: "Illustrating different data assets and the processes of classification, labeling, and retention critical for Asset Security.",
+                    duration: 3000
+                }
+            ],
+            task: "To ensure optimal security for these diverse assets, what is the most effective strategy for asset classification and handling, aligning with the CIA Triad?",
+            choices: [
+                {
+                    text: "Implement a data classification policy that assigns appropriate security labels (e.g., Confidential, Internal, Public) based on data sensitivity, and enforce corresponding access controls, retention periods, and handling procedures.",
+                    outcomeBriefing: "Correct. A robust data classification policy ensures that resources are allocated effectively, and controls (like access restrictions for **Confidentiality**, version control for **Integrity**, and backup strategies for **Availability**) are proportionate to the asset's value and risk. This is fundamental to Domain 2.",
+                    nextStepId: "domain3"
+                },
+                {
+                    text: "Treat all data as 'Top Secret' to ensure maximum protection across the board.",
+                    outcomeBriefing: "While seemingly secure, treating all data as 'Top Secret' is inefficient and can hinder business operations. It creates unnecessary overhead, potentially impacting **Availability** due to overly restrictive access, and is not cost-effective for maintaining **Integrity** or **Confidentiality** for less sensitive data.",
+                    nextStepId: "domain3"
+                },
+                {
+                    text: "Delegate data classification responsibility entirely to individual data owners without a centralized policy.",
+                    outcomeBriefing: "Relying solely on individual owners without a centralized policy leads to inconsistencies and potential security gaps. This can compromise **Confidentiality** if sensitive data is misclassified, or **Integrity** if handling procedures are not uniform, and potentially impact **Availability** if recovery efforts are unclear.",
+                    nextStepId: "domain3"
+                }
+            ]
+        },
+        "domain3": {
+            domain: "CISSP Domain 3: Security Architecture and Engineering",
+            briefing: "Your organization is designing a new payment processing system. It must handle transactions securely and be highly resilient. This requires careful consideration of security models and design principles to ensure robust **Confidentiality** (cardholder data protection), **Integrity** (accurate transaction records), and **Availability** (continuous payment processing).",
+            animatedSequence: [
+                {
+                    staticNetwork: `      [🏰] Secure Design Principles (e.g., Least Privilege)
+         |
+    .----'-----.
+   |           |
+[⚙️]         [🔒]
+Security    Cryptography
+Models      Implementation
+   |           |
+   '----.----'----'----'
+        |    |         |
+      [🏗️]  [🧱]       [🏢]
+Architecture Hardware/OS Physical
+Design     Security   Controls`,
+                    description: "Exploring the elements of Security Architecture and Engineering: design principles, security models, cryptography, and integration of hardware/physical security.",
+                    duration: 3000
+                }
+            ],
+            task: "When designing the architecture for this critical payment system, what is the most crucial principle to embed to achieve a high level of **Confidentiality**, **Integrity**, and **Availability**?",
+            choices: [
+                {
+                    text: "Implement a 'Defense-in-Depth' strategy, layering multiple security controls (e.g., firewalls, IDS/IPS, access controls, encryption) at different points in the architecture.",
+                    outcomeBriefing: "Correct. Defense-in-Depth is fundamental to Domain 3. It ensures that even if one control fails, others are in place to prevent a breach, bolstering **Confidentiality**, **Integrity**, and **Availability** across the system. It's a holistic approach to resilience.",
+                    nextStepId: "domain4"
+                },
+                {
+                    text: "Focus primarily on a strong cryptographic solution for all data at rest and in transit.",
+                    outcomeBriefing: "While cryptography is essential for **Confidentiality** (and sometimes Integrity), relying solely on it is insufficient. A robust architecture needs other controls like network segmentation, access management, and physical security. It's one layer, not the entire defense.",
+                    nextStepId: "domain4"
+                },
+                {
+                    text: "Outsource all security design decisions to a third-party vendor without internal oversight.",
+                    outcomeBriefing: "Outsourcing can be part of a strategy, but delegating *all* design decisions without internal expertise or oversight is a significant risk. You lose control over ensuring the design meets your specific **Confidentiality**, **Integrity**, and **Availability** requirements and regulatory obligations.",
+                    nextStepId: "domain4"
+                }
+            ]
+        },
+        "domain4": {
+            domain: "CISSP Domain 4: Communication and Network Security",
+            briefing: "Your organization's network connects several branch offices to a central data center, transmitting both sensitive business data and voice traffic. Ensuring secure and efficient communication is vital. This domain focuses on maintaining **Confidentiality** (preventing eavesdropping), **Integrity** (data tampering), and **Availability** (network uptime) of network services.",
+            animatedSequence: [
+                {
+                    staticNetwork: `      [🌍] Internet
+         |
+      [🛡️] Firewall/VPN Gateway
+         |
+    .----'-----.
+   |           |
+[🏢]         [🏢]
+Branch A    Branch B
+   |           |
+   '----.----'----'----'
+        |    |         |
+      [📊]  [🎙️]       [📡]
+    Data    Voice     Wireless
+    Traffic Traffic   Access`,
+                    description: "A conceptual diagram showing network connectivity, security devices, and various types of traffic within an enterprise environment.",
+                    duration: 3000
+                }
+            ],
+            task: "To secure the communication between branch offices and the data center, particularly for sensitive data, what is the most appropriate network security control?",
+            choices: [
+                {
+                    text: "Implement Virtual Private Networks (VPNs) between all branch offices and the data center, encrypting all traffic over untrusted networks.",
+                    outcomeBriefing: "Correct. VPNs are essential for **Confidentiality** by encrypting data in transit and ensuring **Integrity** through authentication and hashing. They establish a secure tunnel over insecure networks, directly addressing threats to remote communication within Domain 4.",
+                    nextStepId: "domain5"
+                },
+                {
+                    text: "Deploy a highly effective Intrusion Detection System (IDS) at the data center perimeter.",
+                    outcomeBriefing: "An IDS is crucial for **Detection** (part of Security Operations) but is a reactive control. It alerts to attacks but does not prevent the initial compromise of **Confidentiality** or **Integrity** for traffic traversing an untrusted network. It's not the primary *protection* for the communication channel itself.",
+                    nextStepId: "domain5"
+                },
+                {
+                    text: "Use unencrypted HTTP for web-based internal applications to ensure maximum compatibility and speed.",
+                    outcomeBriefing: "Using unencrypted HTTP is a direct violation of **Confidentiality** and **Integrity** principles, especially for sensitive data. It makes data vulnerable to eavesdropping and tampering. This choice severely compromises fundamental security objectives of Domain 4.",
+                    nextStepId: "domain5"
+                }
+            ]
+        },
+        "domain5": {
+            domain: "CISSP Domain 5: Identity and Access Management (IAM)",
+            briefing: "Your organization has remote employees, contractors, and partners who require access to various internal systems. Ensuring they have the right level of access, and only when needed, is critical. This domain focuses on **Confidentiality** (preventing unauthorized access), **Integrity** (ensuring actions are by authorized users), and **Availability** (legitimate users can access resources).",
+            animatedSequence: [
+                {
+                    staticNetwork: `      [👤] User Identities (Employees, Contractors, Partners)
+         |
+    .----'-----.
+   |           |
+[🔑]         [🚪]
+Authentication   Authorization
+Mechanisms   Rules (e.g., RBAC)
+   |           |
+   '----.----'----'----'
+        |    |         |
+      [📋]  [🔄]       [audit]
+    Privilege Identity     Access
+    Management  Provisioning  Review`,
+                    description: "Illustrating the key components of Identity and Access Management: managing identities, authentication, authorization, and continuous review.",
+                    duration: 3000
+                }
+            ],
+            task: "To manage access for remote users and contractors effectively, what is the most secure and efficient IAM practice to implement, balancing the CIA Triad?",
+            choices: [
+                {
+                    text: "Implement a robust Identity and Access Management (IAM) system with Multi-Factor Authentication (MFA), Role-Based Access Control (RBAC), and automated provisioning/de-provisioning.",
+                    outcomeBriefing: "Correct. This comprehensive IAM approach significantly enhances **Confidentiality** by strong authentication (MFA), enforces **Integrity** by ensuring users only perform authorized actions (RBAC), and improves **Availability** by streamlining legitimate access. Automated provisioning/de-provisioning is key for efficient management in Domain 5.",
+                    nextStepId: "domain6"
+                },
+                {
+                    text: "Issue all remote users and contractors generic, shared accounts with strong passwords to simplify management.",
+                    outcomeBriefing: "Shared accounts are a major security risk, severely compromising **Confidentiality** and **Integrity**. It's impossible to audit individual actions, leading to accountability issues. This practice violates fundamental IAM principles and would not be considered secure.",
+                    nextStepId: "domain6"
+                },
+                {
+                    text: "Grant all remote users and contractors 'Administrator' privileges to avoid access issues and support requests.",
+                    outcomeBriefing: "Granting excessive privileges (violating the principle of Least Privilege) is an extreme risk to **Confidentiality** and **Integrity**. It creates a huge attack surface where a compromised account could cause widespread damage, and offers no real gain in **Availability** that couldn't be achieved securely.",
+                    nextStepId: "domain6"
+                }
+            ]
+        },
+        "domain6": {
+            domain: "CISSP Domain 6: Security Assessment and Testing",
+            briefing: "Before deploying a critical new application, you need to ensure it's free of exploitable vulnerabilities. This domain focuses on proactively identifying weaknesses. The goal is to prevent future compromises that could impact **Confidentiality** (data leaks), **Integrity** (data corruption), and **Availability** (application downtime).",
+            animatedSequence: [
+                {
+                    staticNetwork: `      [🔍] Vulnerability Assessment
+         |
+    .----'-----.
+   |           |
+[⚔️]         [🧪]
+Penetration   Security
+Testing     Audits
+   |           |
+   '----.----'----'----'
+        |    |         |
+      [📝]  [📊]       [📈]
+    Code    Risk       Compliance
+    Review  Reporting  Checks`,
+                    description: "Visualizing the proactive measures of Security Assessment and Testing: vulnerability scans, penetration tests, code reviews, and audits.",
+                    duration: 3000
+                }
+            ],
+            task: "What is the most comprehensive approach to thoroughly assess the security posture of the new critical application before its production launch, addressing all aspects of the CIA Triad?",
+            choices: [
+                {
+                    text: "Perform a combination of vulnerability scanning, penetration testing (both black-box and white-box), and a thorough code review by independent security experts.",
+                    outcomeBriefing: "Correct. This multi-faceted approach provides the most comprehensive assessment. Vulnerability scanning identifies known weaknesses, penetration testing exploits potential flaws to test defenses against **Confidentiality**, **Integrity**, and **Availability** attacks, and code review catches logic errors. This holistic testing is a cornerstone of Domain 6.",
+                    nextStepId: "domain7"
+                },
+                {
+                    text: "Rely solely on automated vulnerability scanning tools to quickly identify common weaknesses.",
+                    outcomeBriefing: "Automated scanning is a good starting point but often misses complex business logic flaws, zero-day vulnerabilities, or misconfigurations that could impact **Confidentiality** or **Integrity**. It's insufficient for critical applications and doesn't fully assess the impact on the CIA Triad.",
+                    nextStepId: "domain7"
+                },
+                {
+                    text: "Conduct a user acceptance testing (UAT) session to ensure users can access all features as intended.",
+                    outcomeBriefing: "UAT is crucial for functional **Availability** from a user perspective, but it is not a security test. It does not identify vulnerabilities that could compromise **Confidentiality** or **Integrity** of the system or data. It's an operational test, not a security assessment.",
+                    nextStepId: "domain7"
+                }
+            ]
+        },
+        "domain7": {
+            domain: "CISSP Domain 7: Security Operations",
+            briefing: "A significant denial-of-service (DoS) attack is currently targeting your public-facing web servers, causing intermittent outages. You must respond quickly and effectively. This domain deals with the day-to-day management of security, focusing heavily on maintaining **Availability** (restoring service), protecting **Integrity** (preventing data corruption during incident), and preserving **Confidentiality** (ensuring no data exfiltration occurred).",
+            animatedSequence: [
+                {
+                    staticNetwork: `      [🚨] Incident Detection (SIEM, Monitoring)
+         |
+    .----'-----.
+   |           |
+[🛑]         [📞]
+Incident    Communication
+Response    Protocols
+   |           |
+   '----.----'----'----'
+        |    |         |
+      [💾]  [🔎]       [🛡️]
+    Logging & Forensics   Threat
+    Auditing            Intelligence`,
+                    description: "Visualizing the elements of Security Operations: detection, incident response, communication, logging, forensics, and threat intelligence.",
+                    duration: 3000
+                }
+            ],
+            task: "Given the active DoS attack, what is your immediate priority action, aligning with incident response best practices for the CIA Triad?",
+            choices: [
+                {
+                    text: "Activate the incident response plan, specifically focusing on containment by diverting traffic to scrubbing centers or blocking known malicious IPs, to restore service **Availability** and analyze the attack's impact on **Integrity** and **Confidentiality**.",
+                    outcomeBriefing: "Correct. Immediate containment is paramount for a DoS attack to restore **Availability**. Once contained, you can investigate the attack vector, analyze logs (for potential **Confidentiality**/ **Integrity** impact), and implement long-term mitigations. This follows structured incident response, a core part of Domain 7.",
+                    nextStepId: "domain8"
+                },
+                {
+                    text: "Notify law enforcement immediately and provide them with all available network logs for investigation.",
+                    outcomeBriefing: "While notifying law enforcement is important, especially for criminal activity, it is not the *immediate* first step in an active DoS attack where **Availability** is compromised. Your priority is to restore service and contain the threat before involving external parties. Proper incident handling dictates a sequence of actions.",
+                    nextStepId: "domain8"
+                },
+                {
+                    text: "Reboot all affected servers and hope the attack subsides.",
+                    outcomeBriefing: "Rebooting without proper analysis or mitigation could exacerbate the problem or make it harder to collect forensic evidence, potentially delaying **Availability** restoration and compromising **Integrity** of log data. It's a reactive and unstrategic approach that often fails to address the root cause.",
+                    nextStepId: "domain8"
+                }
+            ]
+        },
+        "domain8": {
+            domain: "CISSP Domain 8: Software Development Security",
+            briefing: "Your development team is creating a new mobile application that will handle user authentication and sensitive personal data. Integrating security throughout the Software Development Life Cycle (SDLC) is critical to prevent vulnerabilities. This ensures **Confidentiality** (data protection), **Integrity** (secure user sessions), and **Availability** (reliable application function).",
+            animatedSequence: [
+                {
+                    staticNetwork: `      [PLAN] -> [DESIGN] -> [CODE] -> [TEST] -> [DEPLOY] -> [MAINTAIN]
+         |         |         |         |         |         |
+      [🛡️]       [🔒]       [🐛]       [✅]       [🌐]       [🔄]
+      Security  Threat    Secure    Security  Secure    Patch &
+      Requirements Modeling   Coding    Testing   Deployment Update`,
+                    description: "Depicting the integration of security activities at each stage of the Software Development Life Cycle (SDLC).",
+                    duration: 3000
+                }
+            ],
+            task: "To best ensure the security of the new mobile application, particularly regarding sensitive user data and authentication, what is the most effective approach within the SDLC?",
+            choices: [
+                {
+                    text: "Implement a 'Security-by-Design' approach, integrating threat modeling, secure coding practices, regular security testing (SAST/DAST), and secure configuration management throughout the entire SDLC.",
+                    outcomeBriefing: "Correct. 'Security-by-Design' is the cornerstone of Domain 8. Integrating security from the planning stage (threat modeling, secure requirements), through development (secure coding, SAST), testing (DAST, pen testing), and deployment ensures **Confidentiality**, **Integrity**, and **Availability** are built-in, not bolted on. This is the most robust approach.",
+                    nextStepId: "end"
+                },
+                {
+                    text: "Conduct a single, comprehensive penetration test just before the application's launch.",
+                    outcomeBriefing: "While a pre-launch penetration test is important, it's often too late to efficiently fix fundamental architectural or coding flaws. It's a 'find-and-fix-late' strategy that is less effective than 'Security-by-Design' and risks impacting project timelines and potentially leaving vulnerabilities that compromise the CIA Triad.",
+                    nextStepId: "end"
+                },
+                {
+                    text: "Delegate all application security responsibilities to the Quality Assurance (QA) team.",
+                    outcomeBriefing: "The QA team is vital for functional testing, but security testing requires specialized skills and tools. While QA can assist, entrusting *all* security to them without security specialists or a defined secure SDLC process is insufficient and highly likely to result in security vulnerabilities that compromise the CIA Triad.",
+                    nextStepId: "end"
+                }
+            ]
+        },
+        "end": {
+            domain: "Simulation Complete!",
+            briefing: "Congratulations! You have successfully navigated scenarios across all 8 CISSP Domains, demonstrating your understanding of core cybersecurity principles and their impact on Confidentiality, Integrity, and Availability. Remember, security is a continuous journey.",
+            animatedSequence: [
+                {
+                    staticNetwork: `      C O N F I D E N T I A L I T Y
+                         / | \\
+                       /   |   \\
+                    I N T E G R I T Y --- A V A I L A B I L I T Y
+                    
+       [🏆] Understanding the Foundation: The CIA Triad
+      
+      CISSP Domains:
+      1. Security & Risk Mgmt      5. IAM
+      2. Asset Security            6. Security Assessment & Testing
+      3. Security Architecture     7. Security Operations
+      4. Comm. & Network Security  8. Software Dev Security`,
+                    description: "A final overview of the CIA Triad and the 8 CISSP Domains, representing a holistic approach to cybersecurity.",
+                    duration: 4000
+                }
+            ],
+            task: "Thank you for participating in the CISSP Domains & CIA Triad Simulator. Your dedication to extensive knowledge is commendable!",
+            choices: []
+        }
+    };
+
+    // --- SIMULATOR ENGINE ---
+    let currentStepId = "start";
+    let mainAnimationTimeout;
+
+    const domainTitleEl = document.getElementById('domain-title');
+    const briefingEl = document.getElementById('briefing');
+    const networkEl = document.getElementById('network-animation');
+    const stepDescriptionEl = document.getElementById('step-description');
+    const taskEl = document.getElementById('task');
+    const choicesEl = document.getElementById('choices');
+    const interactionAreaEl = document.getElementById('interaction-area');
+    const waitingMessageEl = document.getElementById('waiting-message');
+    const briefingTitleEl = document.querySelector('.section-title.briefing-title');
+    const taskTitleEl = document.querySelector('.section-title.task-title');
+
+
+    function stopCurrentAnimations() {
+        clearTimeout(mainAnimationTimeout);
+    }
+
+    async function animateSequence(sequence) {
+        stopCurrentAnimations(); // Clear any running animations
+        interactionAreaEl.style.display = 'none';
+        waitingMessageEl.style.display = 'block';
+
+        for (let i = 0; i < sequence.length; i++) {
+            const frame = sequence[i];
+            stepDescriptionEl.textContent = frame.description;
+            stepDescriptionEl.style.display = 'flex';
+
+            if (frame.staticNetwork) {
+                networkEl.textContent = frame.staticNetwork;
+                await new Promise(resolve => mainAnimationTimeout = setTimeout(resolve, frame.duration));
+            }
+        }
+
+        waitingMessageEl.style.display = 'none';
+        interactionAreaEl.style.display = 'block';
+    }
+
+    async function displayStep(stepId) {
+        const step = scenarioSteps[stepId];
+        if (!step) {
+            console.error("Step not found:", stepId);
+            return;
+        }
+
+        currentStepId = stepId;
+
+        stopCurrentAnimations(); // Ensure all previous animations are stopped
+
+        // Reset elements
+        stepDescriptionEl.style.display = 'none';
+        stepDescriptionEl.innerHTML = '';
+        choicesEl.innerHTML = '';
+        interactionAreaEl.style.display = 'none';
+        taskEl.className = 'task'; // Reset class for task
+        briefingTitleEl.style.display = 'block';
+        taskTitleEl.style.display = 'block';
+
+
+        // Populate initial step content
+        domainTitleEl.textContent = step.domain;
+        briefingEl.textContent = step.briefing;
+        taskEl.textContent = step.task;
+
+        if (stepId === "end") {
+            briefingTitleEl.style.display = 'none'; // Hide briefing title for final message
+            taskTitleEl.style.display = 'none'; // Hide task title for final message
+            briefingEl.style.display = 'none'; // Hide briefing content for final message
+            choicesEl.style.display = 'none';
+            taskEl.className = 'final-message';
+        } else {
+            briefingEl.style.display = 'flex';
+            choicesEl.style.display = 'flex';
+        }
+
+        // Run the animated sequence
+        await animateSequence(step.animatedSequence);
+
+        // After animation, set up choices
+        if (step.choices && step.choices.length > 0) {
+            step.choices.forEach((choice, index) => {
+                const button = document.createElement('button');
+                button.textContent = choice.text;
+                button.addEventListener('click', () => handleChoice(choice));
+                choicesEl.appendChild(button);
+            });
+        }
+    }
+
+    function handleChoice(selectedChoice) {
+        // Display the outcome briefing in the stepDescription area
+        stepDescriptionEl.innerHTML = selectedChoice.outcomeBriefing;
+        stepDescriptionEl.style.display = 'flex';
+
+        // Disable all choice buttons
+        Array.from(choicesEl.children).forEach(button => button.disabled = true);
+        
+        // Prepare for next step
+        const nextStepId = selectedChoice.nextStepId;
+        if (nextStepId) {
+            // Add a small delay for user to read outcome, then go to next step
+            setTimeout(() => {
+                displayStep(nextStepId);
+            }, 5000); // 5 seconds to read outcome and explanation
+        }
+    }
+
+    // --- START SIMULATION ---
+    displayStep(currentStepId);
+
+</script>
+</body>
+</html>
