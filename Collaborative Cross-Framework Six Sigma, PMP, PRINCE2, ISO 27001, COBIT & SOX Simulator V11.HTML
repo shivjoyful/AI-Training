@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Architecture: Collaborative Cross-Framework (Six Sigma, PMP, PRINCE2, ISO 27001, COBIT & SOX) Simulator (V11) - Powered by Gemini</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px 0;
+            box-sizing: border-box;
+        }
+        #simulator-container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            width: 1020px; /* Wider for EA diagrams */
+            max-width: 98%;
+            padding: 2rem;
+            box-sizing: border-box;
+        }
+        h1 {
+            color: #1c3d5a;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 0.5rem;
+            margin-top: 0;
+            font-size: 1.8em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        h1 .gemini-tag {
+            font-size: 0.6em;
+            color: #666;
+            font-weight: normal;
+            background-color: #e0e0e0;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        h2 {
+            color: #007bff; /* Blue for Six Sigma focus */
+            font-size: 1.3em;
+            margin-top: 1.5rem;
+            margin-bottom: 0.8rem;
+        }
+        #network-animation {
+            background-color: #0d1117;
+            color: #c9d1d9;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 1rem;
+            border-radius: 6px;
+            white-space: pre;
+            font-size: 11px; /* Smaller to fit the gigantic EA diagram */
+            overflow-x: auto;
+            min-height: 380px; /* Taller for more info */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+        .section-title {
+            font-weight: bold;
+            color: #1c3d5a;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+        }
+        .section-title.briefing-title::before {
+            content: "📚 Scenario Overview: ";
+            color: #007bff;
+            margin-right: 5px;
+        }
+        .section-title.task-title::before {
+            content: "❓ Your Collaborative Cross-Framework EA Challenge: ";
+            color: #dc3545;
+            margin-right: 5px;
+        }
+
+        .briefing, .step-description {
+            margin: 0.5rem 0 1rem 0;
+            line-height: 1.6;
+            background-color: #e6f7ff;
+            border-left: 4px solid #007bff;
+            padding: 0.8rem 1rem;
+            border-radius: 4px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+        }
+        .step-description {
+            background-color: #f0fdf4;
+            border-left-color: #28a745;
+        }
+        .task {
+            margin: 0.5rem 0 1rem 0;
+            font-weight: normal;
+            font-size: 1em;
+            color: #333;
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 0.8rem 1rem;
+            border-radius: 4px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+        }
+        #choices {
+            margin-top: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            text-align: left;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        button:hover {
+            background-color: #0056b3;
+            transform: translateY(-1px);
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        #interaction-area {
+            display: none;
+        }
+        .final-message {
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+            color: #0c5460;
+            padding: 1.5rem;
+            text-align: center;
+            font-size: 1.2rem;
+            margin-top: 2rem;
+        }
+        .waiting-message {
+            text-align: center;
+            margin-top: 1rem;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+<div id="simulator-container">
+    <h1>
+        Enterprise Architecture: Collaborative Cross-Framework (Six Sigma, PMP, PRINCE2, ISO 27001, COBIT & SOX) Simulator (V11)
+        <span class="gemini-tag">Powered by Gemini</span>
+    </h1>
+    <div id="step-content">
+        <h2 class="framework-focus" id="framework-focus"></h2>
+        <div class="section-title briefing-title"></div>
+        <div class="briefing" id="briefing"></div>
+        <pre id="network-animation"></pre>
+        <div class="step-description" id="step-description"></div>
+        <div id="interaction-area">
+            <div class="section-title task-title"></div>
+            <div class="task" id="task"></div>
+            <div id="choices"></div>
+        </div>
+        <div class="waiting-message" id="waiting-message" style="display: none;">Animating concept... Please wait.</div>
+    </div>
+</div>
+
+<script>
+    // --- ANIMATION CONFIGURATION (Simplified for conceptual diagrams) ---
+    const ANIMATION_DURATION_PER_FRAME = 2000; // Milliseconds per static conceptual frame
+
+    // --- SIMULATOR DATA ---
+    const scenarioSteps = {
+        "start": {
+            focus: "Welcome: The EA & Collaborative Cross-Framework Knowledge Base (V11)",
+            briefing: "Welcome to OmniCorp's 'Digital Renaissance 2030'! As Chief Enterprise Architect, you'll lead a monumental transformation, integrating EA, Six Sigma DMAIC, PMP, PRINCE2, ISO 27001, **COBIT (IT Governance)**, and **SOX (Internal Controls)**. Our strategic objectives: cloud-native operations, AI-powered hyper-personalization, 30% operational cost reduction, a certified, robust information security posture, **and strong IT governance with SOX compliance for financial reporting**.",
+            animatedSequence: [
+                {
+                    staticNetwork: `
+                  ┌───────────────────────────────────────────────────────────┐
+                  │           ENTERPRISE ARCHITECTURE (EA) OVERVIEW         │
+                  │ (Business, Data, Application, Technology Layers)          │
+                  │   Guiding "Digital Renaissance 2030" Transformation     │
+                  └───────────────┬───────────────────────┬───────────────────┐
+                                  │                       │
+          ┌───────────────────────V───────────────────────V───────────────────────┐
+          │                                                                       │
+          │  PRINCE2 GOVERNANCE             PMP PROGRAM MANAGEMENT        SIX SIGMA DMAIC        │
+          │ (Strategic Oversight, Bus Just., (Scope, Schedule, Resources, (Data-Driven Process  │
+          │  Controlled Stages, Benefits)    Stakeholders, Risks)       Improvement, Metrics)  │
+          └───────────────────────┬───────────────────────┬───────────────────────┘
+                                  │                       │
+          ┌───────────────────────V───────────────────────V───────────────────────┐
+          │                                                                       │
+          │    ISO 27001: INFO SECURITY           COBIT: IT GOVERNANCE             SOX: INTERNAL CONTROLS    │
+          │ (ISMS Scope, Policy, Risk Mgmt,        (IT Process Mgmt, Obj.,        (ICFR, ITGCs, Application    │
+          │  Controls, Continual Improvement)    Performance, Risk, Resources)  Controls, Attestation)    │
+          └───────────────────────┬───────────────────────┬───────────────────────┘
+                                  │                       │
+                                  V                       V
+                      ┌───────────────────────────────────────────────────┐
+                      │    INTEGRATED EA TRANSFORMATION LIFECYCLE         │
+                      │ (Vision, Current State, Target State, Roadmap, Governance) │
+                      └───────────────────────────────────────────────────┘
+    
+    (The Gigantic Collaborative Cross-Framework & EA Ecosystem for OmniCorp - with ISO 27001, COBIT & SOX)`,
+                    description: "This comprehensive diagram illustrates EA as the overarching structure, supported by PRINCE2's governance, PMP's program management, Six Sigma's data-driven improvement, ISO 27001's information security, **COBIT's IT governance**, and **SOX's internal controls**. Together, they drive OmniCorp's 'Digital Renaissance 2030' with security, governance, and compliance embedded from the start.",
+                    duration: 6000
+                }
+            ],
+            task: "Our journey begins by establishing the strategic vision, foundational governance, and the crucial information security, IT governance, and financial reporting control context for OmniCorp's 'Digital Renaissance 2030'. This requires deep integration of EA, PRINCE2, PMP, Six Sigma 'Define' thinking, ISO 27001's ISMS scope definition, **COBIT's IT governance objectives, and SOX's scope for financial reporting systems**. Click 'Continue' to face your first strategic challenge.",
+            choices: [
+                {
+                    text: "Continue to 'EA Vision, Business Arch., ISO 27001 ISMS Scope, COBIT IT Governance & SOX Scope' Phase",
+                    outcomeBriefing: "An integrated start ensures that the EA transformation is not just technically sound, but also strategically justified, formally governed, focused on measurable business value, **underpinned by clear information security, robust IT governance, and consideration for SOX compliance**.",
+                    nextStepId: "scenario1_ea_vision_define"
+                }
+            ]
+        },
+        "scenario1_ea_vision_define": {
+            focus: "Phase 1: EA Vision, Business Arch., ISO 27001, COBIT & SOX Scope (PRINCE2/PMP/Define)",
+            briefing: "As CEA, you must articulate the 'Digital Renaissance 2030' vision, define key business capabilities, and establish a high-level Target Business Architecture. This phase requires formal program initiation (PRINCE2), clear strategic alignment (PMP), defining CTQ business outcomes (Six Sigma 'Define'), ISO 27001's ISMS scope, **COBIT's IT governance objectives (e.g., EDM01 - Ensure Governance Framework Setting & Maintenance), and identifying critical systems and processes impacting financial reporting for SOX compliance**.",
+            animatedSequence: [
+                {
+                    staticNetwork: `
+                  ┌───────────────────────────────────────────────────────────┐
+                  │    [EA: BUSINESS ARCHITECTURE / STRATEGIC VISION]       │
+                  │ (Future State Capabilities, Value Streams, Business Goals)│
+                  └───────┬────────────────────────────────────────────┬───────┘
+                          │                      │
+                  ┌───────V───────────────┐      │  (Sets Program Scope)
+                  │   [PRINCE2: SU/DP]    │      │
+                  │ (Business Case, Project Brief, Project Mandate for Program)│
+                  └───────┬───────────────┘      │
+                          │ (Strategic Justification & Governance)
+                  ┌───────V───────────────┐      │
+                  │   [PMP: INITIATING]   │      │
+                  │ (Program Charter, High-level Stakeholder Reg., Benefits Mgmt Plan)│
+                  └───────┬───────────────┘      │
+                          │ (Defines Program Context & Key Deliverables)
+                  ┌───────V──────────────────────V───────┐
+                  │    [SIX SIGMA DMAIC: D E F I N E]    │
+                  │  (High-level CTQs for Business Outcomes: e.g., <5s customer journey,  │
+                  │   20% faster new product launch, 99.9% data accuracy)    │
+                  │  (Problem/Opportunity: OmniCorp's current agility/cost/CX gaps)   │
+                  └───────┬───────────────────────────────────────────────────┘
+                          │
+          ┌───────────────V───────────────┐
+          │   [ISO 27001: DEFINE (ISMS)]  │
+          │  (Establish ISMS Scope, Context of Org., Info Security Policy,  │
+          │   Interested Parties & Requirements, Top Management Commitment) │
+          └───────┬───────────────────────┘
+                  │
+          ┌───────V───────────────┐
+          │   [COBIT: DEFINE IT GOVERNANCE]   │
+          │  (Establish EDM01: Ensure Governance Framework Setting & Mgmt,  │
+          │   Align Business & IT Objectives, Define IT Strategy)         │
+          └───────┬───────────────────────┘
+                  │
+          ┌───────V───────────────┐
+          │   [SOX: SCOPE IDENTIFICATION] │
+          │  (Identify In-Scope Financial Systems, Key Processes Impacting ICFR,  │
+          │   Define Control Environment Requirements)                  │
+          └───────────────────────────────┘
+    
+    (Collaboratively Defining the EA Transformation Program: Strategic, Managerial, Process, Security, IT Governance & SOX Focus)`,
+                    description: "This foundational phase integrates EA's vision, PRINCE2's governance, PMP's program charter, Six Sigma's CTQs, ISO 27001's ISMS definition, **COBIT's IT governance objectives, and SOX's scope for financial reporting systems**, ensuring security, governance, and compliance are embedded from the outset.",
+                    duration: 4000
+                }
+            ],
+            task: "To successfully initiate 'Digital Renaissance 2030', ensuring comprehensive strategic alignment, robust security, strong IT governance, and SOX compliance, which action best integrates EA vision with cross-framework governance and definition?",
+            choices: [
+                {
+                    text: "Develop a 'Target Business Architecture' (EA) outlining future capabilities. Define the 'ISMS Scope' (ISO 27001) for critical business areas, identifying relevant legal/regulatory requirements. Establish 'IT Governance Objectives' (COBIT EDM01) aligned with the EA vision and define the 'SOX In-Scope Systems and Processes' impacting ICFR. Present a 'Program Business Case' (PRINCE2) to the Board, incorporating 'Program CTQs' (Six Sigma) like '30% cost reduction', '99.9% data confidentiality', and 'zero SOX audit findings'. Secure approval of the 'Program Charter' (PMP) which encompasses the EA vision, ISMS scope, an 'Information Security Policy' (ISO 27001), and a commitment to COBIT principles and SOX compliance.",
+                    outcomeBriefing: "Excellent! This action seamlessly integrates all frameworks. The 'Target Business Architecture' (EA) provides strategic direction. ISO 27001's 'ISMS Scope' defines security boundaries. **COBIT's IT governance objectives establish a robust framework for managing IT, and SOX's scope ensures financial reporting integrity.** PRINCE2's 'Program Business Case' ensures board-level buy-in. PMP's 'Program Charter' formalizes the initiative. Six Sigma's CTQs make business, **security, IT governance, and financial control outcomes** measurable. This holistic approach ensures strategic alignment, formal authorization, measurable objectives, **and a foundational commitment to information security, IT governance, and SOX compliance from day one**.",
+                    nextStepId: "scenario2_ea_current_measure"
+                },
+                {
+                    text: "Immediately start designing cloud infrastructure (EA Tech Arch) based on general assumptions, and form a small agile team without formal program initiation, business case, or any consideration for an ISMS, IT governance objectives, or SOX implications.",
+                    outcomeBriefing: "This approach is premature and carries significant risks from all perspectives. It bypasses strategic business alignment (EA, PRINCE2), lacks formal authorization and stakeholder engagement (PMP), skips defining measurable objectives (Six Sigma), and completely neglects the fundamental requirements of ISO 27001 for a structured ISMS, **COBIT for IT governance, and SOX for internal controls over financial reporting**. Starting with technology without a clear business vision, formal governance, and **security, governance, and compliance by design** often leads to misaligned solutions, rework, and critical security and compliance vulnerabilities, undermining the entire transformation. The collaborative power is completely lost here.",
+                    nextStepId: "scenario2_ea_current_measure"
+                }
+            ]
+        },
+        "scenario2_ea_current_measure": {
+            focus: "Phase 2: EA Current State Arch., ISO 27001 Risk, COBIT Process & SOX Control Assessment (Measure)",
+            briefing: "With a defined vision and ISMS scope, you must now understand OmniCorp's 'as-is' state across all EA layers. This involves rigorous data collection (PMP), establishing baseline performance metrics (Six Sigma 'Measure'), documenting the current architecture (EA), ISO 27001's information security risk assessment, **assessing current IT process maturity against COBIT (e.g., APO10 - Manage Operations, BAI06 - Manage Changes), and auditing existing IT General Controls (ITGCs) and application controls relevant to SOX in financial reporting systems**.",
+            animatedSequence: [
+                {
+                    staticNetwork: `
+                  ┌───────────────────────────────────────────────────────────┐
+                  │     [EA: CURRENT STATE ARCHITECTURE DOCUMENTATION]      │
+                  │ (As-Is Business Processes, Data Models, Application Inventory,   │
+                  │  Technology Stack, Infrastructure Footprint)             │
+                  └───────┬────────────────────────────────────────────┬───────┘
+                          │                      │
+                  ┌───────V───────────────┐      │
+                  │   [PRINCE2: IP/CS]    │      │
+                  │ (Quality Mgmt Approach for Arch. artifacts, Stage Control)│
+                  └───────┬───────────────┘      │
+                          │ (Ensures Arch. doc quality)
+                  ┌───────V───────────────┐      │
+                  │    [PMP: PLANNING]    │      │
+                  │ (Data Collection Plan, Scope Baseline, Resource Plan for Analysis)│
+                  └───────┬───────────────┘      │
+                          │ (Structured approach to data/artifact gathering)
+                  ┌───────V──────────────────────V───────┐
+                  │    [SIX SIGMA DMAIC: M E A S U R E]  │
+                  │  (Baseline Metrics: Avg. Process Cycle Time, Data Duplication Rate,  │
+                  │   Application Uptime, Infrastructure Cost/Txn)          │
+                  │  (Tools: Process Mapping, Arch. Inventory, Performance Reports)   │
+                  └───────┬───────────────────────────────────────────────────┘
+                          │
+          ┌───────────────V───────────────┐
+          │   [ISO 27001: MEASURE (ISMS Risk Assessment)]             │
+          │  (Identify Assets, Threats, Vulnerabilities, Assess Risks  │
+          │   against established criteria, Evaluate existing controls)│
+          └───────┬───────────────────────┘
+                  │
+          ┌───────V───────────────┐
+          │   [COBIT: MEASURE IT PROCESS MATURITY]   │
+          │  (Assess current state of COBIT processes like APO10 (Manage Operations), │
+          │   BAI06 (Manage Changes), DSS01 (Manage Operations) against target maturity)│
+          └───────┬───────────────────────┘
+                  │
+          ┌───────V───────────────┐
+          │   [SOX: AUDIT EXISTING CONTROLS]  │
+          │  (Audit ITGCs (Access, Change Mgmt, Operations), Application Controls, │
+          │   Map data flows for ICFR, Identify control deficiencies)     │
+          └───────────────────────────────┘
+    
+    (Collaboratively Measuring: EA Baseline, Data Quality, Planning, Security Risk, IT Process Maturity & SOX Controls)`,
+                    description: "This phase leverages EA for comprehensive 'as-is' documentation. PRINCE2 ensures quality. PMP provides the plan. Six Sigma guides metrics. ISO 27001 drives security risk assessment. **COBIT assesses IT process maturity, and SOX audits existing ITGCs and application controls for financial reporting**, identifying gaps and deficiencies across the board.",
+                    duration: 4000
+                }
+            ],
+            task: "To establish a reliable current state architecture and performance baseline, while simultaneously understanding OmniCorp's information security risk profile, IT process maturity, and SOX control deficiencies, which action best demonstrates collaborative cross-framework EA knowledge?",
+            choices: [
+                {
+                    text: "Initiate 'Current State Architecture' workshops (EA) across all domains. Conduct a comprehensive 'Information Security Risk Assessment' (ISO 27001) within the ISMS scope. Perform a 'COBIT Process Maturity Assessment' for key IT processes (e.g., BAI06 - Manage Changes, DSS01 - Manage Operations). Engage internal audit to 'Audit IT General Controls (ITGCs)' and critical 'Application Controls' (SOX) in financial systems, mapping data flows for ICFR. Develop a 'Data Collection Plan' (PMP) to gather baseline operational, security, process, and control metrics (Six Sigma 'Measure'), ensuring data validity with PRINCE2 'Quality Criteria'.",
+                    outcomeBriefing: "Outstanding! This choice exemplifies deep cross-framework and EA collaboration, with security, IT governance, and financial controls fully integrated. The EA workshops drive comprehensive 'as-is' documentation. ISO 27001's 'Risk Assessment' proactively identifies security weaknesses. **COBIT's process assessment identifies IT operational and governance gaps. SOX audits reveal critical control deficiencies in financial systems.** PMP's 'Data Collection Plan' gathers comprehensive data. PRINCE2's 'Quality Criteria' ensure artifact reliability. Six Sigma's 'Measure' phase uses this robust baseline for objective analysis. This integrated approach creates a solid, secure, governed, and compliant foundation for transformation.",
+                    nextStepId: "scenario3_ea_gap_analyze"
+                },
+                {
+                    text: "Rely solely on existing, often outdated, architecture diagrams and anecdotal evidence, ignoring any formal security risk assessment, IT process maturity assessment, or SOX control audits, declaring them sufficient for the baseline.",
+                    outcomeBriefing: "This approach is fundamentally flawed and undermines the entire transformation. Six Sigma demands accurate data. EA requires a clear understanding of the current state. PMP cannot plan without reliable information. PRINCE2's 'Focus on Products' is violated. **Crucially, by ignoring ISO 27001's risk assessment, COBIT's process assessment, and SOX control audits, you leave OmniCorp vulnerable to unmanaged security risks, inefficient IT processes, and non-compliance with financial regulations, potentially leading to breaches, operational failures, and severe legal/financial penalties.** This will lead to designing solutions for unverified problems and cause significant rework later.",
+                    nextStepId: "scenario3_ea_gap_analyze"
+                }
+            ]
+        },
+        "scenario3_ea_gap_analyze": {
+            focus: "Phase 3: EA Gap Analysis, Target Arch., ISO 27001 Risk Treatment, COBIT & SOX Control Design (Analyze)",
+            briefing: "With current state documented and baselines established, you must now identify the gaps, analyze root causes, and design the detailed 'Target Architecture'. This involves Six Sigma's analytical prowess, PMP's planning, PRINCE2's issue management, ISO 27001's risk treatment planning, **and crucially, designing target IT processes and controls aligned with COBIT objectives (e.g., APO07 - Manage Human Resources, DSS04 - Manage Continuity) and designing robust ITGCs and application controls for SOX compliance**.",
+            animatedSequence: [
+                {
+                    staticNetwork: `
+                  ┌───────────────────────────────────────────────────────────┐
+                  │    [EA: GAP ANALYSIS & TARGET ARCHITECTURE DESIGN]      │
+                  │ (Identify deficiencies, Root Causes, Design To-Be Business, Data,│
+                  │  Application, Technology Architectures)                  │
+                  └───────┬────────────────────────────────────────────┬───────┘
+                          │                      │
+                  ┌───────V───────────────┐      │
+                  │   [PRINCE2: CS/SB]    │      │
+                  │ (Issue Management for Arch. Gaps, Exception Reports)     │
+                  └───────┬───────────────┘      │
+                          │ (Governs Architectural & Security Issues)
+                  ┌───────V───────────────┐      │
+                  │    [PMP: PLANNING]    │      │
+                  │ (Risk Mgmt Plan, Resource Plan for Design, Scope Refinement)│
+                  └───────┬───────────────┘      │
+                          │ (Plans for design activities & manages risks)
+                  ┌───────V──────────────────────V───────┐
+                  │    [SIX SIGMA DMAIC: A N A L Y Z E]  │
+                  │  (Tools: Gap Analysis Matrix, Root Cause Analysis (5 Whys/Fishbone),│
+                  │   Statistical Correlation, Value Stream Mapping)         │
+                  │  (Output: Quantified Gaps, Prioritized Root Causes for architectural flaws)│
+                  └───────┬───────────────────────────────────────────────────┘
+                          │
+          ┌───────────────V───────────────┐
+          │   [ISO 27001: ANALYZE (ISMS Risk Treatment)]              │
+          │  (Develop Risk Treatment Plan, Select Controls from Annex A,│
+          │   Develop Statement of Applicability (SoA), Define Control Objectives)│
+          └───────┬───────────────────────┘
+                  │
+          ┌───────V───────────────┐
+          │   [COBIT: ANALYZE & DESIGN IT PROCESSES/CONTROLS]   │
+          │  (Design target IT processes (e.g., APO07 - Manage HR, DSS04 - Manage Cont.), │
+          │   Map controls to COBIT objectives, Define Process Owners)     │
+          └───────┬───────────────────────┘
+                  │
+          ┌───────V───────────────┐
+          │   [SOX: DESIGN NEW/IMPROVED CONTROLS]    │
+          │  (Design enhanced ITGCs (e.g., Segregation of Duties, Secure Config.), │
+          │   Design application controls for ICFR, Document control narratives)  │
+          └───────────────────────────────┘
+    
+    (Collaboratively Analyzing: EA Gaps, Root Causes, Target Design, Security Risk Treatment, IT Process Design & SOX Control Design)`,
+                    description: "In 'Analyze', EA drives gap identification and target architecture design. Six Sigma provides analytical tools. PMP manages planning. PRINCE2 governs issues. ISO 27001 guides security risk treatment. **COBIT designs target IT processes and controls. SOX focuses on designing new or improved ITGCs and application controls crucial for financial reporting compliance.**",
+                    duration: 4000
+                }
+            ],
+            task: "You've identified 'fragmented data silos', 'monolithic legacy applications', 'inconsistent IT change management (COBIT BAI06 maturity gap)', and 'weak user access controls in financial systems (SOX ITGC deficiency)' as key issues. How do you confirm these findings and integrate them into your target architecture, program management, and control design?",
+            choices: [
+                {
+                    text: "Perform a 'Root Cause Analysis' (Six Sigma) on data fragmentation, application dependencies, IT process inefficiencies, AND security/control vulnerabilities. Document these as 'Architectural Deficiencies' (EA), 'Information Security Risks' (ISO 27001), 'IT Process Gaps' (COBIT), and 'SOX Control Deficiencies'. Develop a 'Risk Treatment Plan' (ISO 27001), and design new 'IT Processes and Controls' (COBIT) and enhanced 'ITGCs and Application Controls' (SOX). Update the 'Program Issue Register' (PRINCE2) and 'Program Risk Register' (PMP) with these findings, refining the 'Target Architectures' (EA) to incorporate new security, IT governance, and SOX control strategies.",
+                    outcomeBriefing: "Excellent! This action is a prime example of collaborative cross-framework knowledge in EA, with ISO 27001, COBIT, and SOX deeply integrated. Six Sigma's RCA provides robust analytical depth. Documenting 'Architectural Deficiencies' (EA), 'Information Security Risks' (ISO 27001), **'IT Process Gaps' (COBIT), and 'SOX Control Deficiencies' formalizes the problems**. ISO 27001's 'Risk Treatment Plan' mitigates security risks. **COBIT designs effective IT processes, and SOX ensures robust internal controls for financial reporting.** Updating PRINCE2/PMP registers ensures governance and proactive management. Refining 'Target Architectures' (EA) directly incorporates the learning and the **required security, IT governance, and SOX control solutions**, leading to robust, secure, governed, and compliant architectural solutions.",
+                    nextStepId: "scenario4_ea_roadmap_improve"
+                },
+                {
+                    text: "Assume the identified architectural, security, IT process, and SOX issues are correct, and immediately jump to solutioning by proposing new cloud services, bypassing formal analysis, security risk treatment, COBIT process design, or SOX control design.",
+                    outcomeBriefing: "This shortcut undermines the analytical rigor of all frameworks and is particularly dangerous for information security, IT governance, and financial compliance. Without Six Sigma's validated root causes, ISO 27001's 'Risk Treatment Plan', COBIT's process design, and SOX's control design, EA solutions might address symptoms, not underlying issues, and critical risks will remain unmitigated. PMP's risk management is ignored. PRINCE2's 'Manage by Exception' requires formal reporting. Jumping to solutions without proper analysis, formal integration of security, governance, and control findings, is a recipe for expensive architectural rework, system instability, **catastrophic security breaches, IT operational failures, and SOX non-compliance**, completely undermining the 'Analyze' phase.",
+                    nextStepId: "scenario4_ea_roadmap_improve"
+                }
+            ]
+        },
+        "scenario4_ea_roadmap_improve": {
+            focus: "Phase 4: EA Roadmap, Implementation, ISO 27001, COBIT & SOX Control Implementation (Improve)",
+            briefing: "With a defined Target Architecture, Risk Treatment Plan, and Control Designs, your focus shifts to planning the transition and managing solution implementation. This phase integrates Six Sigma's solution design, PMP's execution, PRINCE2's controlled delivery, ISO 27001's control implementation, **and crucially, implementing the new IT processes and controls (COBIT) and deploying, documenting, and testing the SOX-mandated ITGCs and application controls**.",
+            animatedSequence: [
+                {
+                    staticNetwork: `
+                  ┌───────────────────────────────────────────────────────────┐
+                  │    [EA: ARCHITECTURAL ROADMAP & TRANSITION PLANNING]    │
+                  │ (Phased Implementation, Migration Strategies, Capability Realization)│
+                  └───────┬────────────────────────────────────────────┬───────┘
+                          │                      │
+                  ┌───────V───────────────┐      │
+                  │   [PRINCE2: CS/MP]    │      │
+                  │ (Authorize Work Packages for Arch. increments, Manage by Exception, Quality Check)│
+                  └───────┬───────────────┘      │
+                          │ (Controlled delivery of architectural "products" & security solutions)
+                  ┌───────V───────────────┐      │
+                  │    [PMP: EXECUTING]   │      │
+                  │ (Direct & Manage Program Work, Acquire Resources for projects,   │
+                  │  Perform Integrated Change Control)                  │
+                  └───────┬───────────────┘      │
+                          │ (Manages overall execution of transformation & security projects)
+                  ┌───────V──────────────────────V───────┐
+                  │    [SIX SIGMA DMAIC: I M P R O V E]  │
+                  │  (Solutions: Implement Cloud-Native Platform, Data Lake, Microservices,│
+                  │   Automated CI/CD, Process Re-engineering)              │
+                  │  (Pilot & Validate architectural components against CTQs)   │
+                  └───────┬───────────────────────────────────────────────────┘
+                          │
+          ┌───────────────V───────────────┐
+          │   [ISO 27001: IMPROVE (ISMS Control Implementation)]      │
+          │  (Implement selected security controls (Annex A), Security Testing,│
+          │   Document operational procedures, Integrate Incident Response)│
+          └───────┬───────────────────────┘
+                  │
+          ┌───────V───────────────┐
+          │   [COBIT: IMPROVE (Implement IT Processes/Controls)]   │
+          │  (Implement new/improved IT processes (e.g., BAI06 - Manage Changes), │
+          │   Deploy new IT controls, Train personnel on new processes)   │
+          └───────┬───────────────────────┘
+                  │
+          ┌───────V───────────────┐
+          │   [SOX: IMPLEMENT & TEST CONTROLS]   │
+          │  (Implement new/enhanced ITGCs & application controls, Document procedures,│
+          │   Conduct initial control testing, Prepare for external audit attestation)│
+          └───────────────────────────────┘
+    
+    (Collaboratively Improving: EA Roadmap, Execution, Solution Validation, Security, IT Governance & SOX Control Implementation)`,
+                    description: "In 'Improve', EA defines the roadmap. Six Sigma designs and validates solutions. PMP manages project execution. PRINCE2 provides controlled delivery. ISO 27001 ensures security control implementation. **COBIT focuses on implementing new IT processes and controls. SOX mandates the implementation, documentation, and initial testing of ITGCs and application controls crucial for financial reporting.**",
+                    duration: 4000
+                }
+            ],
+            task: "To successfully implement the architectural roadmap, replacing legacy applications, and ensuring all ISO 27001, COBIT, and SOX-mandated controls are effectively deployed, what is the most comprehensive collaborative cross-framework EA action?",
+            choices: [
+                {
+                    text: "Define 'Architectural Work Packages' (PRINCE2 'Products') for microservice development and data platform build, complete with 'Product Descriptions' (EA) that detail functional, **security (ISO 27001), IT governance (COBIT), and financial control (SOX) requirements**. Authorize these as projects, assigning dedicated teams (PMP 'Acquire Resources'). Manage their execution (PMP 'Direct & Manage Project Work'), ensuring each increment is validated against Six Sigma CTQs, **undergoes thorough security testing (ISO 27001), verifies adherence to new COBIT-aligned IT processes (e.g., BAI06 - Change Management), and successfully passes SOX control testing for ITGCs and application controls**.",
+                    outcomeBriefing: "Excellent! This action is the epitome of cross-framework and EA collaboration, with ISO 27001, COBIT, and SOX fully embedded. PRINCE2's 'Work Packages' provide controlled delivery. PMP ensures resource allocation and execution. EA's 'Product Descriptions' ensure clarity, including **explicit security, IT governance, and financial control requirements**. Six Sigma's validation proves operational effectiveness. **Crucially, the integration of thorough security testing (ISO 27001), verification against COBIT processes, and SOX control testing directly ensures the implementation and effectiveness of all mandated controls**, leading to robust, secure, governed, and compliant architectural solutions. This holistic approach ensures the transformation yields tangible, measurable benefits AND a secure, compliant architecture.",
+                    nextStepId: "scenario5_ea_governance_control"
+                },
+                {
+                    text: "Push for rapid development and deployment of new architectural components, prioritizing speed over rigorous testing, formal handover, or alignment with the broader architectural roadmap. Conduct only basic functional testing, deferring security, COBIT process, and SOX control testing to later, separate projects.",
+                    outcomeBriefing: "This 'move fast and break things' approach is highly detrimental in an EA, information security, IT governance, and financial compliance context. It violates PRINCE2's 'Focus on Products' and 'Quality Criteria'. It sidesteps PMP's quality management and change control. It fails Six Sigma's validation. **Most importantly, by deferring and de-prioritizing security, COBIT process, and SOX control testing, you are introducing significant unmitigated risks, failing to meet ISO 27001 requirements, leaving IT processes ungoverned (COBIT), and potentially deploying systems into production that are non-compliant with SOX, leading to severe legal, financial, and reputational damage.** Rushing architectural changes without controlled implementation, validation, and **embedded security, governance, and compliance assurance** often leads to technical debt, system instability, and failure to achieve the desired secure, governed, and compliant transformation, completely undermining the 'Improve' phase.",
+                    nextStepId: "scenario5_ea_governance_control"
+                }
+            ]
+        },
+        "scenario5_ea_governance_control": {
+            focus: "Phase 5: EA Governance, Benefits Realization, ISO 27001, COBIT & SOX Continual Improvement (Control)",
+            briefing: "With the 'Digital Renaissance 2030' program delivering architectural improvements, the 'Control' phase focuses on sustaining gains, establishing ongoing EA governance, and realizing strategic benefits. This involves Six Sigma's ongoing monitoring, PMP's formal program closure, PRINCE2's benefits realization, ISO 27001's ISMS continual improvement, **and crucially, continuous monitoring of IT performance (COBIT), regular control testing, and management attestation for SOX compliance**.",
+            animatedSequence: [
+                {
+                    staticNetwork: `
+                  ┌───────────────────────────────────────────────────────────┐
+                  │           [EA: ARCHITECTURE GOVERNANCE & LIFECYCLE]       │
+                  │ (Architecture Review Board, Standards, Principles, Tooling)│
+                  │          [EA: BENEFITS REALIZATION MONITORING]          │
+                  │ (Track attainment of strategic objectives post-transformation)│
+                  └───────┬────────────────────────────────────────────┬───────┘
+                          │                      │
+                  ┌───────V───────────────┐      │
+                  │   [PRINCE2: CP/DP]    │      │
+                  │ (Confirm Benefits, Project Closure, Lessons Learned,   │
+                  │  Benefits Review Plan for program)                   │
+                  └───────┬───────────────┘      │
+                          │ (Ensures sustained benefits & formal program closure)
+                  ┌───────V───────────────┐      │
+                  │    [PMP: CLOSING]     │      │
+                  │ (Close Program, Lessons Learned, Update Organizational   │
+                  │  Process Assets/EA Repository)                       │
+                  └───────┬───────────────┘      │
+                          │ (Formalizes program completion & knowledge capture)
+                  ┌───────V──────────────────────V───────┐
+                  │    [SIX SIGMA DMAIC: C O N T R O L]  │
+                  │  (Tools: Statistical Process Control (SPC) for key metrics,   │
+                  │          Control Plan for architectural standards, Ongoing Audits) │
+                  │  (Output: Sustainable Architecture, Measurable Benefits,   │
+                  │           Transformed Enterprise)                       │
+                  └───────┬───────────────────────────────────────────────────┘
+                          │
+          ┌───────────────V───────────────┐
+          │   [ISO 27001: CONTROL (ISMS Maintenance & Improvement)]   │
+          │  (Internal Audits, Management Review, Corrective Actions,  │
+          │   Monitoring & Measurement of ISMS Performance, Continual Improvement)│
+          └───────┬───────────────────────┘
+                  │
+          ┌───────V───────────────┐
+          │   [COBIT: CONTROL (Monitor IT Performance & Governance)]  │
+          │  (Monitor IT process performance (e.g., MEA01 - Monitor, Evaluate & Assess Perf.),│
+          │   Regular review of IT governance, Continual improvement of IT processes)│
+          └───────┬───────────────────────┘
+                  │
+          ┌───────V───────────────┐
+          │   [SOX: CONTROL (Ongoing Compliance & Attestation)]   │
+          │  (Regular ITGC & application control testing, Management Attestation (302/404),│
+          │   External audit coordination, Remediate control deficiencies)│
+          └───────────────────────────────┘
+    
+    (Collaboratively Controlling: EA Governance, Benefits, Sustainment, ISMS, IT Governance & SOX Continual Improvement)`,
+                    description: "In 'Control', EA establishes enduring governance. Six Sigma ensures sustained performance. PMP formalizes program closure. PRINCE2 ensures benefits are reviewed. ISO 27001 mandates ISMS continual improvement. **COBIT focuses on ongoing IT performance monitoring and governance. SOX drives continuous control testing, management attestation, and external audit coordination for sustained financial reporting compliance.**",
+                    duration: 4000
+                }
+            ],
+            task: "To ensure the transformed 'Digital Renaissance 2030' architecture delivers sustained value, maintains its robust information security posture, strong IT governance, and continuous SOX compliance, and the program is formally closed, what is the most comprehensive collaborative cross-framework EA action?",
+            choices: [
+                {
+                    text: "Establish an 'Architecture Review Board' (EA) and a 'Control Plan' (Six Sigma) for key operational, security, **IT process (COBIT), and financial control (SOX) performance indicators**. Finalize the 'Benefits Review Plan' (PRINCE2) to continuously track ROI. Conduct regular 'Internal Audits' and 'Management Reviews' of the ISMS (ISO 27001). Implement 'COBIT MEA01 (Monitor, Evaluate & Assess Performance and Conformance)' for IT processes. Perform ongoing 'SOX Control Testing' and support 'Management Attestation' (SOX 302/404). Formally 'Close the Program' (PMP/PRINCE2), conduct 'Lessons Learned' (PMP), and update the 'Enterprise Architecture Repository' (EA) with target state documentation, new standards, and **ISMS, COBIT, and SOX compliance documentation**.",
+                    outcomeBriefing: "Absolutely perfect! This action encapsulates the full power of collaborative cross-framework EA knowledge, with ISO 27001, COBIT, and SOX deeply integrated. The 'Architecture Review Board' (EA) ensures ongoing architectural integrity. Six Sigma's 'Control Plan' ensures continuous monitoring of operational, **security, IT process, and financial control performance**. PRINCE2's 'Benefits Review Plan' guarantees long-term value. ISO 27001's internal audits and reviews maintain ISMS. **COBIT MEA01 ensures ongoing IT governance and performance, and SOX's continuous control testing and management attestation are fundamental to maintaining financial reporting compliance.** PMP/PRINCE2 closure and lessons learned capture knowledge. Updating the 'EA Repository' ensures the new, secure, governed, and compliant architecture is a living asset. This integrated approach ensures sustainability, maximizes value, **and secures OmniCorp's digital future while meeting all regulatory obligations**.",
+                    nextStepId: "end"
+                },
+                {
+                    text: "Declare the transformation complete and move on, assuming the new architecture will naturally govern itself and deliver benefits without ongoing oversight, formal closeout, or any continuous monitoring of information security effectiveness, IT process performance, or SOX compliance.",
+                    outcomeBriefing: "This is a critical failure point in any transformation. Without ongoing EA Governance, the new architecture will decay. Without Six Sigma's Control Plan, performance will degrade. Without PMP's formal closure, insights are lost. Without PRINCE2's Benefits Review Plan, value is unconfirmed. **Most critically, ignoring ISO 27001's requirements for ISMS maintenance, COBIT's for IT governance monitoring, and SOX's for continuous control testing and attestation will lead to the rapid degradation of OmniCorp's information security posture, IT operational effectiveness, and expose the company to significant financial and legal risks due to non-compliance.** This approach completely neglects the 'Control' phase, leading to unsustainable gains and significant long-term risks.",
+                    nextStepId: "end"
+                }
+            ]
+        },
+        "end": {
+            focus: "Simulation Complete: Mastery of Collaborative Cross-Framework EA Transformation (with ISO 27001, COBIT & SOX)!",
+            briefing: "Congratulations! You have successfully navigated OmniCorp's 'Digital Renaissance 2030' by expertly leveraging the integrated power of Enterprise Architecture, Six Sigma's DMAIC, PMP's program management, PRINCE2's robust governance, ISO 27001's Information Security Management System requirements, **COBIT's IT Governance framework, and SOX's Internal Control requirements**. You now possess a 'Gigantic Collaborative Cross-Framework Knowledge' essential for leading complex, secure, governed, and compliant enterprise-level transformations!",
+            animatedSequence: [
+                {
+                    staticNetwork: `
+                  ┌───────────────────────────────────────────────────────────┐
+                  │           ENTERPRISE ARCHITECTURE (EA) OVERVIEW         │
+                  │ (Business, Data, Application, Technology Layers)          │
+                  │   Successfully guided "Digital Renaissance 2030"        │
+                  └───────────────┬───────────────────────┬───────────────────┐
+                                  │                       │
+          ┌───────────────────────V───────────────────────V───────────────────────┐
+          │                                                                       │
+          │  PRINCE2 GOVERNANCE             PMP PROGRAM MANAGEMENT        SIX SIGMA DMAIC        │
+          │ (Strategic Oversight, Bus Just., (Scope, Schedule, Resources, (Data-Driven Process  │
+          │  Controlled Stages, Benefits)    Stakeholders, Risks)       Improvement, Metrics)  │
+          └───────────────────────┬───────────────────────┬───────────────────────┘
+                                  │                       │
+          ┌───────────────────────V───────────────────────V───────────────────────┐
+          │                                                                       │
+          │    ISO 27001: INFO SECURITY           COBIT: IT GOVERNANCE             SOX: INTERNAL CONTROLS    │
+          │ (ISMS Scope, Policy, Risk Mgmt,        (IT Process Mgmt, Obj.,        (ICFR, ITGCs, Application    │
+          │  Controls, Continual Improvement)    Performance, Risk, Resources)  Controls, Attestation)    │
+          └───────────────────────┬───────────────────────┬───────────────────────┘
+                                  │                       │
+                                  V                       V
+                      ┌───────────────────────────────────────────────────┐
+                      │    INTEGRATED EA TRANSFORMATION LIFECYCLE         │
+                      │ (Vision, Current State, Target State, Roadmap, Governance) │
+                      └───────────────────────────────────────────────────┘
+    
+    🏆 YOU'VE ACHIEVED GIGANTIC COLLABORATIVE CROSS-FRAMEWORK & EA KNOWLEDGE (WITH ISO 27001, COBIT & SOX)! 🏆
+    
+                     Powered by Gemini`,
+                    description: "A final overview of the fully integrated ecosystem, demonstrating how Enterprise Architecture, Six Sigma, PMP, PRINCE2, ISO 27001, COBIT, and SOX combine to deliver unparalleled strategic transformation, sustained organizational value, robust information security, strong IT governance, and continuous financial reporting compliance.",
+                    duration: 5000
+                }
+            ],
+            task: "Thank you for participating in this advanced simulator. Your ability to integrate and apply these powerful frameworks within an Enterprise Architecture context, **including a strong focus on information security, IT governance, and financial compliance**, will drive profound and lasting value in any organization!",
+            choices: []
+        }
+    };
+
+    // --- SIMULATOR ENGINE ---
+    let currentStepId = "start";
+    let mainAnimationTimeout;
+
+    const frameworkFocusEl = document.getElementById('framework-focus');
+    const briefingEl = document.getElementById('briefing');
+    const networkEl = document.getElementById('network-animation');
+    const stepDescriptionEl = document.getElementById('step-description');
+    const taskEl = document.getElementById('task');
+    const choicesEl = document.getElementById('choices');
+    const interactionAreaEl = document.getElementById('interaction-area');
+    const waitingMessageEl = document = document.getElementById('waiting-message');
+    const briefingTitleEl = document.querySelector('.section-title.briefing-title');
+    const taskTitleEl = document.querySelector('.section-title.task-title');
+
+
+    function stopCurrentAnimations() {
+        clearTimeout(mainAnimationTimeout);
+    }
+
+    async function animateSequence(sequence) {
+        stopCurrentAnimations(); // Clear any running animations
+        interactionAreaEl.style.display = 'none';
+        waitingMessageEl.style.display = 'block';
+
+        for (let i = 0; i < sequence.length; i++) {
+            const frame = sequence[i];
+            stepDescriptionEl.textContent = frame.description;
+            stepDescriptionEl.style.display = 'flex';
+
+            if (frame.staticNetwork) {
+                networkEl.textContent = frame.staticNetwork;
+                await new Promise(resolve => mainAnimationTimeout = setTimeout(resolve, frame.duration));
+            }
+        }
+
+        waitingMessageEl.style.display = 'none';
+        interactionAreaEl.style.display = 'block';
+    }
+
+    async function displayStep(stepId) {
+        const step = scenarioSteps[stepId];
+        if (!step) {
+            console.error("Step not found:", stepId);
+            return;
+        }
+
+        currentStepId = stepId;
+
+        stopCurrentAnimations(); // Ensure all previous animations are stopped
+
+        // Reset elements
+        stepDescriptionEl.style.display = 'none';
+        stepDescriptionEl.innerHTML = '';
+        choicesEl.innerHTML = '';
+        interactionAreaEl.style.display = 'none';
+        taskEl.className = 'task'; // Reset class for task
+        briefingTitleEl.style.display = 'block';
+        taskTitleEl.style.display = 'block';
+
+
+        // Populate initial step content
+        frameworkFocusEl.textContent = step.focus;
+        briefingEl.textContent = step.briefing;
+        taskEl.textContent = step.task;
+
+        if (stepId === "end") {
+            briefingTitleEl.style.display = 'none'; // Hide briefing title for final message
+            briefingEl.style.display = 'none'; // Hide briefing content for final message
+            taskTitleEl.style.display = 'none';
+            choicesEl.style.display = 'none';
+            taskEl.className = 'final-message';
+        } else {
+            briefingEl.style.display = 'flex';
+            choicesEl.style.display = 'flex';
+        }
+
+        // Run the animated sequence
+        await animateSequence(step.animatedSequence);
+
+        // After animation, set up choices
+        if (step.choices && step.choices.length > 0) {
+            step.choices.forEach((choice, index) => {
+                const button = document.createElement('button');
+                button.textContent = choice.text;
+                button.addEventListener('click', () => handleChoice(choice));
+                choicesEl.appendChild(button);
+            });
+        }
+    }
+
+    function handleChoice(selectedChoice) {
+        // Display the outcome briefing in the stepDescription area
+        stepDescriptionEl.innerHTML = selectedChoice.outcomeBriefing;
+        stepDescriptionEl.style.display = 'flex';
+
+        // Disable all choice buttons
+        Array.from(choicesEl.children).forEach(button => button.disabled = true);
+        
+        // Prepare for next step
+        const nextStepId = selectedChoice.nextStepId;
+        if (nextStepId) {
+            // Add a small delay for user to read outcome, then go to next step
+            setTimeout(() => {
+                displayStep(nextStepId);
+            }, 5000); // 5 seconds to read outcome and explanation
+        }
+    }
+
+    // --- START SIMULATION ---
+    displayStep(currentStepId);
+
+</script>
+</body>
+</html>
