@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADMT & M365 Migration: Digital Training Book</title>
+    <style>
+        /* Basic Reset & Body Styling */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7f6;
+            color: #333;
+        }
+
+        /* Container for content */
+        .container {
+            max-width: 960px;
+            margin: 30px auto;
+            background-color: #fff;
+            padding: 25px 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            min-height: 600px; /* Ensure enough height for content and pagination */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* Headings */
+        h1, h2, h3, h4, h5, h6 {
+            color: #2c3e50;
+            margin-top: 1.5em;
+            margin-bottom: 0.8em;
+        }
+
+        h1 { font-size: 2.2em; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        h2 { font-size: 1.8em; color: #3498db; }
+        h3 { font-size: 1.5em; border-left: 4px solid #5fafe3; padding-left: 10px; margin-top: 2em; }
+        h4 { font-size: 1.2em; color: #4a6c8e; }
+        h5 { font-size: 1.1em; color: #555; }
+
+        /* Paragraphs and Lists */
+        p {
+            margin-bottom: 1em;
+        }
+
+        ul {
+            list-style-type: disc;
+            margin-left: 25px;
+            margin-bottom: 1em;
+        }
+
+        ol {
+            list-style-type: decimal;
+            margin-left: 25px;
+            margin-bottom: 1em;
+        }
+
+        li {
+            margin-bottom: 0.5em;
+        }
+
+        /* Code snippets (if any) */
+        code {
+            background-color: #eef;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            color: #c0392b;
+        }
+
+        /* Interactive Elements (Collapsible Sections) */
+        .collapsible-header {
+            cursor: pointer;
+            background-color: #e9ecef;
+            padding: 12px 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.3s ease;
+        }
+
+        .collapsible-header:hover {
+            background-color: #dee2e6;
+        }
+
+        .collapsible-header::after {
+            content: '▼'; /* Down arrow */
+            font-size: 0.8em;
+            margin-left: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .collapsible-header.active::after {
+            content: '▲'; /* Up arrow */
+            transform: rotate(0deg);
+        }
+
+        .collapsible-content {
+            padding: 15px;
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+            display: none; /* Hidden by default */
+            overflow: hidden;
+        }
+
+        /* Specific section styling */
+        .intro-box, .objectives-box {
+            background-color: #e8f5e9; /* Light green */
+            border-left: 5px solid #4caf50;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        .objectives-box ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        .objectives-box li {
+            position: relative;
+            padding-left: 25px;
+            margin-bottom: 8px;
+        }
+        .objectives-box li::before {
+            content: '✔';
+            color: #4caf50;
+            position: absolute;
+            left: 0;
+        }
+
+        .question-list li {
+            font-style: italic;
+        }
+        .question-list strong {
+            font-style: normal;
+        }
+
+        /* Pagination Styling */
+        .pagination-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .pagination-buttons button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+        }
+
+        .pagination-buttons button:hover:not(:disabled) {
+            background-color: #2980b9;
+        }
+
+        .pagination-buttons button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .page-numbers {
+            display: flex;
+            gap: 8px;
+        }
+
+        .page-number {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #ecf0f1;
+            color: #34495e;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .page-number:hover {
+            background-color: #bdc3c7;
+        }
+
+        .page-number.active-page {
+            background-color: #3498db;
+            color: white;
+        }
+
+        /* Content Pages - initially hidden */
+        .content-page {
+            display: none;
+            flex-grow: 1; /* Allows content to take available space */
+            margin-bottom: 20px; /* Space between content and pagination */
+        }
+        .content-page.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="book-content">
+            <!-- PAGE 1: Title, Introduction & Module Learning Objectives -->
+            <div class="content-page active" id="page-1">
+                <h1>Active Directory Migration (ADMT) & Microsoft 365 Integration: Digital Training Book</h1>
+                <p><strong>Module Title:</strong> Mastering Active Directory Migration with ADMT and Microsoft 365 Integration</p>
+                <p><strong>Target Audience:</strong> IT Professionals, System Administrators, Project Managers involved in Active Directory domain consolidation or restructuring.</p>
+                <p><strong>Module Duration:</strong> Self-paced (approximately 2-3 hours reading time, significant hands-on lab time recommended).</p>
+
+                <section id="introduction">
+                    <h2>Introduction & Learning Objectives</h2>
+                    <div class="intro-box">
+                        <p><strong>Welcome!</strong> This training module is designed to equip you with the essential knowledge and best practices for successfully planning, executing, and validating an Active Directory domain migration using the Active Directory Migration Tool (ADMT), with a critical focus on environments integrated with Microsoft 365 (M365) / Azure Active Directory (Azure AD).</p>
+                    </div>
+
+                    <h3 class="collapsible-header">Upon completion of this module, you will be able to:</h3>
+                    <div class="collapsible-content objectives-box">
+                        <ul>
+                            <li>Understand the fundamental components and prerequisites for an ADMT migration.</li>
+                            <li>Identify critical pre-migration planning steps, including discovery and dependency mapping.</li>
+                            <li>Explain the role of SID History and Password Export Server (PES) in maintaining user experience.</li>
+                            <li>Comprehend the profound impact of <code>sourceAnchor</code> on Microsoft 365 identity during migration.</li>
+                            <li>Outline the correct order and methods for migrating security groups, user accounts, and computer objects.</li>
+                            <li>Describe the essential steps for pausing and resuming Azure AD Connect synchronization to prevent M365 identity issues.</li>
+                            <li>Develop a comprehensive post-migration validation plan, covering both on-premises AD and M365 services.</li>
+                            <li>Recognize common challenges and implement best practices to mitigate risks during the migration lifecycle.</li>
+                        </ul>
+                    </div>
+                </section>
+            </div>
+
+            <!-- PAGE 2: Module 1 Part 1 -->
+            <div class="content-page" id="page-2">
+                <h2>Module 1: ADMT Fundamentals & Pre-Migration Deep Dive</h2>
+
+                <h3>Learning Objectives for Module 1:</h3>
+                <ul>
+                    <li>Define ADMT and its primary functions.</li>
+                    <li>Explain the importance of forest trusts.</li>
+                    <li>Describe the role of SID History and Password Export Server (PES).</li>
+                    <li>Detail the critical pre-migration discovery and preparation steps for users, computers, and groups.</li>
+                </ul>
+
+                <h4>1.1 What is ADMT and Why Use It?</h4>
+                <ul>
+                    <li><strong>Active Directory Migration Tool (ADMT):</strong> A free Microsoft utility designed to assist in the migration of Active Directory objects (users, groups, computers) between Active Directory domains or forests.</li>
+                    <li><strong>Key Benefits:</strong>
+                        <ul>
+                            <li><strong>SID History Preservation:</strong> Allows migrated users/groups to retain access to resources in the source domain.</li>
+                            <li><strong>Password Migration:</strong> Maintains user passwords, minimizing disruption.</li>
+                            <li><strong>Security Translation:</strong> Updates ACLs (Access Control Lists) on resources and local groups on migrated computers.</li>
+                            <li><strong>Automation:</strong> Facilitates batch migration of objects.</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h4>1.2 Foundational Concepts</h4>
+                <ul>
+                    <li><strong>Forest Trusts:</strong> A two-way, transitive forest trust between the source and target forests is <em>mandatory</em> for ADMT operations. This enables authentication and resource access across the migration boundary.</li>
+                    <li><strong>SID History:</strong> A crucial attribute on migrated user and group objects. It stores the old SID(s) from the source domain, allowing migrated objects to continue accessing resources secured by their original SIDs. This provides a grace period to update ACLs on resources.</li>
+                    <li><strong>Password Export Server (PES):</strong> A lightweight service installed in the <em>source</em> domain. It securely extracts encrypted password hashes from the source AD and sends them to the ADMT server in the target domain, enabling password migration. Without PES, passwords cannot be migrated.</li>
+                    <li><strong>Security Translation:</strong> The process by which ADMT updates ACLs on file shares, NTFS folders, and local groups on migrated computers, replacing source domain SIDs with target domain SIDs. This ensures correct permissions post-migration.</li>
+                </ul>
+            </div>
+
+            <!-- PAGE 3: Module 1 Part 2 + Self-Assessment -->
+            <div class="content-page" id="page-3">
+                <h3>1.3 Pre-Migration Preparation: The 80% Rule</h3>
+                <p>Spend 80% of your effort on planning, discovery, and testing.</p>
+
+                <h5>A. User Account Migration Preparation:</h5>
+                <ul>
+                    <li><strong>Verify User Accounts:</strong> Ensure all accounts are active; document password policies.</li>
+                    <li><strong>Exchange Attributes:</strong> Export and verify <code>proxyAddresses</code>, <code>mail</code>, <code>msExchHomeServer</code>, <code>msExchMailboxGuid</code>, <code>legacyExchangeDN</code>. (Crucial for Hybrid Exchange and M365 sync).</li>
+                    <li><strong>Profile/Home Directories:</strong> Document <code>profilePath</code> and <code>homeDirectory</code> UNC paths. Plan for updating these.</li>
+                    <li><strong>Service Accounts:</strong> Identify and meticulously document applications/services running under user credentials. These need special handling.</li>
+                </ul>
+
+                <h5>B. Computer Migration Preparation:</h5>
+                <ul>
+                    <li><strong>Configurations:</strong> Document local applications, drivers, and specific machine configurations.</li>
+                    <li><strong>Reboot Planning:</strong> Computer migration requires a reboot. Schedule maintenance windows.</li>
+                    <li><strong>Application Reconfiguration:</strong> Identify applications tied to source domain identity that may require reconfiguration post-migration.</li>
+                </ul>
+
+                <h5>C. Security Group Migration Preparation:</h5>
+                <ul>
+                    <li><strong>Export Groups:</strong> List all security groups, their memberships, and their permissions on resources.</li>
+                    <li><strong>Clean-up:</strong> Identify and remove stale or unused groups.</li>
+                </ul>
+
+                <h5>D. ADMT Environment Setup:</h5>
+                <ul>
+                    <li><strong>Dedicated Server:</strong> Install ADMT on a dedicated member server in the <em>target domain</em>, not a Domain Controller.</li>
+                    <li><strong>Service Account Permissions:</strong> Grant the ADMT service account <strong>extensive</strong> permissions in both source and target domains. This includes:
+                        <ul>
+                            <li><strong>Source Domain:</strong> Read all properties, "Migrate SID History" right.</li>
+                            <li><strong>Target Domain:</strong> Create/Delete user/group/computer objects, Write all properties, "Migrate SID History" right.</li>
+                            <li><strong>Local Administrator:</strong> On all computers to be migrated for security translation.</li>
+                        </ul>
+                    </li>
+                    <li><strong>PES Setup:</strong> Install PES in the source domain. Generate and secure the PES key file. Install the PES certificate.</li>
+                </ul>
+
+                <h5>E. Network & DNS:</h5>
+                <ul>
+                    <li><strong>Verify DNS:</strong> Ensure proper DNS resolution (forwarders, conditional forwarders, SRV records) between both forests.</li>
+                    <li><strong>Firewall Rules:</strong> Open necessary ports (RPC, LDAP, SMB, Kerberos) between all DCs and the ADMT server.</li>
+                </ul>
+
+                <h3 class="collapsible-header">Module 1: Self-Assessment Questions</h3>
+                <div class="collapsible-content">
+                    <ol class="question-list">
+                        <li>Why is a two-way transitive forest trust required for ADMT?</li>
+                        <li>What is the primary function of SID History, and why is it important for user experience?</li>
+                        <li>Where is the Password Export Server (PES) installed, and what is its role?</li>
+                        <li>List three critical pre-migration tasks you would perform for user accounts.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- PAGE 4: Module 2 Part 1 -->
+            <div class="content-page" id="page-4">
+                <h2>Module 2: Microsoft 365 Integration & Azure AD Connect</h2>
+
+                <h3>Learning Objectives for Module 2:</h3>
+                <ul>
+                    <li>Understand the role of <code>sourceAnchor</code> (<code>ImmutableID</code>) in Azure AD Connect.</li>
+                    <li>Detail pre-migration steps for an M365-integrated environment.</li>
+                    <li>Outline the process of pausing and resuming Azure AD Connect synchronization.</li>
+                    <li>Describe post-migration validation for M365 user identities and services.</li>
+                </ul>
+
+                <h4>2.1 Understanding <code>sourceAnchor</code> (<code>ImmutableID</code>)</h4>
+                <ul>
+                    <li><strong>Definition:</strong> The <code>sourceAnchor</code> attribute (on-premises) is the immutable link that Azure AD Connect uses to identify a unique object and synchronize it to Azure AD, where it is known as <code>ImmutableID</code>.</li>
+                    <li><strong>Default Attributes:</strong>
+                        <ul>
+                            <li><code>ms-DS-ConsistencyGuid</code>: <strong>Recommended</strong> for migration scenarios. ADMT can copy this attribute.</li>
+                            <li><code>ObjectGUID</code>: Default if <code>ms-DS-ConsistencyGuid</code> is empty. <strong>Changes</strong> when an object is migrated to a new domain, causing identity breaks in M365 unless manually remediated.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Criticality:</strong> Preserving <code>sourceAnchor</code> is paramount. If it changes or is lost during migration, Azure AD Connect will interpret the new object as a <em>new</em> user, potentially causing duplicate M365 accounts, loss of licenses/data, or accidental deletion of existing M365 objects.</li>
+                </ul>
+            </div>
+
+            <!-- PAGE 5: Module 2 Part 2 -->
+            <div class="content-page" id="page-5">
+                <h4>2.2 Pre-Migration Preparation (M365 Specific)</h4>
+                <ul>
+                    <li><strong>Azure AD Connect Configuration:</strong> Document source/target forests, filtering, synchronization cycles, and <em>especially</em> the <code>sourceAnchor</code> attribute.</li>
+                    <li><strong>User Principal Names (UPNs):</strong>
+                        <ul>
+                            <li>Ensure UPNs match verified domains in M365.</li>
+                            <li>Plan for UPN changes to reflect the target domain; ensure new UPN suffixes are verified in M365.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Licensing:</strong> Document current license assignments (manual vs. group-based).</li>
+                    <li><strong>Federated Identity (if applicable):</strong> Plan for AD FS / third-party IdP updates or transition to PHS/PTA.</li>
+                    <li><strong>Client Readiness:</strong> Inform users about potential Outlook profile re-creation or OneDrive re-sync.</li>
+                    <li><strong>Staging AADC:</strong> Consider setting up a staging AADC server for testing configuration changes and as a fallback.</li>
+                </ul>
+
+                <h4>2.3 During Core Migration: Managing Azure AD Connect</h4>
+                <ul>
+                    <li><strong>PAUSE Azure AD Connect Sync Cycle:</strong>
+                        <ul>
+                            <li><strong>CRITICAL STEP:</strong> Before migrating any M365-synced objects (users, groups), disable automatic sync.</li>
+                            <li><strong>PowerShell:</strong> <code>Set-ADSyncScheduler -SyncCycleEnabled $false</code></li>
+                            <li><strong>Why:</strong> Prevents AADC from seeing objects disappear from the source and reappear in the target simultaneously, which could lead to accidental deletion in Azure AD or object duplication.</li>
+                        </ul>
+                    </li>
+                    <li><strong>User/Group Migration (ADMT Impact):</strong>
+                        <ul>
+                            <li><strong><code>ms-DS-ConsistencyGuid</code>:</strong> If used as <code>sourceAnchor</code>, ADMT <em>must</em> be configured to copy this attribute.</li>
+                            <li><strong><code>ObjectGUID</code> (if used):</strong> This will change. You would need to manually update <code>ImmutableID</code> in Azure AD for migrated users via PowerShell <em>before</em> re-enabling sync, which is complex and high-risk. <strong>Avoid <code>ObjectGUID</code> as <code>sourceAnchor</code> for migrations.</strong></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- PAGE 6: Module 2 Part 3 + Self-Assessment -->
+            <div class="content-page" id="page-6">
+                <h4>2.4 Post-Migration Validation (M365 Specific)</h4>
+                <ul>
+                    <li><strong>Verify <code>sourceAnchor</code> Consistency:</strong> Immediately after migration, confirm <code>ms-DS-ConsistencyGuid</code> on target AD objects matches <code>ImmutableID</code> in Azure AD for migrated users/groups (using on-premises and Azure AD PowerShell).</li>
+                    <li><strong>Update UPNs:</strong> If UPNs change, ensure they are updated in the target AD, and AADC syncs them. Verify new UPNs are verified domains in M365.</li>
+                    <li><strong>RESUME Azure AD Connect Sync Cycle:</strong>
+                        <ul>
+                            <li><strong>PowerShell:</strong> <code>Set-ADSyncScheduler -SyncCycleEnabled $true</code></li>
+                            <li><strong>Manual Delta Sync:</strong> <code>Start-ADSyncSyncCycle -PolicyType Delta</code></li>
+                            <li>Monitor the Synchronization Service Manager for errors.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Verify Object Health in M365:</strong> Check M365 admin center or Azure AD PowerShell: users "Synced from on-premises," correct UPNs, retained licenses.</li>
+                    <li><strong>Test M365 Services:</strong> Have migrated users test Outlook (Web & Desktop), Teams, OneDrive, etc.</li>
+                </ul>
+
+                <h3 class="collapsible-header">Module 2: Self-Assessment Questions</h3>
+                <div class="collapsible-content">
+                    <ol class="question-list">
+                        <li>What is the recommended <code>sourceAnchor</code> attribute for ADMT migrations, and why?</li>
+                        <li>Why is it crucial to pause Azure AD Connect sync before starting an ADMT migration?</li>
+                        <li>List three M365-specific validation checks you would perform post-migration.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- PAGE 7: Module 3 Part 1 -->
+            <div class="content-page" id="page-7">
+                <h2>Module 3: Core Migration Execution & Post-Migration Validation</h2>
+
+                <h3>Learning Objectives for Module 3:</h3>
+                <ul>
+                    <li>Outline the correct sequence for migrating different object types.</li>
+                    <li>Describe how to perform security translation and computer migration.</li>
+                    <li>Detail comprehensive post-migration validation steps for on-premises AD.</li>
+                    <li>Understand the importance of cleanup and decommissioning.</li>
+                </ul>
+
+                <h4>3.1 Migration Order & ADMT Commands</h4>
+                <p>The recommended order to minimize disruption:</p>
+                <ol>
+                    <li><strong>Security Groups:</strong>
+                        <ul>
+                            <li>Migrate all security groups (<code>admt migrate group</code>).</li>
+                            <li><strong>Crucial:</strong> Use <code>/mss:yes</code> to migrate SID History.</li>
+                            <li>Review memberships.</li>
+                        </ul>
+                    </li>
+                    <li><strong>User Accounts:</strong>
+                        <ul>
+                            <li>Migrate users (<code>admt migrate user</code>).</li>
+                            <li><strong>Crucial:</strong> Use <code>/mss:yes</code> (SID History) and <code>/umt:Password /spp:yes</code> (Password Migration - requires PES).</li>
+                            <li>Update UPNs in target AD if required.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Computers:</strong>
+                        <ul>
+                            <li>Migrate computer objects (<code>admt migrate computer</code>).</li>
+                            <li><strong>Crucial:</strong> Use <code>/st:yes</code> to perform security translation (updates local groups, file/folder ACLs).</li>
+                            <li>Requires a reboot of the migrated computer.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Service Accounts:</strong>
+                        <ul>
+                            <li>Handle these last and individually if possible.</li>
+                            <li>Requires deep application knowledge to reconfigure services.</li>
+                        </ul>
+                    </li>
+                </ol>
+            </div>
+
+            <!-- PAGE 8: Module 3 Part 2 -->
+            <div class="content-page" id="page-8">
+                <h4>3.2 Security Translation & Local Profile Management</h4>
+                <ul>
+                    <li><strong>Security Translation (<code>/st:yes</code>):</strong>
+                        <ul>
+                            <li>ADMT scans the local file system (NTFS permissions), registry, and local groups of a migrated computer.</li>
+                            <li>It identifies ACL entries containing SIDs from the <em>source</em> domain and replaces them with the SIDs of the <em>newly migrated</em> objects in the target domain.</li>
+                            <li><strong>Without it:</strong> Migrated users would lose access to local resources on their own machines until permissions are manually updated.</li>
+                        </ul>
+                    </li>
+                    <li><strong>User Profiles:</strong>
+                        <ul>
+                            <li>ADMT has a basic User Profile Migration Wizard (<code>admt userprof</code>).</li>
+                            <li>For complex environments, consider third-party tools (e.g., ForensiT User Profile Wizard) or scripted solutions to migrate/re-link user profiles.</li>
+                            <li>If users start with new profiles, old data will be inaccessible without manual intervention.</li>
+                            <li>Redirected folders and roaming profiles require careful planning for target paths and permissions.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- PAGE 9: Module 3 Part 3 + Self-Assessment -->
+            <div class="content-page" id="page-9">
+                <h4>3.3 Post-Migration Validation (On-Premises AD)</h4>
+                <ul>
+                    <li><strong>User Account Validation:</strong>
+                        <ul>
+                            <li>Login tests for migrated users (ensure they can access resources).</li>
+                            <li>Verify group memberships and SID History presence.</li>
+                            <li>Check <code>profilePath</code>, <code>homeDirectory</code>, and other critical attributes.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Computer Validation:</strong>
+                        <ul>
+                            <li>Verify computers are joined to the target domain.</li>
+                            <li>Test local user logins and local resource access.</li>
+                            <li>Confirm GPOs are applied correctly from the target domain.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Security Group Validation:</strong>
+                        <ul>
+                            <li>Test access to resources secured by migrated groups.</li>
+                            <li>Verify nested group memberships.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Application Testing:</strong>
+                        <ul>
+                            <li>Critical step: Test all identified applications and services that rely on AD authentication or group memberships.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Resource ACL Updates:</strong>
+                        <ul>
+                            <li>Gradually update ACLs on file shares, SharePoint, etc., to use SIDs from the <em>target</em> domain directly. This reduces reliance on SID History.</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h3 class="collapsible-header">Module 3: Self-Assessment Questions</h3>
+                <div class="collapsible-content">
+                    <ol class="question-list">
+                        <li>In what order should you generally migrate security groups, users, and computers with ADMT?</li>
+                        <li>What is the purpose of security translation during computer migration?</li>
+                        <li>Besides M365, what are three key on-premises validation checks after migration?</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- PAGE 10: Module 4 Part 1 -->
+            <div class="content-page" id="page-10">
+                <h2>Module 4: Challenges, Best Practices & Ready Reckoner</h2>
+
+                <h3>Learning Objectives for Module 4:</h3>
+                <ul>
+                    <li>Identify common challenges in ADMT migrations, particularly with M365.</li>
+                    <li>Understand best practices for mitigating risks.</li>
+                    <li>Be able to quickly reference key information from the "Ready Reckoner."</li>
+                    <li>Recall answers to common migration FAQs.</li>
+                </ul>
+
+                <h4>4.1 Common Challenges & Mitigation Strategies</h4>
+                <ul>
+                    <li><strong><code>sourceAnchor</code> Mismatch/Loss:</strong>
+                        <ul>
+                            <li><strong>Challenge:</strong> New objects in target AD don't link to existing M365 objects, causing duplicates or deletions.</li>
+                            <li><strong>Mitigation:</strong> <strong>ALWAYS use <code>ms-DS-ConsistencyGuid</code> as <code>sourceAnchor</code></strong>. Ensure ADMT copies it. Meticulously test in pilot.</li>
+                        </ul>
+                    </li>
+                    <li><strong>UPN Change Impact:</strong>
+                        <ul>
+                            <li><strong>Challenge:</strong> Cached credentials, Outlook profiles, OneDrive sync clients break.</li>
+                            <li><strong>Mitigation:</strong> Verify new UPN suffix in M365 <em>before</em> migration. Communicate changes clearly. Users may need to re-authenticate or re-create Outlook profiles/OneDrive sync.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Accidental Deletion from Azure AD:</strong>
+                        <ul>
+                            <li><strong>Challenge:</strong> AADC interprets object disappearance from source AD as deletion, propagating to M365.</li>
+                            <li><strong>Mitigation:</strong> <strong>PAUSE AADC Sync!</strong> Enable "Prevent accidental deletions" in AADC. Use staging AADC. Understand Azure AD soft-delete recovery.</li>
+                        </ul>
+                    </li>
+                    <li><strong>No Password Migration:</strong>
+                        <ul>
+                            <li><strong>Challenge:</strong> Users forced to change passwords, high support call volume.</li>
+                            <li><strong>Mitigation:</strong> Correctly install, configure, and verify PES <em>prior</em> to any user migration.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Unidentified Application Dependencies:</strong>
+                        <ul>
+                            <li><strong>Challenge:</strong> Business-critical applications fail post-migration due to hardcoded SIDs, LDAP queries, or SPN issues.</li>
+                            <li><strong>Mitigation:</strong> Comprehensive discovery phase. Engage application owners <em>early</em>. Test <em>all</em> applications in pilot.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- PAGE 11: Module 4 Part 2 + Self-Assessment -->
+            <div class="content-page" id="page-11">
+                <h4>4.2 Best Practices for a Smooth Migration</h4>
+                <ul>
+                    <li><strong>Test, Test, Test:</strong> A pilot migration is non-negotiable. Learn from it.</li>
+                    <li><strong>Communicate, Communicate, Communicate:</strong> User expectations, schedules, potential disruptions.</li>
+                    <li><strong>Document Everything:</strong> Planning, procedures, issues, resolutions.</li>
+                    <li><strong>Granular Migration:</strong> Migrate in small, manageable batches.</li>
+                    <li><strong>Monitor Aggressively:</strong> ADMT logs, event logs, AADC Sync Service Manager.</li>
+                    <li><strong>Rollback Plan:</strong> Have a clear, tested rollback strategy.</li>
+                    <li><strong>Cleanup:</strong> Plan for removing old objects and eventually decommissioning the source domain.</li>
+                    <li><strong>Gradual ACL Updates:</strong> Don't rush to remove SID History; slowly transition resource ACLs to target SIDs.</li>
+                </ul>
+
+                <h3 class="collapsible-header">Module 4: Self-Assessment Questions</h3>
+                <div class="collapsible-content">
+                    <ol class="question-list">
+                        <li>Describe how <code>ObjectGUID</code> as <code>sourceAnchor</code> can complicate an ADMT migration and why <code>ms-DS-ConsistencyGuid</code> is preferred.</li>
+                        <li>What is the primary mitigation strategy for preventing accidental deletion of M365 objects during an ADMT migration?</li>
+                        <li>Name two reasons why a comprehensive discovery phase is critical.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- PAGE 12: Ready Reckoner & FAQ Part 1 -->
+            <div class="content-page" id="page-12">
+                <h2>Ready Reckoner & Frequently Asked Questions (FAQ)</h2>
+
+                <h3>Learning Objectives for Ready Reckoner & FAQ:</h3>
+                <ul>
+                    <li>Quickly reference key phases and critical success factors.</li>
+                    <li>Review essential best practices.</li>
+                    <li>Find answers to common ADMT and M365 migration questions.</li>
+                </ul>
+
+                <h4>Key Phases & Critical Success Factors (Summary)</h4>
+                <ul>
+                    <li><strong>Pre-Migration Planning (80% of effort):</strong> Audit, dependency map, target design, trusts, ADMT setup, PES, <strong>M365/AADC analysis (sourceAnchor, UPNs)</strong>, communication, rollback.</li>
+                    <li><strong>Pilot Migration:</strong> Test <em>every</em> step on a small scale. Refine.</li>
+                    <li><strong>Core Migration (Batch by Batch):</strong> <strong>PAUSE AADC Sync</strong>, Groups, Users (SID History, Passwords), Computers (Security Translation). Monitor. <strong>RESUME AADC Sync.</strong></li>
+                    <li><strong>Post-Migration Validation:</strong> On-prem AD (logins, GPOs, apps), <strong>M365 (sourceAnchor, UPNs, licenses, services)</strong>, UAT, cleanup.</li>
+                </ul>
+            </div>
+
+            <!-- PAGE 13: Ready Reckoner & FAQ Part 2 -->
+            <div class="content-page" id="page-13">
+                <h4>Critical Reminders & Best Practices (Summary)</h4>
+                <ul>
+                    <li>SID History is a Lifesaver.</li>
+                    <li><code>ms-DS-ConsistencyGuid</code> is KING for M365.</li>
+                    <li>AADC Sync Control: ALWAYS pause, validate, then resume.</li>
+                    <li>Permissions: Extensive rights needed for ADMT.</li>
+                    <li>DNS is Fundamental.</li>
+                    <li>Communication is Key.</li>
+                    <li>Document Everything.</li>
+                    <li>Reboot after computer migration.</li>
+                    <li>User Profiles: Often need specialized tools.</li>
+                </ul>
+
+                <h4>Frequently Asked Questions (FAQ) - Part 1</h4>
+                <ol>
+                    <li><strong>Q1: What is SID History and why is it so important?</strong>
+                        <ul><li><strong>A:</strong> Stores old SIDs, allowing migrated objects to retain access to source domain resources during transition.</li></ul>
+                    </li>
+                    <li><strong>Q2: Why can't I migrate user passwords without the Password Export Server (PES)?</strong>
+                        <ul><li><strong>A:</strong> AD doesn't store recoverable passwords. PES securely extracts and sends encrypted hashes for migration.</li></ul>
+                    </li>
+                    <li><strong>Q3: What is <code>sourceAnchor</code> and why is it critical for Microsoft 365 integration?</strong>
+                        <ul><li><strong>A:</strong> Immutable ID linking on-prem AD to Azure AD. Incorrect handling breaks M365 identity (duplicates/deletions).</li></ul>
+                    </li>
+                    <li><strong>Q4: What happens if my ADMT service account lacks permissions?</strong>
+                        <ul><li><strong>A:</strong> Migration failures, partial migrations, missing SID History, passwords, or attribute loss.</li></ul>
+                    </li>
+                </ol>
+            </div>
+
+            <!-- PAGE 14: Ready Reckoner & FAQ Part 3 + Conclusion -->
+            <div class="content-page" id="page-14">
+                <h4>Frequently Asked Questions (FAQ) - Part 2</h4>
+                <ol start="5">
+                    <li><strong>Q5: Should I pause Azure AD Connect sync during migration?</strong>
+                        <ul><li><strong>A:</strong> <strong>YES, absolutely.</strong> Prevents accidental deletion or duplication of M365 objects.</li></ul>
+                    </li>
+                    <li><strong>Q6: What are the biggest risks to an ADMT migration?</strong>
+                        <ul><li><strong>A:</strong> Broken Trust/Permissions, M365 <code>sourceAnchor</code> Mismatch, No Password Migration, Inadequate Testing, Lack of Communication, Unidentified Application Dependencies.</li></ul>
+                    </li>
+                    <li><strong>Q7: How do I handle user profiles during migration?</strong>
+                        <ul><li><strong>A:</strong> ADMT's tool is basic. Consider third-party tools (e.g., ForensiT) or manual re-creation. Plan for redirected folders.</li></ul>
+                    </li>
+                    <li><strong>Q8: When can I decommission the source domain after migration?</strong>
+                        <ul><li><strong>A:</strong> Only after significant stable operation, all dependencies removed, and M365 fully stable (weeks to months). Do not rush.</li></ul>
+                    </li>
+                </ol>
+
+                <section id="conclusion">
+                    <h2>Module Conclusion</h2>
+                    <div class="intro-box">
+                        <p>Congratulations! You have completed the "Mastering Active Directory Migration with ADMT and Microsoft 365 Integration" training module. You should now have a robust understanding of the intricacies involved in ADMT migrations, with a particular emphasis on managing the vital connection to Microsoft 365. Remember that meticulous planning, rigorous testing, and clear communication are the cornerstones of a successful migration.</p>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- Pagination Controls -->
+        <div class="pagination-controls">
+            <div class="pagination-buttons">
+                <button id="prev-btn" disabled>Previous</button>
+            </div>
+            <div class="page-numbers" id="page-numbers">
+                <!-- Page numbers will be injected here by JavaScript -->
+            </div>
+            <div class="pagination-buttons">
+                <button id="next-btn">Next</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Collapsible sections logic
+            var collapsibleHeaders = document.querySelectorAll('.collapsible-header');
+            collapsibleHeaders.forEach(function(header) {
+                header.addEventListener('click', function() {
+                    this.classList.toggle('active');
+                    var content = this.nextElementSibling;
+                    if (content.style.display === "block") {
+                        content.style.display = "none";
+                    } else {
+                        content.style.display = "block";
+                    }
+                });
+            });
+
+            // Pagination Logic
+            const pages = document.querySelectorAll('.content-page');
+            const pageNumbersContainer = document.getElementById('page-numbers');
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            let currentPageIndex = 0;
+
+            function showPage(index) {
+                pages.forEach((page, i) => {
+                    if (i === index) {
+                        page.classList.add('active');
+                    } else {
+                        page.classList.remove('active');
+                    }
+                });
+                updatePaginationControls();
+                window.scrollTo(0, 0); // Scroll to top of the page on navigation
+            }
+
+            function updatePaginationControls() {
+                // Update Previous/Next buttons
+                prevBtn.disabled = currentPageIndex === 0;
+                nextBtn.disabled = currentPageIndex === pages.length - 1;
+
+                // Update page number indicators
+                pageNumbersContainer.innerHTML = ''; // Clear existing numbers
+                for (let i = 0; i < pages.length; i++) {
+                    const pageNumberSpan = document.createElement('span');
+                    pageNumberSpan.classList.add('page-number');
+                    if (i === currentPageIndex) {
+                        pageNumberSpan.classList.add('active-page');
+                    }
+                    pageNumberSpan.textContent = i + 1;
+                    pageNumberSpan.addEventListener('click', () => {
+                        currentPageIndex = i;
+                        showPage(currentPageIndex);
+                    });
+                    pageNumbersContainer.appendChild(pageNumberSpan);
+                }
+            }
+
+            prevBtn.addEventListener('click', () => {
+                if (currentPageIndex > 0) {
+                    currentPageIndex--;
+                    showPage(currentPageIndex);
+                }
+            });
+
+            nextBtn.addEventListener('click', () => {
+                if (currentPageIndex < pages.length - 1) {
+                    currentPageIndex++;
+                    showPage(currentPageIndex);
+                }
+            });
+
+            // Initialize the first page and controls
+            showPage(currentPageIndex);
+        });
+    </script>
+</body>
+</html>

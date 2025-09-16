@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MBA Formulas & Frameworks for IT Service Operations & Project Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 0 15px;
+            background-color: #f4f4f4;
+        }
+        h1, h2, h3 {
+            color: #0056b3;
+            border-bottom: 2px solid #0056b3;
+            padding-bottom: 5px;
+            margin-top: 30px;
+        }
+        h1 {
+            text-align: center;
+            border-bottom: 3px solid #0056b3;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #007bff;
+            border-bottom: 1px dashed #007bff;
+        }
+        h3 {
+            color: #28a745;
+            margin-top: 25px;
+            border-bottom: none;
+        }
+        strong {
+            color: #333;
+        }
+        .section-intro {
+            font-style: italic;
+            margin-bottom: 20px;
+        }
+        .formula-block {
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .formula-block strong {
+            display: block;
+            margin-bottom: 5px;
+            color: #0056b3;
+        }
+        code {
+            background-color: #e9ecef;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #c80000;
+        }
+        pre {
+            background-color: #e9ecef;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            color: #c80000;
+        }
+        ul {
+            list-style-type: disc;
+            margin-left: 20px;
+        }
+        ol {
+            list-style-type: decimal;
+            margin-left: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #e0e0e0;
+            color: #333;
+        }
+        .example-output {
+            background-color: #f0f8ff;
+            border-left: 3px solid #007bff;
+            padding: 10px;
+            margin-top: 10px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>MBA Formulas & Frameworks for IT Service Operations & Project Management</h1>
+    <p class="section-intro">This guide compiles essential MBA formulas, concepts, and frameworks tailored for IT Service Operations and Project Management. Each section provides a definition, relevant use cases, and practical examples to illustrate their application.</p>
+
+    <hr>
+
+    <h2>I. Financial Management & Investment Appraisal</h2>
+    <p>These formulas help in justifying IT investments, evaluating project viability, and managing costs.</p>
+
+    <div class="formula-block">
+        <h3>1. Return on Investment (ROI)</h3>
+        <strong>Formula:</strong> <code>ROI = (Net Profit / Cost of Investment) × 100%</code>
+        <strong>Definition:</strong> Measures the profitability of an investment relative to its cost.
+        <strong>Use Case:</strong> Justifying new IT projects, software implementations, or infrastructure upgrades by demonstrating the financial benefits they bring.
+        <strong>Example:</strong> An IT project to automate a help desk costs $100,000. It's projected to save $30,000 annually in labor costs for 5 years.
+        <pre>
+Total Savings (Net Profit) = $30,000 * 5 = $150,000
+ROI = ($150,000 / $100,000) × 100% = <strong>150%</strong>
+        </pre>
+    </div>
+
+    <div class="formula-block">
+        <h3>2. Net Present Value (NPV)</h3>
+        <strong>Formula:</strong> <code>NPV = Σ [Cash Flow / (1 + r)^t] - Initial Investment</code>
+        <br><em>Where: Cash Flow = Net cash inflow/outflow for a period, r = Discount rate (cost of capital), t = Number of periods</em>
+        <strong>Definition:</strong> Calculates the present value of future cash flows, minus the initial investment. A positive NPV indicates a profitable project.
+        <strong>Use Case:</strong> Evaluating long-term IT projects (e.g., data center builds, major system migrations) where money's time value is significant.
+        <strong>Example:</strong> A cloud migration project costs $500,000 upfront. It's expected to save $200,000 in Year 1, $250,000 in Year 2, and $300,000 in Year 3. Discount rate (r) = 10%.
+        <pre>
+NPV = [$200,000 / (1.10)^1] + [$250,000 / (1.10)^2] + [$300,000 / (1.10)^3] - $500,000
+NPV = $181,818 + $206,612 + $225,394 - $500,000 = <strong>$113,824</strong> (Since NPV > 0, the project is financially attractive.)
+        </pre>
+    </div>
+
+    <div class="formula-block">
+        <h3>3. Payback Period</h3>
+        <strong>Formula:</strong> <code>Payback Period = Initial Investment / Annual Cash Inflow</code>
+        <strong>Definition:</strong> The time it takes for an investment to generate enough cash flow to cover its initial cost.
+        <strong>Use Case:</strong> Quick assessment for IT projects where rapid return of capital is a priority, or for comparing projects with similar ROIs but different risk profiles.
+        <strong>Example:</strong> An investment in new IT security software costs $75,000 and saves $25,000 annually in avoided breach costs and reduced manual effort.
+        <pre>
+Payback Period = $75,000 / $25,000 = <strong>3 years</strong>
+        </pre>
+    </div>
+
+    <div class="formula-block">
+        <h3>4. Total Cost of Ownership (TCO)</h3>
+        <strong>Formula:</strong> <code>TCO = Initial Purchase Cost + Operating Costs + Maintenance Costs + Support Costs + End-of-Life Costs (over the asset's lifespan)</code>
+        <strong>Definition:</strong> A comprehensive assessment of all direct and indirect costs associated with an IT asset or system throughout its entire lifecycle.
+        <strong>Use Case:</strong> Deciding between on-premise vs. cloud solutions, choosing hardware/software vendors, or budgeting for IT infrastructure.
+        <strong>Example:</strong> Comparing two CRM systems (System A: on-premise, System B: SaaS).
+        <p><strong>System A (On-premise):</strong></p>
+        <ul>
+            <li>Software License: $100,000</li>
+            <li>Servers & Hardware: $50,000</li>
+            <li>Implementation: $30,000</li>
+            <li>Annual Maintenance & Support: $15,000</li>
+            <li>Annual Power/Cooling/Space: $5,000</li>
+            <li>Annual IT Staff (admin): $20,000</li>
+        </ul>
+        <pre>
+TCO (5 years) = $100k + $50k + $30k + (5 * $15k) + (5 * $5k) + (5 * $20k) = <strong>$380,000</strong>
+        </pre>
+        <p><strong>System B (SaaS):</strong></p>
+        <ul>
+            <li>Annual Subscription: $40,000</li>
+            <li>Implementation/Integration: $20,000</li>
+            <li>Annual Support (premium tier): $5,000</li>
+        </ul>
+        <pre>
+TCO (5 years) = (5 * $40k) + $20k + (5 * $5k) = <strong>$245,000</strong>
+        </pre>
+        <div class="example-output">
+            <em>Conclusion: System B has a lower TCO over 5 years.</em>
+        </div>
+    </div>
+
+    <hr>
+
+    <h2>II. Project Management (Earned Value Management - EVM)</h2>
+    <p>EVM is a powerful project control methodology for measuring project performance and progress in an objective manner.</p>
+
+    <div class="formula-block">
+        <h3>Basic EVM Metrics</h3>
+        <h4>1. Planned Value (PV)</h4>
+        <strong>Formula:</strong> <code>PV = (Total Project Budget / Total Project Duration) × Planned % Complete</code>
+        <strong>Definition:</strong> The authorized budget assigned to scheduled work.
+        <strong>Use Case:</strong> Baseline for comparison against actual progress.
+        <strong>Example:</strong> A 10-month IT project has a total budget of $1,000,000. After 2 months, the plan was to be 20% complete.
+        <pre>
+PV = $1,000,000 × 20% = <strong>$200,000</strong>
+        </pre>
+
+        <h4>2. Earned Value (EV)</h4>
+        <strong>Formula:</strong> <code>EV = (Total Project Budget / Total Project Duration) × Actual % Complete</code>
+        <strong>Definition:</strong> The value of the work actually performed, expressed in terms of the budget assigned to that work.
+        <strong>Use Case:</strong> Shows the value of work accomplished, regardless of what was spent or planned.
+        <strong>Example:</strong> (Same project as above) After 2 months, the actual work completed is 15%.
+        <pre>
+EV = $1,000,000 × 15% = <strong>$150,000</strong>
+        </pre>
+
+        <h4>3. Actual Cost (AC)</h4>
+        <strong>Formula:</strong> <code>AC = Sum of all costs incurred for the work performed</code>
+        <strong>Definition:</strong> The total cost actually incurred for the work completed to date.
+        <strong>Use Case:</strong> Tracking real spending against the budget.
+        <strong>Example:</strong> (Same project) After 2 months, the actual expenditures are $180,000.
+        <pre>
+AC = <strong>$180,000</strong>
+        </pre>
+    </div>
+
+    <div class="formula-block">
+        <h3>Performance Indicators</h3>
+        <h4>4. Cost Variance (CV)</h4>
+        <strong>Formula:</strong> <code>CV = EV - AC</code>
+        <strong>Definition:</strong> Measures the budget surplus or deficit at a given point in time.
+        <ul>
+            <li><code>CV > 0</code>: Under budget</li>
+            <li><code>CV < 0</code>: Over budget</li>
+        </ul>
+        <strong>Use Case:</strong> Identifying cost overruns or savings early in the project.
+        <strong>Example:</strong> (Using above figures)
+        <pre>
+CV = $150,000 - $180,000 = <strong>-$30,000</strong> (Project is $30,000 over budget for the work done).
+        </pre>
+
+        <h4>5. Schedule Variance (SV)</h4>
+        <strong>Formula:</strong> <code>SV = EV - PV</code>
+        <strong>Definition:</strong> Measures the difference between the value of work performed and the value of work planned.
+        <ul>
+            <li><code>SV > 0</code>: Ahead of schedule</li>
+            <li><code>SV < 0</code>: Behind schedule</li>
+        </ul>
+        <strong>Use Case:</strong> Identifying if the project is ahead or behind schedule.
+        <strong>Example:</strong> (Using above figures)
+        <pre>
+SV = $150,000 - $200,000 = <strong>-$50,000</strong> (Project is behind schedule in terms of value earned).
+        </pre>
+
+        <h4>6. Cost Performance Index (CPI)</h4>
+        <strong>Formula:</strong> <code>CPI = EV / AC</code>
+        <strong>Definition:</strong> Measures the cost efficiency of the project.
+        <ul>
+            <li><code>CPI > 1</code>: Under budget, cost-efficient</li>
+            <li><code>CPI < 1</code>: Over budget, cost-inefficient</li>
+        </ul>
+        <strong>Use Case:</strong> Predicting future cost performance and assessing overall project financial health.
+        <strong>Example:</strong> (Using above figures)
+        <pre>
+CPI = $150,000 / $180,000 = <strong>0.83</strong> (For every dollar spent, only $0.83 of value has been earned, indicating poor cost performance).
+        </pre>
+
+        <h4>7. Schedule Performance Index (SPI)</h4>
+        <strong>Formula:</strong> <code>SPI = EV / PV</code>
+        <strong>Definition:</strong> Measures the schedule efficiency of the project.
+        <ul>
+            <li><code>SPI > 1</code>: Ahead of schedule, efficient</li>
+            <li><code>SPI < 1</code>: Behind schedule, inefficient</li>
+        </ul>
+        <strong>Use Case:</strong> Predicting future schedule performance and assessing overall project timeline health.
+        <strong>Example:</strong> (Using above figures)
+        <pre>
+SPI = $150,000 / $200,000 = <strong>0.75</strong> (For every hour/dollar of work planned, only 75% has been accomplished, indicating schedule delays).
+        </pre>
+    </div>
+
+    <div class="formula-block">
+        <h3>Forecasting Formulas</h3>
+        <h4>8. Estimate At Completion (EAC)</h4>
+        <strong>Formula (Typical):</strong> <code>EAC = AC + (BAC - EV) / CPI</code>
+        <br><em>Where: BAC = Budget At Completion (Total Project Budget)</em>
+        <strong>Definition:</strong> The projected total cost of the project at completion. This formula assumes future cost performance will be the same as past performance.
+        <strong>Use Case:</strong> Providing a revised budget forecast to stakeholders.
+        <strong>Example:</strong> (Using above figures, BAC = $1,000,000)
+        <pre>
+EAC = $180,000 + ($1,000,000 - $150,000) / 0.83
+EAC = $180,000 + $850,000 / 0.83
+EAC = $180,000 + $1,024,096 = <strong>$1,204,096</strong> (The project is now estimated to cost significantly more than planned).
+        </pre>
+
+        <h4>9. Estimate To Complete (ETC)</h4>
+        <strong>Formula:</strong> <code>ETC = EAC - AC</code>
+        <strong>Definition:</strong> The expected cost to complete all the remaining work for the project.
+        <strong>Use Case:</strong> Determining the additional funding required to finish the project.
+        <strong>Example:</strong> (Using EAC from above)
+        <pre>
+ETC = $1,204,096 - $180,000 = <strong>$1,024,096</strong>
+        </pre>
+
+        <h4>10. Variance At Completion (VAC)</h4>
+        <strong>Formula:</strong> <code>VAC = BAC - EAC</code>
+        <strong>Definition:</strong> The projected variance (difference) between the original budget and the final estimated cost.
+        <strong>Use Case:</strong> Providing a final cost performance indicator at the end of the project.
+        <strong>Example:</strong> (Using EAC from above)
+        <pre>
+VAC = $1,000,000 - $1,204,096 = <strong>-$204,096</strong> (The project is estimated to finish $204,096 over budget).
+        </pre>
+    </div>
+
+    <hr>
+
+    <h2>III. Operations & Service Management</h2>
+    <p>These metrics are crucial for monitoring and improving the efficiency, reliability, and quality of IT services.</p>
+
+    <div class="formula-block">
+        <h3>1. Service Level Agreement (SLA) Availability</h3>
+        <strong>Formula:</strong> <code>Availability = (Total Uptime / Total Period) × 100%</code>
+        <strong>Definition:</strong> The percentage of time an IT service or system is operational and accessible.
+        <strong>Use Case:</strong> Measuring adherence to SLAs for critical IT systems (e.g., servers, applications, network). Often expressed in "nines" (e.g., 99.9% = "three nines").
+        <strong>Example:</strong> A critical application needs 99.9% availability in a month (30 days).
+        <pre>
+Total Period in Minutes = 30 days * 24 hours * 60 minutes = 43,200 minutes
+Allowed Downtime for 99.9% = (1 - 0.999) * 43,200 = 0.001 * 43,200 = 43.2 minutes
+If the actual downtime was 60 minutes, the SLA was breached.
+Actual Availability = (43,200 - 60) / 43,200 = 43,140 / 43,200 = <strong>99.86%</strong>
+        </pre>
+    </div>
+
+    <div class="formula-block">
+        <h3>2. Mean Time To Recover (MTTR) / Mean Time To Repair</h3>
+        <strong>Formula:</strong> <code>MTTR = Total Downtime Duration / Number of Incidents</code>
+        <strong>Definition:</strong> The average time it takes to restore a system or service to full operation after a failure.
+        <strong>Use Case:</strong> Evaluating the efficiency of IT incident response and problem management processes. Lower MTTR is better.
+        <strong>Example:</strong> Over a month, a database had 5 outages with durations of 10, 15, 8, 20, and 12 minutes.
+        <pre>
+Total Downtime = 10 + 15 + 8 + 20 + 12 = 65 minutes
+MTTR = 65 minutes / 5 incidents = <strong>13 minutes</strong>
+        </pre>
+    </div>
+
+    <div class="formula-block">
+        <h3>3. Mean Time Between Failures (MTBF)</h3>
+        <strong>Formula:</strong> <code>MTBF = Total Operational Uptime / Number of Failures</code>
+        <strong>Definition:</strong> The average time a system or component operates correctly between failures.
+        <strong>Use Case:</strong> Assessing the reliability of IT hardware, software, or services. Higher MTBF is better.
+        <strong>Example:</strong> A server operated for 720 hours in a month and experienced 3 failures.
+        <pre>
+MTBF = 720 hours / 3 failures = <strong>240 hours</strong> (This server fails on average every 240 hours of operation).
+        </pre>
+    </div>
+
+    <div class="formula-block">
+        <h3>4. Throughput</h3>
+        <strong>Formula:</strong> <code>Throughput = Number of Units Processed / Time Unit</code>
+        <strong>Definition:</strong> The rate at which a system, process, or service can complete work or transactions.
+        <strong>Use Case:</strong> Measuring the performance of IT operations like transaction processing, help desk ticket resolution, or network data transfer.
+        <strong>Example:</strong> A data processing system processed 12,000 transactions in one hour.
+        <pre>
+Throughput = 12,000 transactions / 1 hour = <strong>200 transactions per minute</strong>
+        </pre>
+    </div>
+
+    <div class="formula-block">
+        <h3>5. Utilization Rate</h3>
+        <strong>Formula:</strong> <code>Utilization Rate = (Actual Output / Maximum Possible Output) × 100%</code>
+        <strong>Definition:</strong> The percentage of available capacity that is being used.
+        <strong>Use Case:</strong> Optimizing resource allocation for IT infrastructure (e.g., CPU, memory, network bandwidth, virtual machine hosts) or IT staff.
+        <strong>Example:</strong> A server has 16 CPU cores. Over an 8-hour period, it ran processes that cumulatively used the equivalent of 12 full cores.
+        <pre>
+Utilization Rate = (12 cores / 16 cores) × 100% = <strong>75%</strong>
+        </pre>
+    </div>
+
+    <hr>
+
+    <h2>IV. Quality Management</h2>
+    <p>These formulas help ensure the quality of IT products, services, and processes.</p>
+
+    <div class="formula-block">
+        <h3>1. Defect Density</h3>
+        <strong>Formula:</strong> <code>Defect Density = Number of Defects / Size of Code (e.g., KLOC - thousands of lines of code) or System Component</code>
+        <strong>Definition:</strong> A measure of the number of defects in software or a system component relative to its size.
+        <strong>Use Case:</strong> Assessing the quality of software development, identifying problematic modules, and benchmarking against industry standards.
+        <strong>Example:</strong> A module of 10,000 lines of code (10 KLOC) was found to have 50 defects during testing.
+        <pre>
+Defect Density = 50 defects / 10 KLOC = <strong>5 defects per KLOC</strong>
+        </pre>
+    </div>
+
+    <div class="formula-block">
+        <h3>2. First Pass Yield (FPY)</h3>
+        <strong>Formula:</strong> <code>FPY = (Number of Units Produced Right the First Time / Total Number of Units Started) × 100%</code>
+        <strong>Definition:</strong> The percentage of items that complete a process correctly without rework or defects on the first attempt.
+        <strong>Use Case:</strong> Measuring the efficiency and quality of IT processes, such as server provisioning, software deployment, or incident resolution workflows.
+        <strong>Example:</strong> Out of 100 new user accounts provisioned, 85 were set up correctly on the first attempt without any errors or rework.
+        <pre>
+FPY = (85 / 100) × 100% = <strong>85%</strong>
+        </pre>
+    </div>
+
+    <div class="formula-block">
+        <h3>3. Cost of Poor Quality (COPQ) / Cost of Quality (COQ) Components</h3>
+        <strong>Framework (not a single formula, but categories of costs):</strong>
+        <ul>
+            <li><strong>Prevention Costs:</strong> Costs incurred to prevent defects (e.g., training, process improvement, robust testing tools).</li>
+            <li><strong>Appraisal Costs:</strong> Costs incurred to detect defects (e.g., testing, inspections, audits).</li>
+            <li><strong>Internal Failure Costs:</strong> Costs incurred when defects are found before delivery to the customer (e.g., rework, scrap, retesting).</li>
+            <li><strong>External Failure Costs:</strong> Costs incurred when defects are found after delivery to the customer (e.g., warranty claims, customer support, reputation damage, legal fees).</li>
+        </ul>
+        <strong>Definition:</strong> Identifies and quantifies all costs associated with preventing, finding, and fixing defects or failures in IT products and services.
+        <strong>Use Case:</strong> Justifying investments in quality initiatives, showing the financial impact of poor quality, and prioritizing improvement efforts.
+        <strong>Example:</strong> An IT service desk experiences high call volumes due to recurring software bugs.
+        <ul>
+            <li><strong>Prevention:</strong> Investing $50,000 in better automated testing and developer training.</li>
+            <li><strong>Appraisal:</strong> $20,000 spent on manual QA for releases.</li>
+            <li><strong>Internal Failure:</strong> $30,000 in developer time to fix bugs found before release.</li>
+            <li><strong>External Failure:</strong> $100,000 in support staff salaries to handle bug-related calls, loss of customer trust estimated at $50,000.</li>
+        </ul>
+        <div class="example-output">
+            <em>Analysis: High external failure costs suggest more investment is needed in prevention and internal appraisal to reduce the overall COPQ.</em>
+        </div>
+    </div>
+
+    <hr>
+
+    <h2>V. Strategic & Decision Making Frameworks</h2>
+    <p>While not formulas in the mathematical sense, these are essential MBA tools for structuring strategic thinking and decision-making in IT.</p>
+
+    <div class="formula-block">
+        <h3>1. SWOT Analysis</h3>
+        <strong>Framework:</strong>
+        <ul>
+            <li><strong>Strengths:</strong> Internal positive attributes (e.g., skilled IT team, robust infrastructure, proprietary technology).</li>
+            <li><strong>Weaknesses:</strong> Internal negative attributes (e.g., outdated systems, lack of critical skills, high technical debt).</li>
+            <li><strong>Opportunities:</strong> External favorable factors (e.g., emerging technologies, market growth, new partnerships).</li>
+            <li><strong>Threats:</strong> External unfavorable factors (e.g., cybersecurity risks, competitor innovation, regulatory changes).</li>
+        </ul>
+        <strong>Definition:</strong> A strategic planning framework used to identify and analyze an organization's (or IT department's) internal capabilities and external environment.
+        <strong>Use Case:</strong> Strategic IT planning, evaluating new technology adoption, assessing IT project risks and benefits, or developing an IT service portfolio.
+        <strong>Example:</strong> An IT department considering adopting a new AI-powered ITSM platform.
+        <ul>
+            <li><strong>Strengths:</strong> Highly skilled data science team, existing strong data governance.</li>
+            <li><strong>Weaknesses:</strong> Legacy ITSM system, limited budget for new tools.</li>
+            <li><strong>Opportunities:</strong> Potential for significant cost savings and improved service quality, industry trend towards AI.</li>
+            <li><strong>Threats:</strong> Integration complexity, potential data privacy concerns, talent gap in AI ops.</li>
+        </ul>
+    </div>
+
+    <div class="formula-block">
+        <h3>2. Decision Matrix (Weighted Scoring Model)</h3>
+        <strong>Framework:</strong> A table listing alternatives against evaluation criteria, with criteria often weighted by importance. Each alternative is scored against each criterion, and the weighted scores are summed to find the best option.
+        <strong>Definition:</strong> A structured tool used to compare and choose between multiple alternatives by systematically evaluating them against a set of predefined criteria.
+        <strong>Use Case:</strong> Selecting vendors (e.g., cloud providers, software vendors), choosing between competing IT project proposals, or deciding on technology stack.
+        <strong>Example:</strong> Choosing between three different SaaS vendors for a new HR system.
+        <table>
+            <thead>
+                <tr>
+                    <th>Criteria</th>
+                    <th>Weight (1-5)</th>
+                    <th>Vendor A (Score 1-10)</th>
+                    <th>Vendor B (Score 1-10)</th>
+                    <th>Vendor C (Score 1-10)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Cost (Total/year)</td>
+                    <td>5</td>
+                    <td>6 (30)</td>
+                    <td>8 (40)</td>
+                    <td>7 (35)</td>
+                </tr>
+                <tr>
+                    <td>Features</td>
+                    <td>4</td>
+                    <td>7 (28)</td>
+                    <td>6 (24)</td>
+                    <td>9 (36)</td>
+                </tr>
+                <tr>
+                    <td>Integration Ease</td>
+                    <td>4</td>
+                    <td>8 (32)</td>
+                    <td>7 (28)</td>
+                    <td>6 (24)</td>
+                </tr>
+                <tr>
+                    <td>Security & Compliance</td>
+                    <td>5</td>
+                    <td>9 (45)</td>
+                    <td>8 (40)</td>
+                    <td>7 (35)</td>
+                </tr>
+                <tr>
+                    <td>Vendor Support</td>
+                    <td>3</td>
+                    <td>7 (21)</td>
+                    <td>9 (27)</td>
+                    <td>8 (24)</td>
+                </tr>
+                <tr>
+                    <td><strong>Total Weighted Score</strong></td>
+                    <td></td>
+                    <td><strong>156</strong></td>
+                    <td><strong>159</strong></td>
+                    <td><strong>154</strong></td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="example-output">
+            <em>Conclusion: Vendor B has the highest total weighted score, making it the preferred choice based on the defined criteria and their weights.</em>
+        </div>
+    </div>
+
+</body>
+</html>
