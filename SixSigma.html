@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IT Service Improvement: Six Sigma Simulator (V5) - Powered by Gemini</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px 0;
+            box-sizing: border-box;
+        }
+        #simulator-container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            width: 950px;
+            max-width: 98%;
+            padding: 2rem;
+            box-sizing: border-box;
+        }
+        h1 {
+            color: #1c3d5a;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 0.5rem;
+            margin-top: 0;
+            font-size: 1.8em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        h1 .gemini-tag {
+            font-size: 0.6em;
+            color: #666;
+            font-weight: normal;
+            background-color: #e0e0e0;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        h2 {
+            color: #007bff; /* Blue for Six Sigma focus */
+            font-size: 1.3em;
+            margin-top: 1.5rem;
+            margin-bottom: 0.8rem;
+        }
+        #network-animation {
+            background-color: #0d1117;
+            color: #c9d1d9;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 1rem;
+            border-radius: 6px;
+            white-space: pre;
+            font-size: 14px;
+            overflow-x: auto;
+            min-height: 220px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+        .section-title {
+            font-weight: bold;
+            color: #1c3d5a;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+        }
+        .section-title.briefing-title::before {
+            content: "📚 Scenario Overview: ";
+            color: #007bff;
+            margin-right: 5px;
+        }
+        .section-title.task-title::before {
+            content: "❓ Your Six Sigma Challenge: ";
+            color: #dc3545;
+            margin-right: 5px;
+        }
+
+        .briefing, .step-description {
+            margin: 0.5rem 0 1rem 0;
+            line-height: 1.6;
+            background-color: #e6f7ff;
+            border-left: 4px solid #007bff;
+            padding: 0.8rem 1rem;
+            border-radius: 4px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+        }
+        .step-description {
+            background-color: #f0fdf4;
+            border-left-color: #28a745;
+        }
+        .task {
+            margin: 0.5rem 0 1rem 0;
+            font-weight: normal;
+            font-size: 1em;
+            color: #333;
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 0.8rem 1rem;
+            border-radius: 4px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+        }
+        #choices {
+            margin-top: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            text-align: left;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        button:hover {
+            background-color: #0056b3;
+            transform: translateY(-1px);
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        #interaction-area {
+            display: none;
+        }
+        .final-message {
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+            color: #0c5460;
+            padding: 1.5rem;
+            text-align: center;
+            font-size: 1.2rem;
+            margin-top: 2rem;
+        }
+        .waiting-message {
+            text-align: center;
+            margin-top: 1rem;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+<div id="simulator-container">
+    <h1>
+        IT Service Improvement: Six Sigma Simulator (V5)
+        <span class="gemini-tag">Powered by Gemini</span>
+    </h1>
+    <div id="step-content">
+        <h2 class="framework-focus" id="framework-focus"></h2>
+        <div class="section-title briefing-title"></div>
+        <div class="briefing" id="briefing"></div>
+        <pre id="network-animation"></pre>
+        <div class="step-description" id="step-description"></div>
+        <div id="interaction-area">
+            <div class="section-title task-title"></div>
+            <div class="task" id="task"></div>
+            <div id="choices"></div>
+        </div>
+        <div class="waiting-message" id="waiting-message" style="display: none;">Animating concept... Please wait.</div>
+    </div>
+</div>
+
+<script>
+    // --- ANIMATION CONFIGURATION (Simplified for conceptual diagrams) ---
+    const ANIMATION_DURATION_PER_FRAME = 2000; // Milliseconds per static conceptual frame
+
+    // --- SIMULATOR DATA ---
+    const scenarioSteps = {
+        "start": {
+            focus: "Welcome: Six Sigma for IT Service Improvement (DMAIC)",
+            briefing: "This simulator will guide you through the DMAIC (Define, Measure, Analyze, Improve, Control) methodology to enhance IT service quality and efficiency. Each step presents a challenge in improving a common IT process.",
+            animatedSequence: [
+                {
+                    staticNetwork: `      D E F I N E
+                      /       \\
+                   /           \\
+                M E A S U R E --- A N A L Y Z E
+                   \\           /
+                      \\       /
+                        I M P R O V E
+                            |
+                        C O N T R O L
+    
+    (The DMAIC Cycle for Continuous Improvement in IT Services)`,
+                    description: "Introducing the DMAIC cycle: A structured, data-driven approach to eliminate defects and improve processes in IT. We begin with 'Define'.",
+                    duration: 4000
+                }
+            ],
+            task: "Our first challenge is to clearly define an IT service improvement project. Click 'Continue' to start.",
+            choices: [
+                {
+                    text: "Continue to the 'Define' Phase: Slow Incident Resolution",
+                    outcomeBriefing: "Excellent. Clearly defining the problem is the first and most critical step in any Six Sigma project.",
+                    nextStepId: "scenario1_define"
+                }
+            ]
+        },
+        "scenario1_define": {
+            focus: "Phase 1: DEFINE - Slow Incident Resolution Times",
+            briefing: "The IT Service Desk reports a consistent rise in 'Time to Resolution' for critical incidents, leading to user frustration and productivity loss. You are leading a Six Sigma project to address this. The 'Define' phase requires a clear problem statement, project scope, and identification of Critical To Quality (CTQ) metrics from the customer's perspective.",
+            animatedSequence: [
+                {
+                    staticNetwork: `        [Project Charter]
+          |
+    .-----'-----.
+   |             |
+[PROBLEM]       [SCOPE]
+  'Slow Incident   'Incidents affecting
+  Resolution'      Critical Business Apps'
+   |             |
+   '-----.-----'
+         |
+       [CTQs]
+    'Rapid Restoration'
+    'Clear Communication'
+    'First Call Resolution'
+    
+    (Defining Project Goals and Customer Expectations)`,
+                    description: "Visualizing the Define phase: Clearly stating the problem, setting project boundaries, and identifying what truly matters to the customer (CTQs).",
+                    duration: 4000
+                }
+            ],
+            task: "To properly define this project, which action best identifies the Critical To Quality (CTQ) factors from the perspective of the business (your customer)?",
+            choices: [
+                {
+                    text: "Conduct interviews and surveys with affected business users and stakeholders to understand their pain points and expectations regarding incident resolution, then translate these into measurable CTQs.",
+                    outcomeBriefing: "Correct. Engaging directly with the 'customer' (business users and stakeholders) is fundamental in the 'Define' phase. This approach ensures that CTQs like 'mean time to restore service' or 'effective communication during outages' are truly relevant, allowing the project to focus on improvements that directly impact business value.",
+                    nextStepId: "scenario2_measure"
+                },
+                {
+                    text: "Review the service desk's internal KPIs and assume those are sufficient for defining quality.",
+                    outcomeBriefing: "While internal KPIs are useful, they often reflect internal IT efficiency rather than direct customer value. A true Six Sigma 'Define' phase focuses on the customer's perspective. Relying solely on internal metrics risks improving something that doesn't significantly impact user satisfaction or business productivity.",
+                    nextStepId: "scenario2_measure"
+                }
+            ]
+        },
+        "scenario2_measure": {
+            focus: "Phase 2: MEASURE - Collecting Incident Resolution Data",
+            briefing: "You've defined the project. Now, in the 'Measure' phase, you need to collect reliable data on the current performance of the incident resolution process. This involves identifying key process steps, potential data sources, and ensuring data integrity to quantify the problem identified in the 'Define' phase.",
+            animatedSequence: [
+                {
+                    staticNetwork: `        [Process Map]
+          |
+    .-----'-----.
+   |             |
+[DATA POINTS]   [BASELINES]
+  'Time to Acknowledge'   'Current Avg.
+  'Time to Diagnose'      Resolution Time:
+  'Time to Restore'       4 hours'
+   |             |
+   '-----.-----'
+         |
+       [DATA PLAN]
+    'Source: Ticketing System'
+    'Period: Last 6 months'
+    'Tools: Excel/BI Dashboards'
+    
+    (Quantifying the Problem with Data)`,
+                    description: "Visualizing the Measure phase: Mapping the process, identifying critical data points, establishing current baselines, and planning data collection.",
+                    duration: 4000
+                }
+            ],
+            task: "To accurately measure the current state of incident resolution, what is the most effective way to ensure the collected data is reliable and truly representative of the process performance?",
+            choices: [
+                {
+                    text: "Standardize data collection procedures across all service desk agents, validate the ticketing system's data integrity, and collect data for a statistically significant period (e.g., 6-12 months) to establish a clear baseline.",
+                    outcomeBriefing: "Correct. Standardized procedures and data validation are crucial in the 'Measure' phase to ensure accuracy and consistency. Collecting data over a statistically significant period allows for establishing a reliable baseline and understanding variations, providing a true picture of the current process performance before any improvements are attempted.",
+                    nextStepId: "scenario3_analyze"
+                },
+                {
+                    text: "Ask team leads for their best estimates of resolution times and common bottlenecks.",
+                    outcomeBriefing: "While expert opinion can provide initial insights, the 'Measure' phase in Six Sigma is fundamentally about objective, quantitative data. Relying on estimates can introduce bias and inaccuracy, which undermines the data-driven nature of the methodology. This approach is not sufficiently rigorous for establishing a reliable baseline.",
+                    nextStepId: "scenario3_analyze"
+                }
+            ]
+        },
+        "scenario3_analyze": {
+            focus: "Phase 3: ANALYZE - Identifying Root Causes",
+            briefing: "With reliable data collected, the 'Analyze' phase focuses on identifying the root causes of the long incident resolution times. This involves using statistical tools and process analysis techniques to uncover the 'why' behind the current performance, rather than just treating symptoms.",
+            animatedSequence: [
+                {
+                    staticNetwork: `        [Data Analysis]
+          |
+    .-----'-----.
+   |             |
+[5 WHYS]        [FISHBONE]
+  'Why is it slow?   'Causes: People, Process,
+  Why that? Why...'    Tools, Environment'
+   |             |
+   '-----.-----'
+         |
+       [PARETO]
+    'Top 20% of Causes
+    = 80% of Problems'
+    
+    (Uncovering the 'Why' Behind the Defects)`,
+                    description: "Visualizing the Analyze phase: Employing tools like 5 Whys, Fishbone diagrams, and Pareto charts to dig beyond symptoms and identify critical root causes.",
+                    duration: 4000
+                }
+            ],
+            task: "Based on the collected data, you've observed that a significant number of incidents are repeatedly escalated due to a lack of clear documentation and knowledge base articles. How do you confirm this as a root cause in the 'Analyze' phase?",
+            choices: [
+                {
+                    text: "Conduct a '5 Whys' analysis on a sample of escalated incidents, and use a Fishbone (Cause & Effect) diagram to map out all potential contributing factors, verifying the documentation issue as a primary root cause.",
+                    outcomeBriefing: "Correct. Using systematic root cause analysis tools like the '5 Whys' and Fishbone diagrams is essential in the 'Analyze' phase. This approach helps to move beyond superficial symptoms and scientifically confirm that poor documentation is a verifiable, recurring root cause of escalations, paving the way for targeted improvements.",
+                    nextStepId: "scenario4_improve"
+                },
+                {
+                    text: "Immediately conclude that agents are not using the existing documentation enough and plan retraining.",
+                    outcomeBriefing: "Jumping to conclusions about agent behavior without thorough analysis is a common pitfall. The 'Analyze' phase requires data-driven verification of root causes. The issue might be the *quality* or *accessibility* of documentation, not just its usage. Prescribing a solution prematurely without confirming the true root cause can lead to ineffective improvements.",
+                    nextStepId: "scenario4_improve"
+                }
+            ]
+        },
+        "scenario4_improve": {
+            focus: "Phase 4: IMPROVE - Implementing Solutions",
+            briefing: "With root causes confirmed, the 'Improve' phase is where you develop and implement solutions to eliminate or reduce the identified problems. This involves brainstorming, piloting, and validating the effectiveness of proposed changes before full deployment.",
+            animatedSequence: [
+                {
+                    staticNetwork: `        [Solution Brainstorm]
+          |
+    .-----'-----.
+   |             |
+[PILOT]         [IMPLEMENT]
+  'Test changes   'Deploy validated
+  on a small group' solutions broadly'
+   |             |
+   '-----.-----'
+         |
+       [RESULTS]
+    'Reduction in Escalations'
+    'Faster Resolution Times'
+    
+    (Executing Changes and Verifying Impact)`,
+                    description: "Visualizing the Improve phase: Brainstorming solutions, piloting them in a controlled environment, and implementing the most effective ones.",
+                    duration: 4000
+                }
+            ],
+            task: "Having identified poor knowledge management as a key root cause for slow incident resolution, what is the most effective 'Improve' phase action to address this?",
+            choices: [
+                {
+                    text: "Develop a structured knowledge base creation and update process, implement mandatory training for agents on using and contributing to the knowledge base, and integrate it directly into the incident ticketing system for easy access.",
+                    outcomeBriefing: "Correct. This action directly addresses the root cause by providing structured, accessible knowledge. Developing a process ensures knowledge quality, training empowers agents, and integration into the ticketing system improves **efficiency**. This comprehensive approach is typical of the 'Improve' phase, targeting the specific identified problem.",
+                    nextStepId: "scenario5_control"
+                },
+                {
+                    text: "Replace the entire incident ticketing system with a new one that promises 'AI-driven' knowledge management.",
+                    outcomeBriefing: "Replacing an entire system without thoroughly understanding if the current system's limitations were the *actual* root cause is a costly and risky move. Six Sigma focuses on targeted, data-driven improvements. An 'AI-driven' solution might not solve the underlying process and content issues in knowledge management, and could introduce new complexities without addressing the confirmed root cause.",
+                    nextStepId: "scenario5_control"
+                }
+            ]
+        },
+        "scenario5_control": {
+            focus: "Phase 5: CONTROL - Sustaining Improvements",
+            briefing: "After implementing improvements, the 'Control' phase ensures that the gains achieved are sustained over time. This involves establishing monitoring systems, documentation updates, and ongoing training to prevent the process from reverting to its old, inefficient state.",
+            animatedSequence: [
+                {
+                    staticNetwork: `        [Monitoring System]
+          |
+    .-----'-----.
+   |             |
+[KPI DASHBOARD] [SOP UPDATES]
+  'Real-time metrics   'New Knowledge Base
+  on resolution times' Creation Process'
+   |             |
+   '-----.-----'
+         |
+       [TRAINING]
+    'Ongoing Agent
+    Knowledge Sharing'
+    
+    (Ensuring Long-Term Performance and Preventing Regression)`,
+                    description: "Visualizing the Control phase: Setting up monitoring dashboards, updating standard operating procedures, and establishing ongoing training and review processes to sustain improvements.",
+                    duration: 4000
+                }
+            ],
+            task: "To ensure the improved incident resolution process, particularly around knowledge management, remains effective long-term, what is the most critical 'Control' phase action?",
+            choices: [
+                {
+                    text: "Implement a control plan including regular audits of knowledge base articles for accuracy and completeness, continuous monitoring of resolution times using statistical process control (SPC) charts, and scheduled refresher training for agents on the updated knowledge management process.",
+                    outcomeBriefing: "Correct. A robust control plan, including continuous monitoring with SPC charts, regular audits, and ongoing training, is paramount in the 'Control' phase. This ensures that the improved process consistently meets performance targets, knowledge remains current, and agents are proficient, thereby sustaining the gains achieved in incident resolution times.",
+                    nextStepId: "end"
+                },
+                {
+                    text: "Announce the project's success and move on to the next improvement initiative, assuming the new process will stick.",
+                    outcomeBriefing: "Assuming success without establishing a control plan is a common reason why improvements regress over time. Without continuous monitoring, auditing, and reinforcement, old habits can return, new problems can emerge, and the gains achieved through significant effort can be lost. This undermines the entire Six Sigma effort.",
+                    nextStepId: "end"
+                }
+            ]
+        },
+        "end": {
+            focus: "Simulation Complete: IT Service Improvement through Six Sigma!",
+            briefing: "Congratulations! You have successfully applied the DMAIC methodology to improve IT service delivery. Understanding and implementing each phase of Six Sigma empowers organizations to achieve significant and sustainable enhancements in quality and efficiency.",
+            animatedSequence: [
+                {
+                    staticNetwork: `      D E F I N E
+                      /       \\
+                   /           \\
+                M E A S U R E --- A N A L Y Z E
+                   \\           /
+                      \\       /
+                        I M P R O V E
+                            |
+                        C O N T R O L
+    
+    🏆 YOU'VE MASTERED IT SERVICE IMPROVEMENT WITH SIX SIGMA! 🏆
+    
+                     Powered by Gemini`,
+                    description: "A final overview of the complete DMAIC cycle, emphasizing its power in driving continuous, data-driven improvement in IT services.",
+                    duration: 5000
+                }
+            ],
+            task: "Thank you for participating in this Six Sigma simulator. Your journey to excellence in IT service improvement is well underway!",
+            choices: []
+        }
+    };
+
+    // --- SIMULATOR ENGINE ---
+    let currentStepId = "start";
+    let mainAnimationTimeout;
+
+    const frameworkFocusEl = document.getElementById('framework-focus');
+    const briefingEl = document.getElementById('briefing');
+    const networkEl = document.getElementById('network-animation');
+    const stepDescriptionEl = document.getElementById('step-description');
+    const taskEl = document.getElementById('task');
+    const choicesEl = document.getElementById('choices');
+    const interactionAreaEl = document.getElementById('interaction-area');
+    const waitingMessageEl = document.getElementById('waiting-message');
+    const briefingTitleEl = document.querySelector('.section-title.briefing-title');
+    const taskTitleEl = document.querySelector('.section-title.task-title');
+
+
+    function stopCurrentAnimations() {
+        clearTimeout(mainAnimationTimeout);
+    }
+
+    async function animateSequence(sequence) {
+        stopCurrentAnimations(); // Clear any running animations
+        interactionAreaEl.style.display = 'none';
+        waitingMessageEl.style.display = 'block';
+
+        for (let i = 0; i < sequence.length; i++) {
+            const frame = sequence[i];
+            stepDescriptionEl.textContent = frame.description;
+            stepDescriptionEl.style.display = 'flex';
+
+            if (frame.staticNetwork) {
+                networkEl.textContent = frame.staticNetwork;
+                await new Promise(resolve => mainAnimationTimeout = setTimeout(resolve, frame.duration));
+            }
+        }
+
+        waitingMessageEl.style.display = 'none';
+        interactionAreaEl.style.display = 'block';
+    }
+
+    async function displayStep(stepId) {
+        const step = scenarioSteps[stepId];
+        if (!step) {
+            console.error("Step not found:", stepId);
+            return;
+        }
+
+        currentStepId = stepId;
+
+        stopCurrentAnimations(); // Ensure all previous animations are stopped
+
+        // Reset elements
+        stepDescriptionEl.style.display = 'none';
+        stepDescriptionEl.innerHTML = '';
+        choicesEl.innerHTML = '';
+        interactionAreaEl.style.display = 'none';
+        taskEl.className = 'task'; // Reset class for task
+        briefingTitleEl.style.display = 'block';
+        taskTitleEl.style.display = 'block';
+
+
+        // Populate initial step content
+        frameworkFocusEl.textContent = step.focus;
+        briefingEl.textContent = step.briefing;
+        taskEl.textContent = step.task;
+
+        if (stepId === "end") {
+            briefingTitleEl.style.display = 'none'; // Hide briefing title for final message
+            briefingEl.style.display = 'none'; // Hide briefing content for final message
+            taskTitleEl.style.display = 'none';
+            choicesEl.style.display = 'none';
+            taskEl.className = 'final-message';
+        } else {
+            briefingEl.style.display = 'flex';
+            choicesEl.style.display = 'flex';
+        }
+
+        // Run the animated sequence
+        await animateSequence(step.animatedSequence);
+
+        // After animation, set up choices
+        if (step.choices && step.choices.length > 0) {
+            step.choices.forEach((choice, index) => {
+                const button = document.createElement('button');
+                button.textContent = choice.text;
+                button.addEventListener('click', () => handleChoice(choice));
+                choicesEl.appendChild(button);
+            });
+        }
+    }
+
+    function handleChoice(selectedChoice) {
+        // Display the outcome briefing in the stepDescription area
+        stepDescriptionEl.innerHTML = selectedChoice.outcomeBriefing;
+        stepDescriptionEl.style.display = 'flex';
+
+        // Disable all choice buttons
+        Array.from(choicesEl.children).forEach(button => button.disabled = true);
+        
+        // Prepare for next step
+        const nextStepId = selectedChoice.nextStepId;
+        if (nextStepId) {
+            // Add a small delay for user to read outcome, then go to next step
+            setTimeout(() => {
+                displayStep(nextStepId);
+            }, 5000); // 5 seconds to read outcome and explanation
+        }
+    }
+
+    // --- START SIMULATION ---
+    displayStep(currentStepId);
+
+</script>
+</body>
+</html>
