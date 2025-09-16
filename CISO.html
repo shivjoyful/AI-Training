@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CISA Framework CISO-Guided Traffic Flow Simulator</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px 0;
+            box-sizing: border-box;
+        }
+        #simulator-container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            width: 900px;
+            max-width: 95%;
+            padding: 2rem;
+            box-sizing: border-box;
+        }
+        h1, h2 {
+            color: #1c3d5a;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 0.5rem;
+            margin-top: 0;
+        }
+        #network-animation {
+            background-color: #0d1117;
+            color: #c9d1d9;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 1rem;
+            border-radius: 6px;
+            white-space: pre;
+            font-size: 14px;
+            overflow-x: auto;
+            min-height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+        .phase-title {
+            font-weight: bold;
+            font-size: 1.3rem;
+            color: #00529B;
+        }
+        .ciso-briefing-title, .ciso-directive-title {
+            font-weight: bold;
+            color: #1c3d5a;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+        }
+        .ciso-briefing-title::before {
+            content: "🗣️ CISO Briefing: ";
+            color: #007bff;
+            margin-right: 5px;
+        }
+        .ciso-directive-title::before {
+            content: "🎯 CISO Directive: ";
+            color: #dc3545; /* Red for directives/tasks */
+            margin-right: 5px;
+        }
+
+        .briefing, .step-description {
+            margin: 0.5rem 0 1rem 0; /* Adjusted margin */
+            line-height: 1.6;
+            background-color: #e6f7ff;
+            border-left: 4px solid #007bff;
+            padding: 0.8rem 1rem;
+            border-radius: 4px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+        }
+        .step-description {
+            background-color: #f0fdf4;
+            border-left-color: #28a745;
+        }
+        .task { /* This will now be the CISO Directive content */
+            margin: 0.5rem 0 1rem 0; /* Adjusted margin */
+            font-weight: normal; /* No longer bold by default */
+            font-size: 1em;
+            color: #333;
+            background-color: #fff3cd; /* Warning yellow for tasks */
+            border-left: 4px solid #ffc107;
+            padding: 0.8rem 1rem;
+            border-radius: 4px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+        }
+        #choices {
+            margin-top: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            text-align: left;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        button:hover {
+            background-color: #0056b3;
+            transform: translateY(-1px);
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        #interaction-area {
+            display: none;
+        }
+        .final-message {
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+            color: #0c5460;
+            padding: 1.5rem;
+            text-align: center;
+            font-size: 1.2rem;
+            margin-top: 2rem;
+        }
+        .waiting-message {
+            text-align: center;
+            margin-top: 1rem;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+<div id="simulator-container">
+    <h1>CISA Framework CISO-Guided Traffic Flow Simulator</h1>
+    <div id="step-content">
+        <h2 class="phase-title" id="phase-title"></h2>
+        <div class="ciso-briefing-title"></div>
+        <div class="briefing" id="briefing"></div>
+        <pre id="network-animation"></pre>
+        <div class="step-description" id="step-description"></div>
+        <div id="interaction-area">
+            <div class="ciso-directive-title"></div>
+            <div class="task" id="task"></div>
+            <div id="choices"></div>
+        </div>
+        <div class="waiting-message" id="waiting-message" style="display: none;">Animating workflow... Please wait.</div>
+    </div>
+</div>
+
+<script>
+    // --- ANIMATION CONFIGURATION ---
+    const TRAFFIC_PULSE_CHARS_H = ['--->', '===>', '----', '<---', '<===', '----']; // Horizontal traffic flow
+    const TRAFFIC_PULSE_CHARS_V = [' |', ' ^', ' v']; // Vertical traffic flow (simplified - not used in this iteration but kept for potential future use)
+    const TRAFFIC_PULSE_SPEED = 200; // Milliseconds between traffic character changes
+
+    // --- SIMULATOR DATA ---
+    const scenarioSteps = {
+        "start": {
+            phase: "Phase 1: IDENTIFY",
+            briefing: "Welcome, Analyst! I'm your CISO. At Innovatech Solutions, we prioritize IDENTIFY. This means mapping our assets, understanding business context, and assessing risks. Our latest assessment highlights phishing as a high residual risk for our organization.",
+            animatedSequence: [
+                {
+                    animatedNetwork: [
+                        `      [🌐] Internet Gateway/Firewall
+         |
+      [TrafH] Main Network Traffic
+         |
+    .----'-----.
+   |           |
+[🖥️]         [🖥️]
+Finance     Main DB
+Server      Server
+   |           |
+   '----.----.----'----'
+        |    |         |
+      [💻]  [💻]       [💻]
+      Alex  Brenda    Carlos`,
+                    ],
+                    trafficPatterns: { 'TrafH': TRAFFIC_PULSE_CHARS_H },
+                    animationSpeed: TRAFFIC_PULSE_SPEED,
+                    description: "Observe our core network assets. Normal traffic patterns indicate business as usual.",
+                    duration: 3000
+                },
+                {
+                    staticNetwork: `      [🌐] Internet Gateway/Firewall
+         |  (Phishing threat identified)
+      [--->] Main Network Traffic
+         |
+    .----'-----.
+   |           |
+[🖥️]         [🖥️]
+Finance     Main DB
+Server      Server
+   |           |
+   '----.----.----'----'
+        |    |         |
+      [💻]  [💻]       [💻]
+      Alex  Brenda    Carlos`,
+                    description: "Our IDENTIFY phase has concluded that phishing poses a significant, ongoing external threat.",
+                    duration: 2000
+                }
+            ],
+            task: "Given the identified phishing risk, Analyst, what 'PROTECT' measure do you recommend as our immediate priority?",
+            choices: [
+                {
+                    text: "Implement mandatory security awareness training on phishing.",
+                    outcomeBriefing: "Agreed. User education is foundational to 'PROTECT'. Empowering our staff is a crucial first line of defense against social engineering attacks like phishing.",
+                    nextStepId: "protect1"
+                },
+                {
+                    text: "Deploy a new Intrusion Prevention System (IPS) on the network perimeter.",
+                    outcomeBriefing: "While an IPS is valuable for network-level protection, for phishing, which often exploits user behavior, direct user training offers a more immediate protective impact. We'll consider the IPS for later stages.",
+                    nextStepId: "protect1"
+                }
+            ]
+        },
+        "protect1": {
+            phase: "Phase 2: PROTECT",
+            briefing: "Analyst, we're now in the 'PROTECT' phase. Security awareness training is rolled out, endpoint protection is active, and our password policies are enforced.",
+            animatedSequence: [
+                {
+                    animatedNetwork: [
+                        `      [🌐] Internet Gateway/Firewall
+         |
+      [TrafH] Main Network Traffic
+         |
+    .----'-----.
+   |           |
+[🖥️️🛡️]        [🖥️️🛡️] <- Server Security
+Finance     Main DB
+Server      Server
+   |           |
+   '----.----.----'----'
+        |    |         |
+      [💻🛡️] [💻🛡️]    [💻🛡️]  <- Endpoint Protection active
+      Alex  Brenda    Carlos`,
+                    ],
+                    trafficPatterns: { 'TrafH': TRAFFIC_PULSE_CHARS_H },
+                    animationSpeed: TRAFFIC_PULSE_SPEED,
+                    description: "Our protective measures are in place, making the network more resilient. Traffic flows securely.",
+                    duration: 3000
+                },
+                {
+                    staticNetwork: `      [🌐] Internet Gateway/Firewall
+         |
+      [===>] Main Network Traffic
+         |
+    .----'-----.
+   |           |
+[🖥️️🛡️]        [🖥️️🛡️]
+Finance     Main DB
+Server      Server
+   |           |
+   '----.----.----'----'
+        |    |         |
+      [💻🛡️] [💻🛡️]    [💻🛡️]
+      Alex  Brenda    Carlos`,
+                    description: "Our protective controls are hardening our environment against various threats.",
+                    duration: 2000
+                }
+            ],
+            task: "Analyst, our SIEM just flagged an alert from Carlos's workstation – a suspicious link click. This moves us to 'DETECT'. What is your immediate observation?",
+            choices: [
+                {
+                    text: "Proceed to the 'DETECT' phase.",
+                    outcomeBriefing: "Understood. The incident has begun. Our 'DETECT' capabilities are now critical for understanding the scope and nature of this potential compromise.",
+                    nextStepId: "detect1"
+                }
+            ]
+        },
+        "detect1": {
+            phase: "Phase 3: DETECT",
+            briefing: "Analyst, we are in the 'DETECT' phase. The SIEM alert points to Carlos's workstation, showing outbound traffic to a suspicious external IP address.",
+            animatedSequence: [
+                {
+                    animatedNetwork: [
+                        `      [🌐] Internet Gateway/Firewall
+         |
+      [TrafH] Main Network Traffic
+         |
+    .----'-----.
+   |           |
+[🖥️🛡️]        [🖥️🛡️]
+Finance     Main DB
+Server      Server
+   |           |
+   '----.----.----'----'
+        |    |         |
+      [💻🛡️] [💻🛡️]    [💻🛡️]
+      Alex  Brenda    Carlos`,
+                    ],
+                    trafficPatterns: { 'TrafH': TRAFFIC_PULSE_CHARS_H },
+                    animationSpeed: TRAFFIC_PULSE_SPEED,
+                    description: "Network traffic appears normal, but we're actively monitoring for anomalies.",
+                    duration: 1500
+                },
+                {
+                    staticNetwork: `      [🌐] Internet Gateway/Firewall
+         |       [🚨]
+      [----] Main Network Traffic
+         |         [-->🚨]
+    .----'-----.         |
+   |           |         V
+[🖥️🛡️]        [🖥️🛡️]    Malicious Server
+Finance     Main DB
+Server      Server
+   |           |
+   '----.----.----'----'
+        |    |         |
+      [💻🛡️🚨] [💻🛡️]    [💻🛡️]  <- Carlos's workstation
+      Alex  Brenda    Carlos`,
+                    description: "Detection systems have flagged malicious outbound traffic originating from Carlos's device!",
+                    duration: 1500
+                },
+                {
+                    staticNetwork: `      [🌐] Internet Gateway/Firewall
+         |       [🚨] Active Outbound!
+      [----] Main Network Traffic
+         |         [---🚨]
+    .----'-----.         |
+   |           |         V
+[🖥️🛡️]        [🖥️🛡️]    Malicious Server
+Finance     Main DB
+Server      Server
+   |           |
+   '----.----.----'----'
+        |    |         |
+      [💻🛡️🚨] [💻🛡️]    [💻🛡️]  <- Carlos's workstation
+      Alex  Brenda    Carlos`,
+                    description: "Our 'DETECT' systems have effectively identified and alerted us to the ongoing compromise.",
+                    duration: 2000
+                }
+            ],
+            task: "Analyst, the incident is 'DETECTED'. We must now 'RESPOND'. What is the most critical immediate action to contain this potential malware infection?",
+            choices: [
+                {
+                    text: "Isolate Carlos's workstation from the network.",
+                    outcomeBriefing: "Excellent, Analyst. Isolating the compromised host is paramount for containment, preventing any lateral movement or further exfiltration of data. Execute immediately.",
+                    nextStepId: "respond1"
+                },
+                {
+                    text: "Contact Carlos to gather more information about the email.",
+                    outcomeBriefing: "While understanding the root cause is necessary, containment is our immediate priority. We can interview Carlos after the threat is isolated.",
+                    nextStepId: "respond1"
+                }
+            ]
+        },
+        "respond1": {
+            phase: "Phase 4: RESPOND",
+            briefing: "Analyst, we are in the 'RESPOND' phase. Carlos's workstation is now isolated. Our initial forensic analysis indicates ransomware.",
+            animatedSequence: [
+                {
+                    staticNetwork: `      [🌐] Internet Gateway/Firewall
+         |       [🚨] Active Outbound!
+      [----] Main Network Traffic
+         |         [---🚨]
+    .----'-----.         |
+   |           |         V
+[🖥️🛡️]        [🖥️🛡️]    Malicious Server
+Finance     Main DB
+Server      Server
+   |           |
+   '----.----.----'----'
+        |    |         |
+      [💻🛡️🚨] [💻🛡️]    [💻🛡️]
+      Alex  Brenda    Carlos`,
+                    description: "The malicious connection is still attempting to operate, but our containment action is underway!",
+                    duration: 1000
+                },
+                {
+                    staticNetwork: `      [🌐] Internet Gateway/Firewall
+         |
+      [----] Main Network Traffic
+         |
+    .----'-----.
+   |           |
+[🖥️🛡️]        [🖥️🛡️]
+Finance     Main DB
+Server      Server
+   |           |
+   '----.----.----'----'
+        |    |         |
+      [💻🛡️🛑] [💻🛡️]    [💻🛡️]  <- Carlos's workstation ISOLATED (no network traffic!)
+      Alex  Brenda    Carlos`,
+                    description: "Carlos's workstation is now fully isolated from the network. Malicious outbound traffic has ceased. Threat contained.",
+                    duration: 2000
+                }
+            ],
+            task: "Analyst, with containment successful and the malware identified, what is the next critical 'RESPOND' action before we can even consider 'RECOVER'?",
+            choices: [
+                {
+                    text: "Ensure the malware is fully eradicated from the workstation.",
+                    outcomeBriefing: "Precisely, Analyst. Eradication is vital. We must be absolutely certain the threat is completely removed from the workstation to prevent reinfection.",
+                    nextStepId: "respond2"
+                },
+                {
+                    text: "Immediately restore the workstation from backup.",
+                    outcomeBriefing: "Careful, Analyst. Restoring too early is a significant risk. We must confirm complete eradication of the malware *before* any restoration, or we risk reintroducing the threat.",
+                    nextStepId: "respond2"
+                }
+            ]
+        },
+        "respond2": {
+            phase: "Phase 4: RESPOND",
+            briefing: "Analyst, we continue in the 'RESPOND' phase. Our team has fully eradicated the ransomware from Carlos's workstation and verified no persistence mechanisms remain.",
+            animatedSequence: [
+                {
+                    staticNetwork: `      [🌐] Internet Gateway/Firewall
+         |
+      [----] Main Network Traffic
+         |
+    .----'-----.
+   |           |
+[🖥️🛡️]        [🖥️🛡️]
+Finance     Main DB
+Server      Server
+   |           |
+   '----.----.----'----'
+        |    |         |
+      [💻🛡️🛑] [💻🛡️]    [💻🛡️]
+      Alex  Brenda    Carlos`,
+                    description: "Carlos's workstation remains isolated as our team conducts thorough forensic analysis and sanitization.",
+                    duration: 1500
+                },
+                {
+                    staticNetwork: `      [🌐] Internet Gateway/Firewall
+         |
+      [----] Main Network Traffic
+         |
+    .----'-----.
+   |           |
+[🖥️🛡️]        [🖥️🛡️]
+Finance     Main DB
+Server      Server
+   |           |
+   '----.----.----'----'
+        |    |         |
+      [💻🛡️✅] [💻🛡️]    [💻🛡️]  <- Carlos's workstation CLEAN (still isolated)
+      Alex  Brenda    Carlos`,
+                    description: "Threat eradicated. Carlos's workstation is now verified clean and secure, awaiting recovery.",
+                    duration: 2000
+                }
+            ],
+            task: "Analyst, with eradication complete, we transition to the 'RECOVER' phase. What is the primary action to bring Carlos's workstation back to full operational status?",
+            choices: [
+                {
+                    text: "Re-image the workstation and restore user data from a clean backup.",
+                    outcomeBriefing: "Exactly right, Analyst! Re-imaging ensures a pristine operating system, and restoring from a verified clean backup guarantees data integrity and prevents any residual threats. This is our standard for 'RECOVER'.",
+                    nextStepId: "recover1"
+                },
+                {
+                    text: "Simply reconnect the workstation to the network.",
+                    outcomeBriefing: "Insufficient, Analyst. Reconnecting after eradication without re-imaging and restoring from a clean backup is too risky. We need a guaranteed clean slate for 'RECOVER'.",
+                    nextStepId: "recover1"
+                }
+            ]
+        },
+        "recover1": {
+            phase: "Phase 5: RECOVER",
+            briefing: "Analyst, we are now in the 'RECOVER' phase. Carlos's workstation has been re-imaged, data restored from a clean backup, and reconnected to the network. The system is back to normal operations.",
+            animatedSequence: [
+                {
+                    staticNetwork: `      [🌐] Internet Gateway/Firewall
+         |
+      [----] Main Network Traffic
+         |
+    .----'-----.
+   |           |
+[🖥️🛡️]        [🖥️️🛡️]
+Finance     Main DB
+Server      Server
+   |           |
+   '----.----.----'----'
+        |    |         |
+      [💻🛡️✅] [💻🛡️]    [💻🛡️]
+      Alex  Brenda    Carlos`,
+                    description: "Carlos's workstation, now clean and verified, is prepared for re-integration.",
+                    duration: 1500
+                },
+                {
+                    animatedNetwork: [
+                        `      [🌐] Internet Gateway/Firewall
+         |
+      [TrafH] Main Network Traffic
+         |
+    .----'-----.
+   |           |
+[🖥️🛡️]        [🖥️🛡️]
+Finance     Main DB
+Server      Server
+   |           |
+   '----.----.----'----'
+        |    |         |
+      [💻🛡️⬆️] [💻🛡️]    [💻🛡️]  <- Carlos's workstation ONLINE & OPERATIONAL
+      Alex  Brenda    Carlos`,
+                    ],
+                    trafficPatterns: { 'TrafH': TRAFFIC_PULSE_CHARS_H },
+                    animationSpeed: TRAFFIC_PULSE_SPEED,
+                    description: "Carlos's workstation is fully recovered and back online. Normal network traffic has resumed.",
+                    duration: 3000
+                }
+            ],
+            task: "Analyst, the final, crucial step in 'RECOVER' – and for continuous improvement – is to learn from this incident. How do we ensure these lessons strengthen our overall cybersecurity posture?",
+            choices: [
+                {
+                    text: "Conduct a 'Lessons Learned' review to update 'IDENTIFY' and 'PROTECT' measures.",
+                    outcomeBriefing: "Outstanding, Analyst! This cyclical feedback is absolutely essential. The insights from this incident will directly inform our risk assessments ('IDENTIFY') and help us refine our safeguards ('PROTECT'), strengthening our overall resilience. This is the continuous improvement loop of the CISA Framework.",
+                    nextStepId: "end"
+                },
+                {
+                    text: "Archive the incident report and move on to the next task.",
+                    outcomeBriefing: "While documenting is important, simply archiving without analysis is a missed opportunity, Analyst. The CISA framework emphasizes continuous improvement through 'Lessons Learned' to prevent recurrence and enhance future defenses.",
+                    nextStepId: "end"
+                }
+            ]
+        },
+        "end": {
+            phase: "Simulation Complete!",
+            briefing: "Analyst, you have successfully navigated a cybersecurity incident using the CISA Framework! You've seen how each function (Identify, Protect, Detect, Respond, Recover) is interconnected and essential for a robust cybersecurity program. Remember that the framework is continuous and iterative, always learning and adapting.",
+            animatedSequence: [
+                {
+                    staticNetwork: `      [🏆] Excellent Work, Analyst!
+      CISA Framework:
+      IDENTIFY --> PROTECT --> DETECT --> RESPOND --> RECOVER
+         ^                                             |
+         |_____________________________________________|
+                 (Lessons Learned & Improvement)`,
+                    description: "The continuous nature of the CISA Framework, constantly improving through feedback. This cycle ensures ongoing resilience and adaptation.",
+                    duration: 4000
+                }
+            ],
+            task: "Thank you for participating in the CISA Framework Training Simulator.",
+            choices: []
+        }
+    };
+
+    // --- SIMULATOR ENGINE ---
+    let currentStepId = "start";
+    let mainAnimationTimeout;
+    let trafficAnimationInterval;
+
+    const phaseTitleEl = document.getElementById('phase-title');
+    const briefingEl = document.getElementById('briefing');
+    const networkEl = document.getElementById('network-animation');
+    const stepDescriptionEl = document.getElementById('step-description');
+    const taskEl = document.getElementById('task');
+    const choicesEl = document.getElementById('choices');
+    const interactionAreaEl = document.getElementById('interaction-area');
+    const waitingMessageEl = document.getElementById('waiting-message');
+    const cisoBriefingTitleEl = document.querySelector('.ciso-briefing-title');
+    const cisoDirectiveTitleEl = document.querySelector('.ciso-directive-title');
+
+
+    function stopCurrentAnimations() {
+        clearTimeout(mainAnimationTimeout);
+        clearInterval(trafficAnimationInterval);
+    }
+
+    async function animateSequence(sequence) {
+        stopCurrentAnimations(); // Clear any running animations
+        interactionAreaEl.style.display = 'none';
+        waitingMessageEl.style.display = 'block';
+
+        for (let i = 0; i < sequence.length; i++) {
+            const frame = sequence[i];
+            stepDescriptionEl.textContent = frame.description;
+            stepDescriptionEl.style.display = 'flex';
+
+            if (frame.animatedNetwork && frame.trafficPatterns) {
+                let currentTrafficFrameIndex = 0;
+                
+                // Initial display of the first animated network frame
+                let networkBase = frame.animatedNetwork[0]; // Assuming one base network frame
+                let currentDisplay = networkBase;
+                for (const patternKey in frame.trafficPatterns) {
+                    if (frame.trafficPatterns.hasOwnProperty(patternKey)) {
+                        const trafficChars = frame.trafficPatterns[patternKey];
+                        currentDisplay = currentDisplay.replace(`[${patternKey}]`, trafficChars[currentTrafficFrameIndex % trafficChars.length]);
+                    }
+                }
+                networkEl.textContent = currentDisplay;
+
+                trafficAnimationInterval = setInterval(() => {
+                    currentTrafficFrameIndex = (currentTrafficFrameIndex + 1);
+                    let animatedNetworkBase = frame.animatedNetwork[0];
+                    let nextDisplay = animatedNetworkBase;
+                    
+                    for (const patternKey in frame.trafficPatterns) {
+                        if (frame.trafficPatterns.hasOwnProperty(patternKey)) {
+                            const trafficChars = frame.trafficPatterns[patternKey];
+                            nextDisplay = nextDisplay.replace(`[${patternKey}]`, trafficChars[currentTrafficFrameIndex % trafficChars.length]);
+                        }
+                    }
+                    networkEl.textContent = nextDisplay;
+                }, frame.animationSpeed);
+
+                await new Promise(resolve => mainAnimationTimeout = setTimeout(() => {
+                    clearInterval(trafficAnimationInterval);
+                    resolve();
+                }, frame.duration));
+
+            } else if (frame.staticNetwork) {
+                networkEl.textContent = frame.staticNetwork;
+                await new Promise(resolve => mainAnimationTimeout = setTimeout(resolve, frame.duration));
+            }
+        }
+
+        waitingMessageEl.style.display = 'none';
+        interactionAreaEl.style.display = 'block';
+    }
+
+    async function displayStep(stepId) {
+        const step = scenarioSteps[stepId];
+        if (!step) {
+            console.error("Step not found:", stepId);
+            return;
+        }
+
+        currentStepId = stepId;
+
+        stopCurrentAnimations(); // Ensure all previous animations are stopped
+
+        // Reset elements
+        stepDescriptionEl.style.display = 'none';
+        stepDescriptionEl.innerHTML = '';
+        choicesEl.innerHTML = '';
+        interactionAreaEl.style.display = 'none';
+        taskEl.className = 'task'; // Reset class for task
+        cisoBriefingTitleEl.style.display = 'block';
+        cisoDirectiveTitleEl.style.display = 'block';
+
+
+        // Populate initial step content
+        phaseTitleEl.textContent = step.phase;
+        briefingEl.textContent = step.briefing;
+        taskEl.textContent = step.task;
+
+        if (stepId === "end") {
+            cisoBriefingTitleEl.style.display = 'none'; // Hide briefing title for final message
+            cisoDirectiveTitleEl.style.display = 'none'; // Hide directive title for final message
+            briefingEl.style.display = 'none'; // Hide briefing content for final message
+            choicesEl.style.display = 'none';
+            taskEl.className = 'final-message';
+        } else {
+            briefingEl.style.display = 'flex';
+            choicesEl.style.display = 'flex';
+        }
+
+        // Run the animated sequence
+        await animateSequence(step.animatedSequence);
+
+        // After animation, set up choices
+        if (step.choices && step.choices.length > 0) {
+            step.choices.forEach((choice, index) => {
+                const button = document.createElement('button');
+                button.textContent = choice.text;
+                button.addEventListener('click', () => handleChoice(choice));
+                choicesEl.appendChild(button);
+            });
+        }
+    }
+
+    function handleChoice(selectedChoice) {
+        // Display the outcome briefing in the stepDescription area
+        stepDescriptionEl.innerHTML = selectedChoice.outcomeBriefing;
+        stepDescriptionEl.style.display = 'flex';
+
+        // Disable all choice buttons
+        Array.from(choicesEl.children).forEach(button => button.disabled = true);
+        
+        // Prepare for next step
+        const nextStepId = selectedChoice.nextStepId;
+        if (nextStepId) {
+            // Add a small delay for user to read outcome, then go to next step
+            setTimeout(() => {
+                displayStep(nextStepId);
+            }, 3000); // 3 seconds to read outcome
+        }
+    }
+
+    // --- START SIMULATION ---
+    displayStep(currentStepId);
+
+</script>
+</body>
+</html>
