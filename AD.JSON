@@ -1,0 +1,507 @@
+{
+  "id": "ad-fundamentals-001",
+  "title": "Active Directory Fundamentals",
+  "description": "Master the basics of Active Directory, including core concepts, architecture, and essential administration tasks",
+  "icon": "🏢",
+  "level": "Beginner",
+  "duration": "2 hours",
+  "lessons": [
+    {
+      "id": "lesson-7",
+      "title": "Active Directory Security",
+      "content": {
+        "introduction": "Security is paramount in Active Directory. This lesson covers essential security concepts, built-in security groups, and best practices for protecting your AD environment.",
+        "sections": [
+          {
+            "title": "Built-in Security Groups",
+            "content": "**High-Privilege Groups** (Monitor closely):\n• **Domain Admins**: Full control of the domain\n• **Enterprise Admins**: Full control of the forest\n• **Schema Admins**: Can modify AD schema\n• **Administrators**: Local admin on domain controllers\n\n**Service Groups**:\n• **Backup Operators**: Can backup/restore files\n• **Account Operators**: Can manage user accounts\n• **Server Operators**: Can manage domain servers\n• **Print Operators**: Can manage printers"
+          },
+          {
+            "title": "Delegation of Control",
+            "content": "Delegation allows giving specific permissions without full admin rights:\n\n**Common Delegations**:\n• Reset passwords for specific OUs\n• Create/delete user accounts\n• Manage group memberships\n• Join computers to domain\n\n**Benefits**:\n• Follows principle of least privilege\n• Reduces risk of accidental changes\n• Distributes administrative workload"
+          },
+          {
+            "title": "Security Best Practices",
+            "content": "**Account Security**:\n• Rename default Administrator account\n• Use separate admin accounts (not daily use)\n• Implement strong password policies\n• Enable account lockout policies\n• Regular password changes for service accounts\n\n**Monitoring**:\n• Enable auditing for sensitive operations\n• Review security logs regularly\n• Monitor changes to admin groups\n• Track failed login attempts\n• Watch for unusual service account activity"
+          },
+          {
+            "title": "Common Attack Vectors",
+            "content": "**Be aware of these threats**:\n• **Pass-the-Hash**: Using stolen password hashes\n• **Kerberoasting**: Attacking service accounts\n• **Golden Ticket**: Forging Kerberos tickets\n• **DCSync**: Unauthorized replication\n• **Privilege Escalation**: Exploiting misconfigurations\n\n**Mitigation**:\n• Use Protected Users group for admins\n• Implement credential guard\n• Regular security assessments\n• Network segmentation for DCs"
+          }
+        ]
+      },
+      "quiz": {
+        "question": "Which group has the highest level of privileges in an Active Directory forest?",
+        "options": [
+          "Domain Admins",
+          "Enterprise Admins",
+          "Administrators",
+          "Schema Admins"
+        ],
+        "correct": "Enterprise Admins",
+        "explanation": "Enterprise Admins have full control over the entire forest, while Domain Admins only have full control within their specific domain."
+      }
+    },
+    {
+      "id": "lesson-8",
+      "title": "Active Directory Replication",
+      "content": {
+        "introduction": "Replication ensures that all domain controllers have consistent, up-to-date information. Understanding how replication works is crucial for troubleshooting and maintaining a healthy AD environment.",
+        "sections": [
+          {
+            "title": "How Replication Works",
+            "content": "Active Directory uses multi-master replication:\n• Any DC can receive changes\n• Changes replicate to all other DCs\n• Uses Update Sequence Numbers (USN)\n• Tracks changes with version numbers\n• Resolves conflicts automatically\n\n**Replication Process**:\n1. Change made on one DC\n2. USN increments\n3. Replication partners notified\n4. Partners pull changes\n5. Changes applied to local database"
+          },
+          {
+            "title": "Replication Topology",
+            "content": "**Knowledge Consistency Checker (KCC)**:\n• Automatically creates replication topology\n• Ensures no DC is more than 3 hops away\n• Creates redundant replication paths\n• Adjusts for DC failures\n\n**Connection Objects**:\n• Define replication partnerships\n• Can be automatic (KCC) or manual\n• Intrasite: Within same site (every 15 seconds)\n• Intersite: Between sites (minimum 15 minutes)"
+          },
+          {
+            "title": "Sites and Site Links",
+            "content": "**Sites**: Physical locations in your network\n• Group well-connected computers\n• Control replication traffic\n• Direct clients to nearest DC\n• Define by IP subnets\n\n**Site Links**:\n• Connect sites for replication\n• Define replication schedule\n• Set replication cost (priority)\n• Control bandwidth usage\n\n**Benefits**:\n• Optimize authentication traffic\n• Control replication timing\n• Reduce WAN bandwidth usage"
+          },
+          {
+            "title": "Monitoring Replication",
+            "content": "**Tools for monitoring**:\n• repadmin /replsummary - Overview of replication\n• repadmin /showrepl - Detailed replication status\n• dcdiag /test:replications - Test replication health\n• Active Directory Sites and Services console\n\n**Common Issues**:\n• DNS problems\n• Network connectivity\n• Insufficient disk space\n• Time synchronization issues\n• Lingering objects"
+          }
+        ]
+      },
+      "quiz": {
+        "question": "How often does intrasite replication occur by default?",
+        "options": [
+          "Every 15 minutes",
+          "Every 15 seconds",
+          "Every 5 minutes",
+          "Immediately"
+        ],
+        "correct": "Every 15 seconds",
+        "explanation": "Intrasite replication (within the same site) occurs every 15 seconds after a change notification. Intersite replication typically occurs every 15 minutes or based on the configured schedule."
+      }
+    },
+    {
+      "id": "lesson-9",
+      "title": "PowerShell for Active Directory",
+      "content": {
+        "introduction": "PowerShell is the most powerful tool for managing Active Directory at scale. This lesson introduces essential PowerShell cmdlets and techniques for AD administration.",
+        "sections": [
+          {
+            "title": "Getting Started with AD PowerShell",
+            "content": "**Import the AD Module**:\n```powershell\nImport-Module ActiveDirectory\n```\n\n**Basic Cmdlet Structure**:\n• Verb-ADNoun format (Get-ADUser, New-ADGroup)\n• Consistent parameters across cmdlets\n• Pipeline support for complex operations\n• Built-in help with examples\n\n**Getting Help**:\n```powershell\nGet-Help Get-ADUser -Full\nGet-Help Get-ADUser -Examples\n```"
+          },
+          {
+            "title": "Essential User Management Cmdlets",
+            "content": "**Creating Users**:\n```powershell\nNew-ADUser -Name \"John Smith\" -SamAccountName jsmith -UserPrincipalName jsmith@company.com -Path \"OU=Users,DC=company,DC=com\" -AccountPassword (ConvertTo-SecureString \"P@ssw0rd123\" -AsPlainText -Force) -Enabled $true\n```\n\n**Finding Users**:\n```powershell\n# Get specific user\nGet-ADUser jsmith\n\n# Get users with filter\nGet-ADUser -Filter {Department -eq \"Sales\"}\n\n# Get all properties\nGet-ADUser jsmith -Properties *\n```\n\n**Modifying Users**:\n```powershell\n# Update department\nSet-ADUser jsmith -Department \"Marketing\"\n\n# Disable account\nDisable-ADAccount jsmith\n```"
+          },
+          {
+            "title": "Group Management with PowerShell",
+            "content": "**Creating Groups**:\n```powershell\nNew-ADGroup -Name \"Marketing Team\" -GroupScope Global -GroupCategory Security -Path \"OU=Groups,DC=company,DC=com\"\n```\n\n**Managing Membership**:\n```powershell\n# Add member\nAdd-ADGroupMember \"Marketing Team\" -Members jsmith\n\n# Get members\nGet-ADGroupMember \"Marketing Team\"\n\n# Remove member\nRemove-ADGroupMember \"Marketing Team\" -Members jsmith\n```\n\n**Bulk Operations**:\n```powershell\n# Add multiple users to group\n$users = Get-ADUser -Filter {Department -eq \"Marketing\"}\nAdd-ADGroupMember \"Marketing Team\" -Members $users\n```"
+          },
+          {
+            "title": "Useful PowerShell Scripts",
+            "content": "**Bulk User Creation from CSV**:\n```powershell\n$users = Import-Csv \"C:\\users.csv\"\nforeach ($user in $users) {\n    New-ADUser -Name $user.FullName `\n        -GivenName $user.FirstName `\n        -Surname $user.LastName `\n        -SamAccountName $user.Username `\n        -Department $user.Department `\n        -Path \"OU=Users,DC=company,DC=com\" `\n        -AccountPassword (ConvertTo-SecureString $user.Password -AsPlainText -Force) `\n        -Enabled $true\n}\n```\n\n**Find Inactive Users**:\n```powershell\n$DaysInactive = 90\n$time = (Get-Date).Adddays(-$DaysInactive)\nGet-ADUser -Filter {LastLogonTimeStamp -lt $time} -Properties LastLogonTimeStamp | Select Name,@{N='LastLogon';E={[DateTime]::FromFileTime($_.LastLogonTimeStamp)}}\n```"
+          }
+        ]
+      },
+      "quiz": {
+        "question": "Which PowerShell cmdlet would you use to create a new Active Directory user?",
+        "options": [
+          "Create-ADUser",
+          "New-ADUser",
+          "Add-ADUser",
+          "Make-ADUser"
+        ],
+        "correct": "New-ADUser",
+        "explanation": "New-ADUser is the correct cmdlet for creating new AD users. PowerShell uses the verb 'New' for creating new objects, following the Verb-Noun naming convention."
+      }
+    },
+    {
+      "id": "lesson-10",
+      "title": "Troubleshooting Common AD Issues",
+      "content": {
+        "introduction": "Every AD administrator will face issues that require troubleshooting. This lesson covers common problems, their causes, and resolution strategies.",
+        "sections": [
+          {
+            "title": "Authentication Problems",
+            "content": "**User Cannot Log In**:\n\n**Check These First**:\n• Account enabled status\n• Password expiration\n• Account lockout status\n• Logon hours restrictions\n• User must change password at next logon\n\n**Tools to Use**:\n```powershell\n# Check account status\nGet-ADUser username -Properties LockedOut,Enabled,PasswordExpired,PasswordLastSet\n\n# Unlock account\nUnlock-ADAccount username\n\n# Reset password\nSet-ADAccountPassword username -Reset\n```\n\n**Time Synchronization Issues**:\n• Kerberos requires time sync within 5 minutes\n• Check w32tm /query /status\n• Resync with w32tm /resync"
+          },
+          {
+            "title": "DNS and Name Resolution",
+            "content": "**Critical for AD Operation**:\n• AD requires DNS to function\n• DCs register SRV records\n• Clients find DCs via DNS\n\n**Common DNS Issues**:\n• Missing SRV records\n• Incorrect DNS server configuration\n• DNS scavenging problems\n• Split-brain DNS scenarios\n\n**Troubleshooting Commands**:\n```cmd\n# Test DNS resolution\nnslookup domain.com\n\n# Check DC SRV records\nnslookup -type=srv _ldap._tcp.domain.com\n\n# Verify DNS configuration\nipconfig /all\n\n# Register DC in DNS\nipconfig /registerdns\n```"
+          },
+          {
+            "title": "Replication Issues",
+            "content": "**Symptoms**:\n• Changes not appearing on all DCs\n• Authentication inconsistencies\n• Group Policy not applying\n\n**Diagnostic Steps**:\n```cmd\n# Check replication status\nrepadmin /replsummary\n\n# Show replication partners\nrepadmin /showrepl\n\n# Force replication\nrepadmin /syncall /AdeP\n\n# Check for replication errors\ndcdiag /test:replications\n```\n\n**Common Causes**:\n• Network connectivity problems\n• DNS issues\n• Insufficient disk space\n• USN rollback\n• Lingering objects"
+          },
+          {
+            "title": "Group Policy Troubleshooting",
+            "content": "**GP Not Applying**:\n\n**Diagnostic Tools**:\n```cmd\n# Check applied policies\ngpresult /r\n\n# Generate HTML report\ngpresult /h gpreport.html\n\n# Force GP update\ngpupdate /force\n\n# Check GP replication\ngpotool /checkacl /verbose\n```\n\n**Common Issues**:\n• Incorrect security filtering\n• WMI filtering blocking application\n• Inheritance blocked\n• Policy conflicts\n• Replication delays\n• Permissions issues\n\n**Resolution Steps**:\n1. Verify user/computer in correct OU\n2. Check GPO links and enforcement\n3. Review security filtering\n4. Test with gpresult\n5. Check event logs for errors"
+          }
+        ]
+      },
+      "quiz": {
+        "question": "What is the maximum time difference allowed between a client and domain controller for Kerberos authentication to work?",
+        "options": [
+          "1 minute",
+          "5 minutes",
+          "10 minutes",
+          "15 minutes"
+        ],
+        "correct": "5 minutes",
+        "explanation": "Kerberos authentication requires that the time difference between the client and domain controller be no more than 5 minutes. This prevents replay attacks using old Kerberos tickets."
+      }
+    }
+  ],
+  "practiceExercises": [
+    {
+      "title": "Create Your First OU Structure",
+      "description": "Design and implement an organizational unit structure for a small company",
+      "steps": [
+        "Plan an OU structure for a company with Sales, IT, and HR departments",
+        "Create the top-level OUs",
+        "Create sub-OUs for Users and Computers under each department",
+        "Document your structure and explain your design decisions"
+      ]
+    },
+    {
+      "title": "Implement Group Strategy",
+      "description": "Create a group structure following the AGDLP strategy",
+      "steps": [
+        "Create global groups for each department",
+        "Create domain local groups for resource access",
+        "Add global groups to appropriate domain local groups",
+        "Test permissions with a test user account"
+      ]
+    },
+    {
+      "title": "PowerShell Automation Challenge",
+      "description": "Automate common AD tasks using PowerShell",
+      "steps": [
+        "Create a CSV file with 10 test users",
+        "Write a PowerShell script to import these users",
+        "Add error handling to your script",
+        "Generate a report of created users"
+      ]
+    }
+  ],
+   "resources": [
+    {
+      "title": "Microsoft Active Directory Documentation",
+      "url": "https://docs.microsoft.com/en-us/windows-server/identity/ad-ds/",
+      "type": "documentation"
+    },
+    {
+      "title": "PowerShell AD Module Reference",
+      "url": "https://docs.microsoft.com/en-us/powershell/module/activedirectory/",
+      "type": "reference"
+    },
+    {
+      "title": "Active Directory Best Practices",
+      "url": "https://docs.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/",
+      "type": "guide"
+    },
+    {
+      "title": "AD Replication Troubleshooting Guide",
+      "url": "https://docs.microsoft.com/en-us/windows-server/identity/ad-ds/manage/troubleshoot/",
+      "type": "troubleshooting"
+    }
+  ],
+  "finalAssessment": {
+    "title": "Active Directory Fundamentals Certification",
+    "description": "Test your knowledge of Active Directory fundamentals",
+    "passingScore": 80,
+    "questions": [
+      {
+        "question": "What is the primary purpose of a Global Catalog server?",
+        "options": [
+          "To store a full copy of all objects in the forest",
+          "To provide a partial replica of all objects in the forest for searching",
+          "To manage DNS records for the domain",
+          "To handle all authentication requests"
+        ],
+        "correct": "To provide a partial replica of all objects in the forest for searching",
+        "weight": 10
+      },
+      {
+        "question": "In the AGDLP strategy, what does the 'DL' represent?",
+        "options": [
+          "Domain Link",
+          "Directory List",
+          "Domain Local",
+          "Distributed Link"
+        ],
+        "correct": "Domain Local",
+        "weight": 10
+      },
+      {
+        "question": "Which FSMO role is responsible for maintaining domain-wide unique identifiers?",
+        "options": [
+          "Schema Master",
+          "Domain Naming Master",
+          "RID Master",
+          "PDC Emulator"
+        ],
+        "correct": "RID Master",
+        "weight": 10
+      },
+      {
+        "question": "What protocol does Active Directory primarily use for authentication?",
+        "options": [
+          "NTLM",
+          "LDAP",
+          "Kerberos",
+          "RADIUS"
+        ],
+        "correct": "Kerberos",
+        "weight": 10
+      },
+      {
+        "question": "Which command would you use to force Active Directory replication between all domain controllers?",
+        "options": [
+          "dcdiag /fix",
+          "repadmin /syncall",
+          "gpupdate /force",
+          "netdom /sync"
+        ],
+        "correct": "repadmin /syncall",
+        "weight": 10
+      },
+      {
+        "question": "What is the default tombstone lifetime in Active Directory?",
+        "options": [
+          "30 days",
+          "60 days",
+          "90 days",
+          "180 days"
+        ],
+        "correct": "180 days",
+        "weight": 10
+      },
+      {
+        "question": "Which port does LDAP over SSL (LDAPS) use by default?",
+        "options": [
+          "389",
+          "443",
+          "636",
+          "3268"
+        ],
+        "correct": "636",
+        "weight": 10
+      },
+      {
+        "question": "What is the maximum number of domains a single Active Directory forest can contain?",
+        "options": [
+          "Unlimited",
+          "1,000",
+          "10,000",
+          "100,000"
+        ],
+        "correct": "Unlimited",
+        "weight": 10
+      },
+      {
+        "question": "Which tool would you use to create a new Active Directory site?",
+        "options": [
+          "Active Directory Users and Computers",
+          "Active Directory Sites and Services",
+          "Active Directory Domains and Trusts",
+          "Active Directory Administrative Center"
+        ],
+        "correct": "Active Directory Sites and Services",
+        "weight": 10
+      },
+      {
+        "question": "What happens when the PDC Emulator becomes unavailable?",
+        "options": [
+          "All authentication stops",
+          "No new users can be created",
+          "Time synchronization and password changes are affected",
+          "The domain stops functioning"
+        ],
+        "correct": "Time synchronization and password changes are affected",
+        "weight": 10
+      }
+    ]
+  },
+  "completion": {
+    "certificate": "Active Directory Fundamentals",
+    "creditsEarned": 100,
+    "nextRecommendedModules": [
+      "Advanced Active Directory Administration",
+      "Group Policy Management",
+      "Active Directory Security Hardening",
+      "PowerShell for AD Automation"
+    ],
+    "achievements": [
+      {
+        "title": "AD Explorer",
+        "description": "Completed all lessons in Active Directory Fundamentals",
+        "icon": "🏆"
+      },
+      {
+        "title": "PowerShell Practitioner",
+        "description": "Successfully completed PowerShell automation exercises",
+        "icon": "⚡"
+      },
+      {
+        "title": "Security Aware",
+        "description": "Demonstrated understanding of AD security principles",
+        "icon": "🔒"
+      }
+    ]
+  },
+  "expertTips": [
+    {
+      "title": "Always Test in Non-Production",
+      "content": "Set up a test lab environment using virtual machines to practice AD changes before implementing them in production. This prevents costly mistakes and allows you to learn from errors safely."
+    },
+    {
+      "title": "Document Everything",
+      "content": "Maintain detailed documentation of your AD structure, including OU design rationale, group purposes, delegation settings, and any custom configurations. This is invaluable for troubleshooting and knowledge transfer."
+    },
+    {
+      "title": "Regular Health Checks",
+      "content": "Schedule weekly runs of dcdiag and repadmin reports. Create a baseline of normal operation to quickly identify when something goes wrong."
+    },
+    {
+      "title": "Implement Least Privilege",
+      "content": "Avoid using Domain Admin accounts for daily tasks. Create specific delegated permissions for different administrative roles. Use separate admin accounts that are only used when needed."
+    },
+    {
+      "title": "Master PowerShell",
+      "content": "PowerShell is the future of Windows administration. Invest time in learning it thoroughly - it will pay dividends in efficiency and capability, especially for bulk operations and automation."
+    },
+    {
+      "title": "Monitor Security Events",
+      "content": "Set up alerts for critical security events like changes to admin groups, multiple failed login attempts, and account lockouts. Early detection of security issues is crucial."
+    },
+    {
+      "title": "Backup Strategy",
+      "content": "Ensure you have a solid AD backup strategy including System State backups of at least two domain controllers. Test restoration procedures regularly - a backup is only good if you can restore from it."
+    },
+    {
+      "title": "Stay Current",
+      "content": "Keep up with Microsoft's updates and best practices. Active Directory evolves with each Windows Server version, bringing new features and security improvements."
+    }
+  ],
+  "labSetup": {
+    "title": "Setting Up Your AD Practice Lab",
+    "requirements": [
+      "Windows Server 2019/2022 ISO or evaluation copy",
+      "Virtualization software (VMware, Hyper-V, or VirtualBox)",
+      "Minimum 8GB RAM for host machine",
+      "At least 50GB free disk space"
+    ],
+    "steps": [
+      {
+        "step": 1,
+        "title": "Create Virtual Machines",
+        "description": "Set up two VMs - one for Domain Controller (2GB RAM) and one for client testing (1GB RAM)"
+      },
+      {
+        "step": 2,
+        "title": "Install Windows Server",
+        "description": "Install Windows Server on the DC VM, configure static IP address"
+      },
+      {
+        "step": 3,
+        "title": "Promote to Domain Controller",
+        "description": "Run dcpromo or use Server Manager to create a new forest"
+      },
+      {
+        "step": 4,
+        "title": "Configure DNS",
+        "description": "Ensure DNS is properly configured and test with nslookup"
+      },
+      {
+        "step": 5,
+        "title": "Join Client to Domain",
+        "description": "Configure client VM to use DC as DNS server and join to domain"
+      },
+      {
+        "step": 6,
+        "title": "Create Test Environment",
+        "description": "Create test OUs, users, groups, and GPOs for practice"
+      }
+    ]
+  },
+  "additionalResources": {
+    "books": [
+      {
+        "title": "Active Directory: Designing, Deploying, and Running Active Directory",
+        "author": "Brian Desmond, Joe Richards, Robbie Allen, Alistair G. Lowe-Norris",
+        "description": "Comprehensive guide to AD architecture and administration"
+      },
+      {
+        "title": "Learn Active Directory Management in a Month of Lunches",
+        "author": "Richard Siddaway",
+        "description": "Practical, task-focused approach to learning AD"
+      }
+    ],
+    "videos": [
+      {
+        "title": "Active Directory Training for Beginners",
+        "platform": "YouTube",
+        "description": "Free video series covering AD basics"
+      },
+      {
+        "title": "PowerShell for Active Directory",
+        "platform": "Pluralsight",
+        "description": "In-depth PowerShell automation for AD"
+      }
+    ],
+    "communities": [
+      {
+        "name": "r/sysadmin",
+        "platform": "Reddit",
+        "description": "Active community for system administrators"
+      },
+      {
+        "name": "TechNet Forums",
+        "platform": "Microsoft",
+        "description": "Official Microsoft community for technical discussions"
+      }
+    ]
+  },
+  "glossary": [
+    {
+      "term": "LDAP",
+      "definition": "Lightweight Directory Access Protocol - Protocol for accessing and maintaining directory services"
+    },
+    {
+      "term": "GUID",
+      "definition": "Globally Unique Identifier - 128-bit identifier assigned to each AD object"
+    },
+    {
+      "term": "SID",
+      "definition": "Security Identifier - Unique identifier for security principals"
+    },
+    {
+      "term": "ACL",
+      "definition": "Access Control List - List of permissions attached to an object"
+    },
+    {
+      "term": "DACL",
+      "definition": "Discretionary Access Control List - Specifies who can access an object"
+    },
+    {
+      "term": "SACL",
+      "definition": "System Access Control List - Specifies auditing settings for an object"
+    },
+    {
+      "term": "USN",
+      "definition": "Update Sequence Number - Tracks changes for replication"
+    },
+    {
+      "term": "Tombstone",
+      "definition": "Deleted object marker retained for replication consistency"
+    },
+    {
+      "term": "SYSVOL",
+      "definition": "System Volume - Shared folder containing Group Policy and scripts"
+    },
+    {
+      "term": "NTDS",
+      "definition": "NT Directory Services - The AD database file (ntds.dit)"
+    }
+  ]
+}

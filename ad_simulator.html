@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Active Directory Scenario Simulator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Consolas', 'Monaco', monospace;
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 100%);
+            color: #d4d4d4;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 2px solid #00ff41;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            color: #00ff41;
+            text-shadow: 0 0 10px #00ff41;
+        }
+
+        .topology-info {
+            background: linear-gradient(145deg, #2d2d30, #1e1e1e);
+            border: 1px solid #444;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 255, 65, 0.1);
+        }
+
+        .scenario-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .scenario-btn {
+            padding: 12px 24px;
+            border: 2px solid #00ff41;
+            background: transparent;
+            color: #00ff41;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .scenario-btn:hover, .scenario-btn.active {
+            background: #00ff41;
+            color: #000;
+            box-shadow: 0 0 15px #00ff41;
+        }
+
+        .scenario-container {
+            display: none;
+            background: linear-gradient(145deg, #1e1e1e, #2d2d30);
+            border: 2px solid #00ff41;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 25px rgba(0, 255, 65, 0.2);
+        }
+
+        .scenario-container.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .scenario-info {
+            background: linear-gradient(145deg, #3d3d40, #2d2d30);
+            padding: 20px;
+            border-left: 4px solid #ff6b35;
+            margin-bottom: 20px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .terminal {
+            background: #000;
+            border: 3px solid #00ff41;
+            border-radius: 8px;
+            padding: 20px;
+            height: 500px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            box-shadow: inset 0 0 20px rgba(0, 255, 65, 0.1);
+            position: relative;
+        }
+
+        .terminal::before {
+            content: '● ● ●';
+            position: absolute;
+            top: -25px;
+            left: 10px;
+            color: #ff6b35;
+            font-size: 20px;
+        }
+
+        .command-line {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .prompt {
+            color: #00ff41;
+            margin-right: 8px;
+            font-weight: bold;
+        }
+
+        .command-input {
+            background: transparent;
+            border: none;
+            color: #ffffff;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            width: 90%;
+            outline: none;
+        }
+
+        .output {
+            color: #cccccc;
+            white-space: pre-wrap;
+            line-height: 1.4;
+            margin-bottom: 10px;
+        }
+
+        .success { color: #00ff41; font-weight: bold; }
+        .error { color: #ff4444; font-weight: bold; }
+        .warning { color: #ffaa00; font-weight: bold; }
+        .info { color: #4477ff; font-weight: bold; }
+        .critical { color: #ff0066; font-weight: bold; animation: blink 1s infinite; }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.5; }
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .btn-primary { background: #007acc; color: white; }
+        .btn-success { background: #107c10; color: white; }
+        .btn-danger { background: #d13438; color: white; }
+        .btn-warning { background: #f2c811; color: black; }
+        .btn-info { background: #00bcf2; color: white; }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .progress-bar {
+            background: #333;
+            border-radius: 20px;
+            overflow: hidden;
+            margin: 20px 0;
+            height: 30px;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #00ff41, #00cc33);
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-weight: bold;
+        }
+
+        .status-panel {
+            background: linear-gradient(145deg, #2d2d30, #1e1e1e);
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .objective {
+            margin: 10px 0;
+            padding: 8px 12px;
+            border-radius: 5px;
+            border-left: 4px solid #666;
+        }
+
+        .objective.completed {
+            background: rgba(0, 255, 65, 0.1);
+            border-left-color: #00ff41;
+        }
+
+        .analysis-report {
+            background: linear-gradient(145deg, #1a2332, #0f1419);
+            border: 2px solid #00ff41;
+            border-radius: 10px;
+            padding: 25px;
+            margin-top: 30px;
+            display: none;
+        }
+
+        .analysis-report.show {
+            display: block;
+            animation: slideIn 0.7s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .score {
+            font-size: 2em;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .topology-diagram {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .forest {
+            background: linear-gradient(145deg, #2d2d30, #1e1e1e);
+            border: 2px solid #007acc;
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .domain {
+            background: rgba(0, 255, 65, 0.1);
+            border: 1px solid #00ff41;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏢 Advanced Active Directory Crisis Simulator</h1>
+            <p>Multi-Forest Enterprise Environment Training Platform</p>
+        </div>
+
+        <div class="topology-info">
+            <h3>🌐 Network Topology</h3>
+            <div class="topology-diagram">
+                <div class="forest">
+                    <h4>🌲 CONTOSO.COM Forest</h4>
+                    <div class="domain">📁 contoso.com (Root Domain)
+                        <br>🖥️ DC: CON-DC01, CON-DC02</div>
+                    <div class="domain">📁 marketing.contoso.com
+                        <br>🖥️ DC: MKT-DC01, MKT-DC02</div>
+                    <div class="domain">📁 sales.contoso.com
+                        <br>🖥️ DC: SAL-DC01, SAL-DC02</div>
+                </div>
+                <div class="forest">
+                    <h4>🌲 FABRIKAM.COM Forest</h4>
+                    <div class="domain">📁 fabrikam.com (Root Domain)
+                        <br>🖥️ DC: FAB-DC01, FAB-DC02</div>
+                    <div class="domain">📁 dev.fabrikam.com
+                        <br>🖥️ DC: DEV-DC01, DEV-DC02</div>
+                    <div class="domain">📁 hr.fabrikam.com
+                        <br>🖥️ DC: HR-DC01, HR-DC02</div>
+                </div>
+            </div>
+            <p><strong>🔗 Trust Relationships:</strong> Bidirectional Forest Trust between CONTOSO.COM ↔ FABRIKAM.COM</p>
+        </div>
+
+        <div class="scenario-selector">
+            <button class="scenario-btn active" onclick="switchScenario('dns')">🌐 DNS Resolution Failure</button>
+            <button class="scenario-btn" onclick="switchScenario('clock')">⏰ Clock Skew Crisis</button>
+            <button class="scenario-btn" onclick="switchScenario('auth')">🔐 Authentication Breakdown</button>
+            <button class="scenario-btn" onclick="switchScenario('repl')">🔄 Replication Disaster</button>
+            <button class="scenario-btn" onclick="switchScenario('fsmo')">👑 FSMO Role Failure</button>
+        </div>
+
+        <!-- DNS Scenario -->
+        <div class="scenario-container active" id="dns-scenario">
+            <h2>🌐 P1 Scenario: DNS Resolution Failure</h2>
+            <div class="scenario-info">
+                <p><strong>CRITICAL INCIDENT:</strong> Cross-forest authentication failing due to DNS resolution issues. Users from CONTOSO cannot access FABRIKAM resources.</p>
+                <p><strong>Error Reports:</strong> "The specified domain does not exist" when accessing hr.fabrikam.com resources</p>
+                <p><strong>Impact:</strong> Complete loss of cross-forest functionality affecting 2,500+ users</p>
+            </div>
+
+            <div class="status-panel">
+                <h4>📋 Objectives</h4>
+                <div class="objective" id="dns-obj1">1. Verify DNS forwarding configuration</div>
+                <div class="objective" id="dns-obj2">2. Test cross-forest name resolution</div>
+                <div class="objective" id="dns-obj3">3. Validate DNS zone delegation</div>
+                <div class="objective" id="dns-obj4">4. Restore cross-forest connectivity</div>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="dns-progress">0% Complete</div>
+            </div>
+
+            <div class="terminal" id="dns-terminal">
+                <div class="output">
+<span class="critical">[CRITICAL] Cross-forest DNS resolution failure detected</span>
+<span class="error">[ERROR] Cannot resolve fabrikam.com from contoso.com domain controllers</span>
+<span class="warning">[WARNING] Trust verification failing due to DNS issues</span>
+<span class="info">[INFO] Connected to: CON-DC01.contoso.com as CONTOSO\Administrator</span>
+<span class="info">[INFO] Current Time: 2024-01-15 14:30:25 UTC</span>
+                </div>
+                
+                <div class="command-line">
+                    <span class="prompt">PS C:\></span>
+                    <input type="text" class="command-input" placeholder="Enter PowerShell command..." onkeypress="handleCommand(event, 'dns')">
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-info" onclick="showHint('dns')">💡 Show Hint</button>
+                <button class="btn btn-primary" onclick="quickTest('dns')">🔍 Quick DNS Test</button>
+                <button class="btn btn-warning" onclick="showTopology()">🗺️ Show Topology</button>
+                <button class="btn btn-danger" onclick="resetScenario('dns')">🔄 Reset Scenario</button>
+            </div>
+        </div>
+
+        <!-- Clock Skew Scenario -->
+        <div class="scenario-container" id="clock-scenario">
+            <h2>⏰ P1 Scenario: Clock Skew Crisis</h2>
+            <div class="scenario-info">
+                <p><strong>CRITICAL INCIDENT:</strong> Kerberos authentication failures across the forest due to time synchronization issues</p>
+                <p><strong>Error Reports:</strong> "Clock skew too great" errors preventing user logon</p>
+                <p><strong>Impact:</strong> 80% of domain users cannot authenticate</p>
+            </div>
+
+            <div class="status-panel">
+                <h4>📋 Objectives</h4>
+                <div class="objective" id="clock-obj1">1. Identify time synchronization source</div>
+                <div class="objective" id="clock-obj2">2. Check domain controller time variance</div>
+                <div class="objective" id="clock-obj3">3. Configure proper NTP hierarchy</div>
+                <div class="objective" id="clock-obj4">4. Validate Kerberos authentication</div>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="clock-progress">0% Complete</div>
+            </div>
+
+            <div class="terminal" id="clock-terminal">
+                <div class="output">
+<span class="critical">[CRITICAL] Kerberos authentication failure - Clock skew detected</span>
+<span class="error">[ERROR] Time difference exceeds maximum tolerance (5 minutes)</span>
+<span class="warning">[WARNING] Multiple DCs reporting different times</span>
+<span class="info">[INFO] Connected to: CON-DC02.contoso.com as CONTOSO\Administrator</span>
+                </div>
+                
+                <div class="command-line">
+                    <span class="prompt">PS C:\></span>
+                    <input type="text" class="command-input" placeholder="Enter PowerShell command..." onkeypress="handleCommand(event, 'clock')">
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-info" onclick="showHint('clock')">💡 Show Hint</button>
+                <button class="btn btn-primary" onclick="quickTest('clock')">🕐 Check Time Sync</button>
+                <button class="btn btn-warning" onclick="showTopology()">🗺️ Show Topology</button>
+                <button class="btn btn-danger" onclick="resetScenario('clock')">🔄 Reset Scenario</button>
+            </div>
+        </div>
+
+        <!-- Authentication Scenario -->
+        <div class="scenario-container" id="auth-scenario">
+            <h2>🔐 P1 Scenario: Authentication Breakdown</h2>
+            <div class="scenario-info">
+                <p><strong>CRITICAL INCIDENT:</strong> Cross-forest trust authentication failing for privileged accounts</p>
+                <p><strong>Error Reports:</strong> "Access denied" when CONTOSO admins try to access FABRIKAM resources</p>
+                <p><strong>Impact:</strong> Critical maintenance operations halted</p>
+            </div>
+
+            <div class="status-panel">
+                <h4>📋 Objectives</h4>
+                <div class="objective" id="auth-obj1">1. Verify trust relationship status</div>
+                <div class="objective" id="auth-obj2">2. Test authentication pathways</div>
+                <div class="objective" id="auth-obj3">3. Check SPN configurations</div>
+                <div class="objective" id="auth-obj4">4. Restore cross-forest access</div>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="auth-progress">0% Complete</div>
+            </div>
+
+            <div class="terminal" id="auth-terminal">
+                <div class="output">
+<span class="critical">[CRITICAL] Cross-forest authentication failure</span>
+<span class="error">[ERROR] Trust relationship verification failed</span>
+<span class="warning">[WARNING] SPN registration inconsistencies detected</span>
+<span class="info">[INFO] Connected to: CON-DC01.contoso.com as CONTOSO\Administrator</span>
+                </div>
+                
+                <div class="command-line">
+                    <span class="prompt">PS C:\></span>
+                    <input type="text" class="command-input" placeholder="Enter PowerShell command..." onkeypress="handleCommand(event, 'auth')">
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-info" onclick="showHint('auth')">💡 Show Hint</button>
+                <button class="btn btn-primary" onclick="quickTest('auth')">🔐 Test Authentication</button>
+                <button class="btn btn-warning" onclick="showTopology()">🗺️ Show Topology</button>
+                <button class="btn btn-danger" onclick="resetScenario('auth')">🔄 Reset Scenario</button>
+            </div>
+        </div>
+
+        <!-- Replication Scenario -->
+        <div class="scenario-container" id="repl-scenario">
+            <h2>🔄 P1 Scenario: Replication Disaster</h2>
+            <div class="scenario-info">
+                <p><strong>CRITICAL INCIDENT:</strong> Inter-site replication failures causing data inconsistency</p>
+                <p><strong>Error Reports:</strong> Password changes not replicating, group membership conflicts</p>
+                <p><strong>Impact:</strong> Data integrity compromise across multiple sites</p>
+            </div>
+
+            <div class="status-panel">
+                <h4>📋 Objectives</h4>
+                <div class="objective" id="repl-obj1">1. Identify failed replication partners</div>
+                <div class="objective" id="repl-obj2">2. Check site link configurations</div>
+                <div class="objective" id="repl-obj3">3. Resolve USN rollback issues</div>
+                <div class="objective" id="repl-obj4">4. Restore healthy replication</div>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="repl-progress">0% Complete</div>
+            </div>
+
+            <div class="terminal" id="repl-terminal">
+                <div class="output">
+<span class="critical">[CRITICAL] Replication failure detected across multiple sites</span>
+<span class="error">[ERROR] USN rollback detected on MKT-DC01</span>
+<span class="warning">[WARNING] 72-hour replication window exceeded</span>
+<span class="info">[INFO] Connected to: CON-DC01.contoso.com as CONTOSO\Administrator</span>
+                </div>
+                
+                <div class="command-line">
+                    <span class="prompt">PS C:\></span>
+                    <input type="text" class="command-input" placeholder="Enter PowerShell command..." onkeypress="handleCommand(event, 'repl')">
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-info" onclick="showHint('repl')">💡 Show Hint</button>
+                <button class="btn btn-primary" onclick="quickTest('repl')">🔄 Check Replication</button>
+                <button class="btn btn-warning" onclick="showTopology()">🗺️ Show Topology</button>
+                <button class="btn btn-danger" onclick="resetScenario('repl')">🔄 Reset Scenario</button>
+            </div>
+        </div>
+
+        <!-- FSMO Scenario -->
+        <div class="scenario-container" id="fsmo-scenario">
+            <h2>👑 P1 Scenario: FSMO Role Failure</h2>
+            <div class="scenario-info">
+                <p><strong>CRITICAL INCIDENT:</strong> Primary Domain Controller failure causing FSMO role unavailability</p>
+                <p><strong>Error Reports:</strong> Cannot perform schema modifications or create new domains</p>
+                <p><strong>Impact:</strong> Critical AD operations blocked forest-wide</p>
+            </div>
+
+            <div class="status-panel">
+                <h4>📋 Objectives</h4>
+                <div class="objective" id="fsmo-obj1">1. Identify all FSMO role holders</div>
+                <div class="objective" id="fsmo-obj2">2. Determine failed role locations</div>
+                <div class="objective" id="fsmo-obj3">3. Seize or transfer critical roles</div>
+                <div class="objective" id="fsmo-obj4">4. Validate role operations</div>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="fsmo-progress">0% Complete</div>
+            </div>
+
+            <div class="terminal" id="fsmo-terminal">
+                <div class="output">
+<span class="critical">[CRITICAL] FSMO role holder CON-DC01 is unresponsive</span>
+<span class="error">[ERROR] Schema Master operations failing</span>
+<span class="error">[ERROR] Domain Naming Master unreachable</span>
+<span class="warning">[WARNING] Business operations requiring FSMO roles blocked</span>
+<span class="info">[INFO] Connected to: CON-DC02.contoso.com as CONTOSO\Administrator</span>
+                </div>
+                
+                <div class="command-line">
+                    <span class="prompt">PS C:\></span>
+                    <input type="text" class="command-input" placeholder="Enter PowerShell command..." onkeypress="handleCommand(event, 'fsmo')">
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-info" onclick="showHint('fsmo')">💡 Show Hint</button>
+                <button class="btn btn-primary" onclick="quickTest('fsmo')">👑 Check FSMO Roles</button>
+                <button class="btn btn-warning" onclick="showTopology()">🗺️ Show Topology</button>
+                <button class="btn btn-danger" onclick="resetScenario('fsmo')">🔄 Reset Scenario</button>
+            </div>
+        </div>
+
+        <div class="analysis-report" id="analysis-report">
+            <h2>📊 Incident Resolution Analysis</h2>
+            <div class="score" id="final-score">Score: 0/100</div>
+            <div id="analysis-details"></div>
+        </div>
+    </div>
+
+    <script>
+        // Global state management
+        const scenarios = {
+            dns: { progress: 0, completed: [], commands: [], startTime: null },
+            clock: { progress: 0, completed: [], commands: [], startTime: null },
+            auth: { progress: 0, completed: [], commands: [], startTime: null },
+            repl: { progress: 0, completed: [], commands: [], startTime: null },
+            fsmo: { progress: 0, completed: [], commands: [], startTime: null }
+        };
+
+        let currentScenario = 'dns';
+        let commandHistory = [];
+
+        // Scenario switching
+        function switchScenario(scenario) {
+            // Hide all scenarios
+            document.querySelectorAll('.scenario-container').forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            // Show selected scenario
+            document.getElementById(scenario + '-scenario').classList.add('active');
+            
+            // Update button states
+            document.querySelectorAll('.scenario-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            currentScenario = scenario;
+            
+            // Initialize scenario if not started
+            if (!scenarios[scenario].startTime) {
+                scenarios[scenario].startTime = new Date();
+            }
+        }
+
+        // Command handling
+        function handleCommand(event, scenario) {
+            if (event.key === 'Enter') {
+                const input = event.target.value.trim();
+                if (!input) return;
+                
+                const terminal = document.getElementById(scenario + '-terminal');
+                const output = terminal.querySelector('.output');
+                
+                // Add command to history
+                commandHistory.push(input);
+                scenarios[scenario].commands.push({
+                    command: input,
+                    timestamp: new Date()
+                });
+                
+                // Display command
+                output.innerHTML += `\n<span class="prompt">PS C:\\></span> ${input}`;
+                
+                // Process command
+                const result = processCommand(input, scenario);
+                output.innerHTML += '\n' + result;
+                
+                // Clear input and scroll
+                event.target.value = '';
+                terminal.scrollTop = terminal.scrollHeight;
+                
+                // Update progress
+                updateProgress(scenario);
+            }
+        }
+
+        // Command processing engine
+        function processCommand(cmd, scenario) {
+            const command = cmd.toLowerCase();
+            
+            // Common commands across all scenarios
+            if (command.includes('help') || command === '?') {
+                return getHelpText(scenario);
+            }
+            
+            if (command.includes('cls') || command.includes('clear')) {
+                setTimeout(() => clearTerminal(scenario), 100);
+                return '<span class="info">[INFO] Clearing terminal...</span>';
+            }
+            
+            // Scenario-specific command processing
+            switch (scenario) {
+                case 'dns':
+                    return processDNSCommand(command);
+                case 'clock':
+                    return processClockCommand(command);
+                case 'auth':
+                    return processAuthCommand(command);
+                case 'repl':
+                    return processReplCommand(command);
+                case 'fsmo':
+                    return processFSMOCommand(command);
+                default:
+                    return '<span class="error">[ERROR] Unknown scenario</span>';
+            }
+        }
+
+        // DNS Command Processing
+        function processDNSCommand(cmd) {
+            if (cmd.includes('nslookup')) {
+                if (cmd.includes('fabrikam.com')) {
+                    markObjectiveComplete('dns', 2);
+                    return `<span class="output">Server:  CON-DC01.contoso.com
+Address:  192.168.1.10
+
+*** CON-DC01.contoso.com can't find fabrikam.com: Non-existent domain</span>
+<span class="error">[ERROR] DNS resolution failed for fabrikam.com</span>`;
+                }
+                return '<span class="warning">[WARNING] Specify domain to lookup</span>';
+            }
+            
+            if (cmd.includes('dnscmd') && cmd.includes('/info')) {
+                markObjectiveComplete('dns', 1);
+                return `<span class="output">DNS Server: CON-DC01.contoso.com
+Zone: contoso.com
+Forwarders: None configured
+Root Hints: Standard (13 servers)</span>
+<span class="error">[ERROR] No conditional forwarders configured for fabrikam.com</span>`;
+            }
+            
+            if (cmd.includes('dnscmd') && cmd.includes('/zoneadd')) {
+                if (cmd.includes('fabrikam.com')) {
+                    markObjectiveComplete('dns', 3);
+                    return '<span class="success">[SUCCESS] Conditional forwarder for fabrikam.com created</span>';
+                }
+            }
+            
+            if (cmd.includes('test-netconnection') || cmd.includes('ping')) {
+                if (cmd.includes('fabrikam.com')) {
+                    if (scenarios.dns.completed.includes(3)) {
+                        markObjectiveComplete('dns', 4);
+                        return '<span class="success">[SUCCESS] fabrikam.com resolved successfully!</span>';
+                    } else {
+                        return '<span class="error">[ERROR] fabrikam.com cannot be resolved</span>';
+                    }
+                }
+            }
+            
+            if (cmd.includes('dcdiag') && cmd.includes('/test:dns')) {
+                return `<span class="output">Testing server: CON-DC01.contoso.com
+   Starting test: DNS
+      DNS resolution for contoso.com: PASSED
+      DNS resolution for fabrikam.com: FAILED
+      Error: Non-existent domain</span>`;
+            }
+            
+            return '<span class="error">[ERROR] Command not recognized. Type "help" for available commands</span>';
+        }
+
+        // Clock Command Processing
+        function processClockCommand(cmd) {
+            if (cmd.includes('w32tm') && cmd.includes('/query')) {
+                markObjectiveComplete('clock', 1);
+                if (cmd.includes('/status')) {
+                    return `<span class="output">Leap Indicator: 0(no warning)
+Stratum: 16 (unspecified)
+Precision: -6 (15.625ms per tick)
+Root Delay: 0.0000000s
+Root Dispersion: 10.0000000s
+ReferenceId: 0x00000000 (unspecified)
+Last Successful Sync Time: Never
+Source: Local CMOS Clock
+Poll Interval: 6 (64s)</span>
+<span class="error">[ERROR] Time source not synchronized with external NTP</span>`;
+                }
+                if (cmd.includes('/peers')) {
+                    return `<span class="output">#Peers: 0
+Peer: time.nist.gov,0x1
+State: Unknown
+Time Remaining: 0.0000000s
+Mode: 0 (unspecified)
+Stratum: 0 (unspecified)
+PeerPoll Interval: 0 (unspecified)
+HostPoll Interval: 0 (unspecified)</span>
+<span class="warning">[WARNING] No active time peers configured</span>`;
+                }
+            }
+            
+            if (cmd.includes('net time')) {
+                markObjectiveComplete('clock', 2);
+                return `<span class="output">Current time at \\CON-DC01 is 1/15/2024 2:45:33 PM
+Current time at \\CON-DC02 is 1/15/2024 2:39:12 PM
+Current time at \\MKT-DC01 is 1/15/2024 2:47:45 PM</span>
+<span class="error">[ERROR] Time variance detected: Max difference 8 minutes 33 seconds</span>`;
+            }
+            
+            if (cmd.includes('w32tm') && cmd.includes('/config')) {
+                if (cmd.includes('time.nist.gov') || cmd.includes('pool.ntp.org')) {
+                    markObjectiveComplete('clock', 3);
+                    return '<span class="success">[SUCCESS] NTP configuration updated successfully</span>';
+                }
+            }
+            
+            if (cmd.includes('w32tm') && cmd.includes('/resync')) {
+                if (scenarios.clock.completed.includes(3)) {
+                    markObjectiveComplete('clock', 4);
+                    return '<span class="success">[SUCCESS] Time synchronization completed! All DCs now in sync</span>';
+                } else {
+                    return '<span class="error">[ERROR] Cannot sync - no valid time source configured</span>';
+                }
+            }
+            
+            if (cmd.includes('nltest') && cmd.includes('/server_trust')) {
+                if (scenarios.clock.completed.includes(4)) {
+                    return '<span class="success">[SUCCESS] Kerberos authentication working normally</span>';
+                } else {
+                    return '<span class="error">[ERROR] Kerberos authentication failed - clock skew too great</span>';
+                }
+            }
+            
+            return '<span class="error">[ERROR] Command not recognized. Type "help" for available commands</span>';
+        }
+
+        // Authentication Command Processing
+        function processAuthCommand(cmd) {
+            if (cmd.includes('nltest') && cmd.includes('/trusted_domains')) {
+                markObjectiveComplete('auth', 1);
+                return `<span class="output">Trusted domains:
+CONTOSO             S-1-5-21-1234567890-1234567890-1234567890
+FABRIKAM            S-1-5-21-0987654321-0987654321-0987654321</span>
+<span class="warning">[WARNING] Trust relationship status needs verification</span>`;
+            }
+            
+            if (cmd.includes('nltest') && cmd.includes('/server_trust')) {
+                if (cmd.includes('fabrikam.com')) {
+                    markObjectiveComplete('auth', 2);
+                    return '<span class="error">[ERROR] Trust verification failed: RPC server unavailable</span>';
+                }
+            }
+            
+            if (cmd.includes('setspn') && cmd.includes('/q')) {
+                markObjectiveComplete('auth', 3);
+                return `<span class="output">Registered ServicePrincipalNames for CN=KRBTGT,CN=Users,DC=contoso,DC=com:
+        kadmin/changepw
+ServicePrincipalNames for CN=KRBTGT,CN=Users,DC=fabrikam,DC=com:
+        Not found or access denied</span>
+<span class="error">[ERROR] Cannot access FABRIKAM SPN information</span>`;
+            }
+            
+            if (cmd.includes('netdom') && cmd.includes('trust')) {
+                if (cmd.includes('/verify') || cmd.includes('/reset')) {
+                    if (scenarios.auth.completed.includes(3)) {
+                        markObjectiveComplete('auth', 4);
+                        return '<span class="success">[SUCCESS] Trust relationship reset and verified successfully!</span>';
+                    } else {
+                        return '<span class="error">[ERROR] Trust reset failed - check network connectivity</span>';
+                    }
+                }
+            }
+            
+            if (cmd.includes('runas') && cmd.includes('fabrikam')) {
+                if (scenarios.auth.completed.includes(4)) {
+                    return '<span class="success">[SUCCESS] Cross-forest authentication working!</span>';
+                } else {
+                    return '<span class="error">[ERROR] Authentication failed - trust relationship broken</span>';
+                }
+            }
+            
+            return '<span class="error">[ERROR] Command not recognized. Type "help" for available commands</span>';
+        }
+
+        // Replication Command Processing
+        function processReplCommand(cmd) {
+            if (cmd.includes('repadmin') && cmd.includes('/showrepl')) {
+                markObjectiveComplete('repl', 1);
+                return `<span class="output">Replication Summary Start Time: 2024-01-15 14:30:25
+
+Source DSA          largest delta    fails/total %%   error
+CON-DC02             00:15:33        0 /  5   0   (0) Good
+MKT-DC01             72:45:12       15 / 20  75   (1722) RPC server unavailable
+SAL-DC01             00:22:11        0 /  8   0   (0) Good
+FAB-DC01             48:33:22       8 / 12  67   (8524) USN rollback detected</span>
+<span class="error">[ERROR] Critical replication failures detected</span>`;
+            }
+            
+            if (cmd.includes('dcdiag') && cmd.includes('/test:replications')) {
+                return `<span class="output">Testing server: CON-DC01.contoso.com
+   Starting test: Replications
+      * Replications Check
+      [Replications Check,CON-DC01] A recent replication attempt failed:
+         From MKT-DC01 to CON-DC01
+         Naming Context: DC=contoso,DC=com
+         The replication generated an error (1722): The RPC server is unavailable.</span>`;
+            }
+            
+            if (cmd.includes('repadmin') && cmd.includes('/replsum')) {
+                markObjectiveComplete('repl', 2);
+                return `<span class="output">Replication Summary for Forest contoso.com:
+Largest Delta         Fails/Total
+72:45:12              15 / 45  (33% failure rate)
+
+Site Links:
+Default-First-Site-Link: Cost 100, Interval 180 minutes
+Marketing-Site-Link: Cost 50, Interval 15 minutes (BROKEN)
+Sales-Site-Link: Cost 75, Interval 60 minutes</span>
+<span class="warning">[WARNING] Marketing site link configuration issues detected</span>`;
+            }
+            
+            if (cmd.includes('repadmin') && cmd.includes('/removelingeringobjects')) {
+                markObjectiveComplete('repl', 3);
+                return '<span class="success">[SUCCESS] Lingering objects removed successfully</span>';
+            }
+            
+            if (cmd.includes('repadmin') && cmd.includes('/syncall')) {
+                if (scenarios.repl.completed.includes(3)) {
+                    markObjectiveComplete('repl', 4);
+                    return '<span class="success">[SUCCESS] Forced replication completed! All partners now healthy</span>';
+                } else {
+                    return '<span class="error">[ERROR] Sync failed - resolve USN rollback issues first</span>';
+                }
+            }
+            
+            return '<span class="error">[ERROR] Command not recognized. Type "help" for available commands</span>';
+        }
+
+        // FSMO Command Processing
+        function processFSMOCommand(cmd) {
+            if (cmd.includes('netdom') && cmd.includes('query') && cmd.includes('fsmo')) {
+                markObjectiveComplete('fsmo', 1);
+                return `<span class="output">Schema Master               CON-DC01.contoso.com [OFFLINE]
+Domain Naming Master        CON-DC01.contoso.com [OFFLINE]
+PDC Emulator               CON-DC01.contoso.com [OFFLINE]
+RID Master                 CON-DC02.contoso.com [ONLINE]
+Infrastructure Master      CON-DC02.contoso.com [ONLINE]</span>
+<span class="critical">[CRITICAL] Multiple FSMO roles offline on failed DC</span>`;
+            }
+            
+            if (cmd.includes('dcdiag') && cmd.includes('/test:fsmocheck')) {
+                markObjectiveComplete('fsmo', 2);
+                return `<span class="output">Testing server: CON-DC02.contoso.com
+   Starting test: FsmoCheck
+      * FSMO Check
+      Schema Master: CON-DC01.contoso.com [UNREACHABLE]
+      Domain Naming Master: CON-DC01.contoso.com [UNREACHABLE]
+      PDC Emulator: CON-DC01.contoso.com [UNREACHABLE]</span>
+<span class="error">[ERROR] Critical FSMO roles unreachable</span>`;
+            }
+            
+            if (cmd.includes('ntdsutil')) {
+                if (cmd.includes('seize')) {
+                    markObjectiveComplete('fsmo', 3);
+                    return '<span class="success">[SUCCESS] FSMO roles seized successfully to CON-DC02</span>';
+                }
+                if (cmd.includes('roles') || cmd.includes('connect')) {
+                    return `<span class="output">ntdsutil: roles
+fsmo maintenance: connections
+server connections: connect to server CON-DC02
+Binding to CON-DC02 ...
+Connected to CON-DC02 using credentials of locally logged on user.</span>`;
+                }
+            }
+            
+            if (cmd.includes('netdom') && cmd.includes('verify')) {
+                if (scenarios.fsmo.completed.includes(3)) {
+                    markObjectiveComplete('fsmo', 4);
+                    return '<span class="success">[SUCCESS] All FSMO roles operational on CON-DC02!</span>';
+                } else {
+                    return '<span class="error">[ERROR] FSMO roles still offline</span>';
+                }
+            }
+            
+            return '<span class="error">[ERROR] Command not recognized. Type "help" for available commands</span>';
+        }
+
+        // Help text for each scenario
+        function getHelpText(scenario) {
+            const helpTexts = {
+                dns: `<span class="info">DNS Troubleshooting Commands:
+nslookup [domain] - Test DNS resolution
+dnscmd /info - Show DNS server configuration
+dnscmd /zoneadd [zone] [type] - Add DNS zone/forwarder
+dcdiag /test:dns - Run DNS diagnostic tests
+test-netconnection [target] - Test network connectivity
+ping [target] - Basic connectivity test</span>`,
+                
+                clock: `<span class="info">Time Synchronization Commands:
+w32tm /query /status - Check time service status
+w32tm /query /peers - Show configured time peers
+net time \\\\server - Compare time with server
+w32tm /config /manualpeerlist:[server] - Configure NTP server
+w32tm /resync - Force time synchronization
+nltest /server_trust - Test Kerberos authentication</span>`,
+                
+                auth: `<span class="info">Authentication Troubleshooting Commands:
+nltest /trusted_domains - List trusted domains
+nltest /server_trust /domain:[domain] - Test trust relationship
+setspn /q [service] - Query service principal names
+netdom trust /verify - Verify trust relationship
+netdom trust /reset - Reset trust relationship
+runas /user:[domain\\user] cmd - Test cross-domain authentication</span>`,
+                
+                repl: `<span class="info">Replication Troubleshooting Commands:
+repadmin /showrepl - Show replication partners
+repadmin /replsum - Display replication summary
+dcdiag /test:replications - Test replication health
+repadmin /removelingeringobjects - Clean lingering objects
+repadmin /syncall - Force replication across all partners
+repadmin /kcc - Trigger Knowledge Consistency Checker</span>`,
+                
+                fsmo: `<span class="info">FSMO Role Management Commands:
+netdom query fsmo - Display FSMO role holders
+dcdiag /test:fsmocheck - Check FSMO role availability
+ntdsutil - FSMO role management utility
+ntdsutil "roles" "connect to server [server]" - Connect to DC
+ntdsutil "seize [role]" - Seize FSMO role (emergency)
+netdom verify - Verify domain operations</span>`
+            };
+            
+            return helpTexts[scenario] || '<span class="error">No help available for this scenario</span>';
+        }
+
+        // Objective completion tracking
+        function markObjectiveComplete(scenario, objectiveNum) {
+            if (!scenarios[scenario].completed.includes(objectiveNum)) {
+                scenarios[scenario].completed.push(objectiveNum);
+                
+                const objective = document.getElementById(`${scenario}-obj${objectiveNum}`);
+                if (objective) {
+                    objective.classList.add('completed');
+                    objective.innerHTML += ' ✅';
+                }
+                
+                updateProgress(scenario);
+            }
+        }
+
+        // Progress tracking
+        function updateProgress(scenario) {
+            const completed = scenarios[scenario].completed.length;
+            const total = 4; // Each scenario has 4 objectives
+            const percentage = (completed / total) * 100;
+            
+            scenarios[scenario].progress = percentage;
+            
+            const progressBar = document.getElementById(`${scenario}-progress`);
+            if (progressBar) {
+                progressBar.style.width = percentage + '%';
+                progressBar.textContent = Math.round(percentage) + '% Complete';
+                
+                if (percentage === 100) {
+                    progressBar.style.background = 'linear-gradient(90deg, #00ff41, #00cc33)';
+                    showAnalysisReport(scenario);
+                }
+            }
+        }
+
+        // Show analysis report
+        function showAnalysisReport(scenario) {
+            const report = document.getElementById('analysis-report');
+            const details = document.getElementById('analysis-details');
+            const scoreElement = document.getElementById('final-score');
+            
+            const timeElapsed = new Date() - scenarios[scenario].startTime;
+            const minutes = Math.floor(timeElapsed / 60000);
+            const commandCount = scenarios[scenario].commands.length;
+            
+            // Calculate score based on time and efficiency
+            let score = 100;
+            if (minutes > 10) score -= (minutes - 10) * 2; // Penalty for time
+            if (commandCount > 15) score -= (commandCount - 15); // Penalty for inefficiency
+            score = Math.max(score, 60); // Minimum score
+            
+            scoreElement.textContent = `Score: ${score}/100`;
+            scoreElement.style.color = score >= 90 ? '#00ff41' : score >= 75 ? '#ffaa00' : '#ff4444';
+            
+            details.innerHTML = `
+                <h3>📈 Performance Analysis</h3>
+                <p><strong>Completion Time:</strong> ${minutes} minutes</p>
+                <p><strong>Commands Used:</strong> ${commandCount}</p>
+                <p><strong>Objectives Completed:</strong> ${scenarios[scenario].completed.length}/4</p>
+                
+                <h3>🎯 Resolution Quality</h3>
+                <p>${getScenarioAnalysis(scenario, score)}</p>
+                
+                <h3>📝 Key Commands Used</h3>
+                <ul>
+                    ${scenarios[scenario].commands.slice(-5).map(cmd => `<li><code>${cmd.command}</code></li>`).join('')}
+                </ul>
+                
+                <h3>💡 Best Practices Applied</h3>
+                <p>${getBestPractices(scenario)}</p>
+            `;
+            
+            report.classList.add('show');
+        }
+
+        // Scenario-specific analysis
+        function getScenarioAnalysis(scenario, score) {
+            const analyses = {
+                dns: score >= 90 ? 'Excellent DNS troubleshooting! You efficiently identified the missing conditional forwarder and restored cross-forest name resolution.' : 'Good work resolving the DNS issue. Consider using dcdiag /test:dns earlier in the troubleshooting process.',
+                clock: score >= 90 ? 'Outstanding time synchronization resolution! You properly configured the NTP hierarchy and restored Kerberos functionality.' : 'Time sync issue resolved. Remember to check w32tm /query /status first to understand the current configuration.',
+                auth: score >= 90 ? 'Excellent trust relationship troubleshooting! You systematically verified and restored cross-forest authentication.' : 'Authentication issue fixed. Consider using nltest commands earlier to identify trust problems quickly.',
+                repl: score >= 90 ? 'Superb replication troubleshooting! You identified USN rollback issues and restored healthy replication across all partners.' : 'Replication restored successfully. Using repadmin /replsum early helps identify patterns in replication failures.',
+                fsmo: score >= 90 ? 'Perfect FSMO role management! You correctly seized the roles from the failed DC and validated operations.' : 'FSMO roles transferred successfully. Always verify role seizure is necessary before using ntdsutil seize commands.'
+            };
+            return analyses[scenario] || 'Scenario completed successfully.';
+        }
+
+        // Best practices feedback
+        function getBestPractices(scenario) {
+            const practices = {
+                dns: 'Used systematic approach: checked current config → tested resolution → configured forwarders → validated connectivity',
+                clock: 'Followed time sync hierarchy: identified source → checked variance → configured NTP → forced sync',
+                auth: 'Applied trust troubleshooting methodology: verified trusts → tested paths → checked SPNs → reset relationships',
+                repl: 'Used comprehensive replication analysis: checked partners → identified failures → cleaned objects → forced sync',
+                fsmo: 'Followed emergency FSMO procedures: identified roles → confirmed failure → seized roles → validated operations'
+            };
+            return practices[scenario] || 'Standard troubleshooting methodology applied.';
+        }
+
+        // Utility functions
+        function showHint(scenario) {
+            const hints = {
+                dns: 'Check DNS server configuration first, then test name resolution. Consider conditional forwarders for cross-forest scenarios.',
+                clock: 'Start by checking the time service status and identifying the time source hierarchy.',
+                auth: 'Verify trust relationships first, then test authentication pathways systematically.',
+                repl: 'Use repadmin /showrepl to identify failing partners, then investigate USN issues.',
+                fsmo: 'Identify which roles are held by the failed DC, then use ntdsutil to seize critical roles.'
+            };
+            
+            const terminal = document.getElementById(scenario + '-terminal');
+            const output = terminal.querySelector('.output');
+            output.innerHTML += `\n<span class="info">[HINT] ${hints[scenario]}</span>`;
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        function quickTest(scenario) {
+            const tests = {
+                dns: 'nslookup fabrikam.com',
+                clock: 'w32tm /query /status',
+                auth: 'nltest /trusted_domains',
+                repl: 'repadmin /showrepl',
+                fsmo: 'netdom query fsmo'
+            };
+            
+            // Simulate command execution
+            const input = document.querySelector(`#${scenario}-scenario .command-input`);
+            input.value = tests[scenario];
+            const event = new KeyboardEvent('keypress', { key: 'Enter' });
+            input.dispatchEvent(event);
+        }
+
+        function showTopology() {
+            alert('Network Topology:\n\nCONTOSO.COM Forest:\n- contoso.com (CON-DC01, CON-DC02)\n- marketing.contoso.com (MKT-DC01, MKT-DC02)\n- sales.contoso.com (SAL-DC01, SAL-DC02)\n\nFABRIKAM.COM Forest:\n- fabrikam.com (FAB-DC01, FAB-DC02)\n- dev.fabrikam.com (DEV-DC01, DEV-DC02)\n- hr.fabrikam.com (HR-DC01, HR-DC02)\n\nTrust: Bidirectional Forest Trust');
+        }
+
+        function resetScenario(scenario) {
+            scenarios[scenario] = { progress: 0, completed: [], commands: [], startTime: new Date() };
+            
+            // Reset objectives
+            for (let i = 1; i <= 4; i++) {
+                const obj = document.getElementById(`${scenario}-obj${i}`);
+                if (obj) {
+                    obj.classList.remove('completed');
+                    obj.innerHTML = obj.innerHTML.replace(' ✅', '');
+                }
+            }
+            
+            // Reset progress bar
+            const progress = document.getElementById(`${scenario}-progress`);
+            if (progress) {
+                progress.style.width = '0%';
+                progress.textContent = '0% Complete';
+                progress.style.background = 'linear-gradient(90deg, #00ff41, #00cc33)';
+            }
+            
+            // Clear terminal (scenario-specific initial messages will be restored)
+            clearTerminal(scenario);
+            
+            // Hide analysis report
+            document.getElementById('analysis-report').classList.remove('show');
+        }
+
+        function clearTerminal(scenario) {
+            const initialMessages = {
+                dns: `<span class="critical">[CRITICAL] Cross-forest DNS resolution failure detected</span>
+<span class="error">[ERROR] Cannot resolve fabrikam.com from contoso.com domain controllers</span>
+<span class="warning">[WARNING] Trust verification failing due to DNS issues</span>
+<span class="info">[INFO] Connected to: CON-DC01.contoso.com as CONTOSO\\Administrator</span>
+<span class="info">[INFO] Current Time: 2024-01-15 14:30:25 UTC</span>`,
+                
+                clock: `<span class="critical">[CRITICAL] Kerberos authentication failure - Clock skew detected</span>
+<span class="error">[ERROR] Time difference exceeds maximum tolerance (5 minutes)</span>
+<span class="warning">[WARNING] Multiple DCs reporting different times</span>
+<span class="info">[INFO] Connected to: CON-DC02.contoso.com as CONTOSO\\Administrator</span>`,
+                
+                auth: `<span class="critical">[CRITICAL] Cross-forest authentication failure</span>
+<span class="error">[ERROR] Trust relationship verification failed</span>
+<span class="warning">[WARNING] SPN registration inconsistencies detected</span>
+<span class="info">[INFO] Connected to: CON-DC01.contoso.com as CONTOSO\\Administrator</span>`,
+                
+                repl: `<span class="critical">[CRITICAL] Replication failure detected across multiple sites</span>
+<span class="error">[ERROR] USN rollback detected on MKT-DC01</span>
+<span class="warning">[WARNING] 72-hour replication window exceeded</span>
+<span class="info">[INFO] Connected to: CON-DC01.contoso.com as CONTOSO\\Administrator</span>`,
+                
+                fsmo: `<span class="critical">[CRITICAL] FSMO role holder CON-DC01 is unresponsive</span>
+<span class="error">[ERROR] Schema Master operations failing</span>
+<span class="error">[ERROR] Domain Naming Master unreachable</span>
+<span class="warning">[WARNING] Business operations requiring FSMO roles blocked</span>
+<span class="info">[INFO] Connected to: CON-DC02.contoso.com as CONTOSO\\Administrator</span>`
+            };
+            
+            const terminal = document.getElementById(scenario + '-terminal');
+            const output = terminal.querySelector('.output');
+            output.innerHTML = initialMessages[scenario] || '';
+        }
+
+        // Initialize first scenario
+        scenarios.dns.startTime = new Date();
+    </script>
+</body>
+</html>

@@ -1,0 +1,3835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IT Infrastructure Troubleshooter Hub V4</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            box-shadow: 0 0 50px rgba(0,0,0,0.1);
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 20px;
+            overflow-y: auto;
+            height: 100vh;
+            position: sticky;
+            top: 0;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            border-bottom: 2px solid #3498db;
+        }
+
+        .logo h1 {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+
+        .logo p {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .search-box {
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            placeholder-color: rgba(255,255,255,0.6);
+        }
+
+        .search-input::placeholder {
+            color: rgba(255,255,255,0.6);
+        }
+
+        .category {
+            margin-bottom: 20px;
+        }
+
+        .category-header {
+            background: rgba(52, 152, 219, 0.2);
+            padding: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .category-header:hover {
+            background: rgba(52, 152, 219, 0.3);
+        }
+
+        .category-items {
+            display: none;
+            padding-left: 15px;
+        }
+
+        .category.expanded .category-items {
+            display: block;
+        }
+
+        .category.expanded .category-header .chevron {
+            transform: rotate(90deg);
+        }
+
+        .chevron {
+            transition: transform 0.3s ease;
+        }
+
+        .nav-item {
+            padding: 8px 12px;
+            margin: 4px 0;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: rgba(255,255,255,0.1);
+            border-left-color: #3498db;
+        }
+
+        .nav-item.active {
+            background: rgba(52, 152, 219, 0.3);
+            border-left-color: #3498db;
+        }
+
+        .issue-count {
+            background: #e74c3c;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 0.8em;
+            margin-left: 8px;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 0;
+            overflow-y: auto;
+            height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 30px 40px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+
+        .content-area {
+            padding: 40px;
+        }
+
+        /* Dashboard */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-left: 5px solid #3498db;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        /* Quick Access */
+        .quick-access {
+            margin-bottom: 40px;
+        }
+
+        .quick-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .quick-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #ecf0f1;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .quick-item:hover {
+            border-color: #3498db;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.2);
+        }
+
+        .quick-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+            color: #3498db;
+        }
+
+        .quick-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+
+        .quick-desc {
+            font-size: 0.9em;
+            color: #7f8c8d;
+        }
+
+        /* Troubleshooting Content */
+        .troubleshoot-content {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .troubleshoot-content.active {
+            display: block;
+        }
+
+        .dita-structure {
+            background: #f8f9fa;
+            border-left: 5px solid #007bff;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .dita-label {
+            font-weight: bold;
+            color: #007bff;
+            text-transform: uppercase;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .condition { border-left-color: #dc3545; }
+        .condition .dita-label { color: #dc3545; }
+        .cause { border-left-color: #fd7e14; }
+        .cause .dita-label { color: #fd7e14; }
+        .remedy { border-left-color: #28a745; }
+        .remedy .dita-label { color: #28a745; }
+        .baseline { border-left-color: #17a2b8; }
+        .baseline .dita-label { color: #17a2b8; }
+        .diagnostic { border-left-color: #6f42c1; }
+        .diagnostic .dita-label { color: #6f42c1; }
+        .verification { border-left-color: #28a745; }
+        .verification .dita-label { color: #28a745; }
+        .prevention { border-left-color: #6c757d; }
+        .prevention .dita-label { color: #6c757d; }
+
+        .interconnection-alert {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+            border: 2px solid #fdcb6e;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            color: #2d3436;
+        }
+
+        .interconnection-links {
+            margin-top: 15px;
+        }
+
+        .interconnection-link {
+            display: inline-block;
+            background: white;
+            padding: 8px 15px;
+            margin: 5px;
+            border-radius: 20px;
+            text-decoration: none;
+            color: #2d3436;
+            font-size: 0.9em;
+            border: 1px solid #ddd;
+            transition: all 0.3s ease;
+        }
+
+        .interconnection-link:hover {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+
+        .step-progress {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .progress-step {
+            flex: 1;
+            min-width: 80px;
+            text-align: center;
+            position: relative;
+        }
+
+        .progress-step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 15px;
+            right: -50%;
+            width: 100%;
+            height: 2px;
+            background: #ecf0f1;
+            z-index: 1;
+        }
+
+        .progress-step.completed::after {
+            background: #27ae60;
+        }
+
+        .progress-circle {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #ecf0f1;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #7f8c8d;
+            position: relative;
+            z-index: 2;
+            font-size: 0.8em;
+        }
+
+        .progress-step.completed .progress-circle {
+            background: #27ae60;
+            color: white;
+        }
+
+        .progress-step.active .progress-circle {
+            background: #3498db;
+            color: white;
+        }
+
+        .progress-step div:last-child {
+            font-size: 0.8em;
+            max-width: 100px;
+            word-wrap: break-word;
+            margin: 0 auto;
+        }
+
+        .question-container {
+            background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+        }
+
+        .options-grid {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .option-card {
+            background: white;
+            border: 2px solid #ecf0f1;
+            padding: 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .option-card:hover {
+            border-color: #3498db;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.2);
+        }
+
+        .option-card.selected {
+            border-color: #27ae60;
+            background: #d5f4e6;
+        }
+
+        .remedy-section {
+            background: #e8f5e8;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+
+        .command-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            word-break: break-all;
+            position: relative;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #4a5568;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+        }
+
+        .copy-btn:hover {
+            background: #2d3748;
+        }
+
+        /* Navigation buttons */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                height: auto;
+                position: relative;
+            }
+
+            .step-progress {
+                overflow-x: auto;
+                justify-content: flex-start;
+            }
+
+            .progress-step {
+                min-width: 100px;
+                flex: none;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <div class="logo">
+                <h1>🔧 IT Hub V4</h1>
+                <p>Enhanced DITA Troubleshooting</p>
+            </div>
+
+            <div class="search-box">
+                <input type="text" class="search-input" placeholder="Search troubleshooting scenarios..." id="searchInput">
+            </div>
+
+            <div class="categories" id="categoriesContainer">
+                <!-- Categories will be dynamically generated -->
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h1 id="pageTitle">IT Infrastructure Troubleshooting Hub V4</h1>
+                <p id="pageSubtitle">Enhanced DITA-structured troubleshooting with full metadata support</p>
+            </div>
+
+            <div class="content-area">
+                <!-- Dashboard View -->
+                <div id="dashboardView">
+                    <div class="dashboard">
+                        <div class="stat-card">
+                            <div class="stat-number">127</div>
+                            <div class="stat-label">Total Troubleshooting Scenarios</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">12</div>
+                            <div class="stat-label">System Categories</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">845</div>
+                            <div class="stat-label">Cross-References</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">98%</div>
+                            <div class="stat-label">Resolution Rate</div>
+                        </div>
+                    </div>
+
+                    <h2>🚀 Quick Access - Most Common Issues</h2>
+                    <div class="quick-access">
+                        <div class="quick-grid" id="quickAccessGrid">
+                            <!-- Quick access items will be dynamically generated -->
+                        </div>
+                    </div>
+
+                    <div class="interconnection-alert">
+                        <h3>🔗 System Interconnections</h3>
+                        <p>Remember: IT systems are interconnected. A DNS issue can cause AD replication failures, which can lead to GPO problems. Our enhanced troubleshooter automatically suggests related checks based on your issue.</p>
+                        <div class="interconnection-links">
+                            <a href="#" class="interconnection-link">DNS → AD Replication</a>
+                            <a href="#" class="interconnection-link">AD → GPO Distribution</a>
+                            <a href="#" class="interconnection-link">SYSVOL → Group Policy</a>
+                            <a href="#" class="interconnection-link">Time Sync → Kerberos</a>
+                            <a href="#" class="interconnection-link">Network → All Services</a>
+                        </div>
+                        <div style="margin-top: 15px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                            <strong>🆕 V4 Enhancements:</strong> Full metadata support, enhanced step types (baseline, diagnostic, verification, prevention), error code references, port information, and improved progress tracking for complex multi-step scenarios.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Troubleshooting Content Area -->
+                <div id="troubleshootingView" class="troubleshoot-content">
+                    <!-- Dynamic troubleshooting content will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Enhanced troubleshooting database with full DNS scenario
+        const troubleshootingDatabase = {
+            categories: {
+                'active-directory': {
+                    name: 'Active Directory',
+                    icon: '🏢',
+                    issues: [
+                        'ad-replication-failure',
+                        'ad-authentication-issues',
+                        'ad-group-policy-not-applying',
+                        'ad-dns-integration-problems',
+                        'ad-time-synchronization'
+                    ]
+                },
+                'dns': {
+                    name: 'DNS Services',
+                    icon: '🌐',
+                    issues: [
+                        'dns-resolution-failure',
+                        'dns-zone-transfer-issues',
+                        'dns-server-not-responding',
+                        'dns-cache-poisoning',
+                        'dns-forwarder-problems'
+                    ]
+                },
+                'dhcp': {
+                    name: 'DHCP Services',
+                    icon: '📡',
+                    issues: [
+                        'dhcp-scope-exhaustion',
+                        'dhcp-server-not-responding',
+                        'dhcp-lease-conflicts',
+                        'dhcp-relay-agent-issues'
+                    ]
+                },
+                'group-policy': {
+                    name: 'Group Policy',
+                    icon: '📋',
+                    issues: [
+                        'gpo-not-applying',
+                        'gpo-slow-processing',
+                        'gpo-sysvol-replication-issues',
+                        'gpo-security-filtering-problems'
+                    ]
+                },
+                'network': {
+                    name: 'Network Infrastructure',
+                    icon: '🌐',
+                    issues: [
+                        'network-connectivity-loss',
+                        'network-slow-performance',
+                        'network-routing-problems',
+                        'network-vlan-issues'
+                    ]
+                }
+            },
+
+            scenarios: {
+
+'ad-dns-integration-problems': {
+    'title': 'Active Directory DNS Integration Problems - Complete Troubleshooting',
+    'category': 'active-directory',
+    'severity': 'critical',
+    'interconnections': ['dns-resolution-failure', 'ad-authentication-issues', 'ad-replication-failure', 'gpo-not-applying'],
+    'steps': [
+        {
+            'type': 'baseline',
+            'title': 'DNS Service and Integration Health Check',
+            'content': 'Verify DNS service status and basic Active Directory integration.',
+            'commands': [
+                'sc query DNS',
+                'Get-Service -Name DNS | Format-Table Name,Status',
+                'nslookup %USERDOMAIN%',
+                'nltest /dsgetdc:%USERDOMAIN%',
+                'dcdiag /test:dns /v',
+                'netstat -an | findstr :53',
+                'Get-DnsServerZone | Format-Table ZoneName,ZoneType,DynamicUpdate'
+            ]
+        },
+        {
+            'type': 'baseline',
+            'title': 'Active Directory SRV Record Verification',
+            'content': 'Check critical Active Directory SRV records in DNS.',
+            'commands': [
+                'nslookup -type=SRV _ldap._tcp.%USERDOMAIN%',
+                'nslookup -type=SRV _kerberos._tcp.%USERDOMAIN%',
+                'nslookup -type=SRV _gc._tcp.%USERDOMAIN%',
+                'nslookup -type=SRV _kpasswd._tcp.%USERDOMAIN%',
+                'nslookup -type=SRV _ldap._tcp.dc._msdcs.%USERDOMAIN%',
+                'Get-DnsServerResourceRecord -ZoneName %USERDOMAIN% -RRType SRV'
+            ]
+        },
+        {
+            'type': 'baseline',
+            'title': 'DNS Zone Configuration Assessment',
+            'content': 'Assess DNS zone configuration for Active Directory integration.',
+            'commands': [
+                'Get-DnsServerZone -Name %USERDOMAIN%',
+                'Get-DnsServerZone -Name "_msdcs.%USERDOMAIN%"',
+                'dnscmd /enumzones',
+                'dnscmd /zoneinfo %USERDOMAIN%',
+                'Get-DnsServerSetting',
+                'reg query "HKLM\\System\\CurrentControlSet\\Services\\DNS\\Parameters"'
+            ]
+        },
+        {
+            'type': 'condition',
+            'title': 'Identify DNS-AD Integration Problem Scope',
+            'content': 'Determine the specific nature and scope of the DNS-Active Directory integration issue.',
+            'questions': [
+                {
+                    'question': 'What type of DNS-AD integration problem are you experiencing?',
+                    'options': [
+                        { 'value': 'srv-records-missing', 'text': 'Active Directory SRV records missing from DNS' },
+                        { 'value': 'dynamic-updates-failing', 'text': 'Dynamic DNS updates not working' },
+                        { 'value': 'secure-updates-issues', 'text': 'Secure dynamic updates failing' },
+                        { 'value': 'dc-registration-failing', 'text': 'Domain controllers not registering in DNS' },
+                        { 'value': 'zone-delegation-problems', 'text': 'DNS zone delegation issues' },
+                        { 'value': 'forwarder-configuration', 'text': 'DNS forwarder configuration problems' },
+                        { 'value': 'reverse-lookup-issues', 'text': 'Reverse DNS lookup problems affecting AD' }
+                    ]
+                },
+                {
+                    'question': 'What is the DNS infrastructure configuration?',
+                    'options': [
+                        { 'value': 'ad-integrated-dns', 'text': 'Active Directory integrated DNS zones' },
+                        { 'value': 'standard-primary-dns', 'text': 'Standard primary DNS zones' },
+                        { 'value': 'external-dns-provider', 'text': 'External DNS provider (not Windows DNS)' },
+                        { 'value': 'mixed-dns-environment', 'text': 'Mixed DNS environment (internal/external)' },
+                        { 'value': 'dns-on-separate-servers', 'text': 'DNS on separate servers from domain controllers' },
+                        { 'value': 'unknown-configuration', 'text': 'Unknown DNS configuration' }
+                    ]
+                },
+                {
+                    'question': 'When did the DNS-AD integration problems start?',
+                    'options': [
+                        { 'value': 'after-dc-promotion', 'text': 'After promoting new domain controller' },
+                        { 'value': 'after-dns-changes', 'text': 'After DNS configuration changes' },
+                        { 'value': 'after-network-changes', 'text': 'After network infrastructure changes' },
+                        { 'value': 'after-security-updates', 'text': 'After security updates or patches' },
+                        { 'value': 'gradual-degradation', 'text': 'Gradual degradation over time' },
+                        { 'value': 'intermittent-issues', 'text': 'Intermittent DNS-AD integration problems' }
+                    ]
+                }
+            ]
+        },
+        {
+            'type': 'diagnostic',
+            'title': 'Comprehensive SRV Record Analysis',
+            'content': 'Perform detailed analysis of Active Directory SRV record registration.',
+            'commands': [
+                'netdom query dc | ForEach-Object { nslookup -type=SRV "_ldap._tcp.dc._msdcs.%USERDOMAIN%" }',
+                'dcdiag /test:registerindns /v',
+                'nltest /dsgetdc:%USERDOMAIN% /force',
+                'Get-DnsServerResourceRecord -ZoneName "_msdcs.%USERDOMAIN%" | Where-Object {$_.RecordType -eq "SRV"}',
+                'dnscmd /enumrecords "_msdcs.%USERDOMAIN%" . /type SRV',
+                'reg query "HKLM\\System\\CurrentControlSet\\Services\\Netlogon\\Parameters" /v DnsUpdateOnAllAdapters'
+            ]
+        },
+        {
+            'type': 'diagnostic',
+            'title': 'Dynamic DNS Update Analysis',
+            'content': 'Analyze dynamic DNS update configuration and functionality.',
+            'commands': [
+                'ipconfig /registerdns',
+                'Get-DnsServerZone -Name %USERDOMAIN% | Select-Object DynamicUpdate,SecureSecondaries',
+                'dnscmd /zoneproperties %USERDOMAIN% /allowupdate',
+                'reg query "HKLM\\System\\CurrentControlSet\\Services\\Tcpip\\Parameters" /v DisableDynamicUpdate',
+                'Get-NetAdapter | Get-DnsClient | Format-Table InterfaceAlias,RegisterThisConnectionsAddress',
+                'netsh interface ip show dnsservers'
+            ]
+        },
+        {
+            'type': 'diagnostic',
+            'title': 'DNS Security and Permissions Analysis',
+            'content': 'Examine DNS security settings and Active Directory permissions.',
+            'commands': [
+                'dsacls "CN=MicrosoftDNS,DC=DomainDnsZones,DC=domain,DC=com"',
+                'Get-Acl "AD:\\CN=MicrosoftDNS,DC=DomainDnsZones,DC=domain,DC=com" | Format-List',
+                'dnscmd /info /enableednsprobes',
+                'Get-DnsServerDsSetting',
+                'whoami /groups | findstr "DnsAdmins"',
+                'net group "DnsAdmins" /domain'
+            ]
+        },
+        {
+            'type': 'diagnostic',
+            'title': 'DNS Zone Replication and Forest Analysis',
+            'content': 'Analyze DNS zone replication across Active Directory forest.',
+            'commands': [
+                'repadmin /showrepl * "CN=MicrosoftDNS,DC=DomainDnsZones,DC=domain,DC=com"',
+                'Get-DnsServerZone | Where-Object {$_.ZoneType -eq "ActiveDirectoryIntegrated"}',
+                'dnscmd /enumdirectorypartitions',
+                'repadmin /replsummary "DC=DomainDnsZones,DC=domain,DC=com"',
+                'dcdiag /test:dns /DnsForwarders /v',
+                'nltest /dclist:%USERDOMAIN%'
+            ]
+        },
+        {
+            'type': 'diagnostic',
+            'title': 'Event Log Analysis for DNS-AD Integration',
+            'content': 'Examine DNS and Active Directory event logs for integration issues.',
+            'commands': [
+                'Get-WinEvent -LogName "DNS Server" -MaxEvents 50 | Where-Object {$_.LevelDisplayName -ne "Information"}',
+                'wevtutil qe "DNS Server" /q:"*[System[(Level=1 or Level=2) and TimeCreated[timediff(@SystemTime) <= 86400000]]]" /rd:true /f:text',
+                'Get-EventLog -LogName System -Source "NETLOGON" -Newest 20',
+                'wevtutil qe System /q:"*[System[Provider[@Name=\'NETLOGON\'] and (Level=1 or Level=2)]]" /rd:true /f:text',
+                'Get-WinEvent -LogName "Directory Service" -FilterXPath "*[System[EventID=1645 or EventID=1644]]" -MaxEvents 10'
+            ]
+        },
+        {
+            'type': 'remedy',
+            'title': 'Immediate DNS-AD Integration Repair',
+            'content': 'Execute immediate corrective actions for DNS-AD integration issues.',
+            'commands': [
+                'ipconfig /flushdns',
+                'ipconfig /registerdns',
+                'net stop netlogon && net start netlogon',
+                'nltest /dsregdns',
+                'dcdiag /fix',
+                'Restart-Service -Name DNS'
+            ]
+        },
+        {
+            'type': 'remedy',
+            'title': 'SRV Record Registration Repair',
+            'content': 'Force re-registration of Active Directory SRV records.',
+            'commands': [
+                'net stop netlogon',
+                'del %systemroot%\\System32\\config\\netlogon.dnb',
+                'del %systemroot%\\System32\\config\\netlogon.dns',
+                'net start netlogon',
+                'nltest /dsregdns /server:%COMPUTERNAME%',
+                'dcdiag /test:registerindns /DnsDelegation /v'
+            ]
+        },
+        {
+            'type': 'remedy',
+            'title': 'DNS Zone Configuration Repair',
+            'content': 'Repair DNS zone configuration and Active Directory integration.',
+            'commands': [
+                'dnscmd /config %USERDOMAIN% /allowupdate 2',
+                'Set-DnsServerPrimaryZone -Name %USERDOMAIN% -DynamicUpdate Secure',
+                'dnscmd /config /enableednsprobes 1',
+                'Set-DnsServerDsSetting -PollingInterval 180',
+                'Add-DnsServerDirectoryPartition -Name "DomainDnsZones.%USERDOMAIN%"',
+                'Register-DnsClient'
+            ]
+        },
+        {
+            'type': 'remedy',
+            'title': 'DNS Security and Permissions Repair',
+            'content': 'Repair DNS security settings and Active Directory permissions.',
+            'commands': [
+                'Add-ADGroupMember -Identity "DnsAdmins" -Members "%COMPUTERNAME%$"',
+                'dsacls "CN=MicrosoftDNS,DC=DomainDnsZones,DC=domain,DC=com" /G "NT AUTHORITY\\Authenticated Users:GA"',
+                'icacls "%systemroot%\\System32\\dns" /grant "NT AUTHORITY\\NETWORK SERVICE:(OI)(CI)F"',
+                'Set-DnsServerDsSetting -DirectoryPartitionAutoEnlistInterval 1',
+                'dnscmd /resetlistenaddresses',
+                'netsh interface ip set dns "Local Area Connection" static %LOGONSERVER%'
+            ]
+        },
+        {
+            'type': 'remedy',
+            'title': 'Advanced DNS-AD Integration Troubleshooting',
+            'content': 'Advanced procedures for persistent DNS-AD integration issues.',
+            'commands': [
+                'REM Force DNS zone replication',
+                'repadmin /syncall * "DC=DomainDnsZones,DC=domain,DC=com" /AdeP',
+                'REM Recreate DNS application partitions',
+                'dnscmd /createdirectorypartition "DC=DomainDnsZones,DC=domain,DC=com"',
+                'dnscmd /createdirectorypartition "DC=ForestDnsZones,DC=domain,DC=com"',
+                'REM Reset DNS to defaults and re-integrate',
+                'dnscmd /config /BootMethod 3',
+                'REM Force domain controller DNS registration',
+                'reg add "HKLM\\System\\CurrentControlSet\\Services\\Netlogon\\Parameters" /v DnsUpdateOnAllAdapters /t REG_DWORD /d 1',
+                'REM Restart critical services in order',
+                'net stop netlogon && net stop dns && net start dns && net start netlogon'
+            ]
+        },
+        {
+            'type': 'verification',
+            'title': 'DNS-AD Integration Validation',
+            'content': 'Verify that DNS-Active Directory integration has been restored.',
+            'commands': [
+                'dcdiag /test:dns /v',
+                'nslookup -type=SRV _ldap._tcp.%USERDOMAIN%',
+                'nltest /dsgetdc:%USERDOMAIN%',
+                'ipconfig /displaydns | findstr %USERDOMAIN%',
+                'Get-DnsServerResourceRecord -ZoneName %USERDOMAIN% -RRType SRV | Measure-Object',
+                'dcdiag /test:registerindns'
+            ]
+        },
+        {
+            'type': 'verification',
+            'title': 'Comprehensive DNS-AD Functionality Testing',
+            'content': 'Perform comprehensive testing of DNS-Active Directory integration.',
+            'commands': [
+                'nslookup %LOGONSERVER%',
+                'ping %USERDOMAIN%',
+                'nltest /dclist:%USERDOMAIN%',
+                'Get-ADDomain | Select-Object DNSRoot,InfrastructureMaster',
+                'Get-ADForest | Select-Object RootDomain,DomainNamingMaster',
+                'Test-NetConnection -ComputerName %USERDOMAIN% -Port 53'
+            ]
+        },
+        {
+            'type': 'prevention',
+            'title': 'DNS-AD Integration Monitoring and Maintenance',
+            'content': 'Implement monitoring and preventive measures for DNS-AD integration health.',
+            'commands': [
+                'schtasks /create /tn "DNSADHealthCheck" /tr "powershell.exe -Command \\"dcdiag /test:dns | Out-File C:\\\\logs\\\\dns_ad_health.log -Append\\"" /sc daily /st 06:00',
+                'schtasks /create /tn "SRVRecordCheck" /tr "powershell.exe -Command \\"nslookup -type=SRV _ldap._tcp.%USERDOMAIN% | Out-File C:\\\\logs\\\\srv_records.log -Append\\"" /sc hourly',
+                'auditpol /set /subcategory:"Directory Service Access" /success:enable /failure:enable',
+                'dnscmd /config /loglevel 0x8100F331',
+                'REM Configure DNS scavenging for stale records',
+                'dnscmd /config /scavenginginterval 168',
+                'dnscmd /config %USERDOMAIN% /aging 1',
+                'REM Document DNS-AD integration baseline',
+                'Get-DnsServerZone | Export-Csv C:\\logs\\dns_zones_baseline.csv',
+                'Get-DnsServerResourceRecord -ZoneName %USERDOMAIN% -RRType SRV | Export-Csv C:\\logs\\srv_records_baseline.csv',
+                'REM Monitor DNS zone replication',
+                'schtasks /create /tn "DNSReplicationCheck" /tr "repadmin /replsummary DC=DomainDnsZones,DC=domain,DC=com" /sc daily /st 07:00'
+            ]
+        }
+    ],
+    'prerequisites': [
+        'Domain Administrator and DNS Administrator privileges',
+        'Access to all domain controllers and DNS servers',
+        'Network connectivity to DNS infrastructure',
+        'Knowledge of DNS zone names and Active Directory domain structure',
+        'Understanding of DNS-Active Directory integration concepts',
+        'Access to DNS management tools and Active Directory cmdlets',
+        'Valid backup of DNS zones and Active Directory database'
+    ],
+    'estimated_duration': '60-240 minutes',
+    'risk_level': 'critical',
+    'backup_recommendation': 'CRITICAL: Backup DNS zones and Active Directory database before making changes. DNS-AD integration issues can affect entire domain functionality.',
+    'common_error_codes': {
+        '1645': 'Dynamic DNS registration failed',
+        '1644': 'Dynamic DNS registration succeeded',
+        '5774': 'DNS server could not register the domain controller',
+        '5775': 'DNS server registered the domain controller successfully',
+        '13': 'DNS server refused dynamic update request',
+        '9542': 'DNS server could not create or open zone',
+        '9017': 'DNS server could not load zone from Active Directory',
+        '0x80071392': 'DNS name does not exist',
+        '0x8007232B': 'DNS name error',
+        '0x80070057': 'Invalid parameter in DNS operation'
+    },
+    'critical_srv_records': {
+        '_ldap._tcp.domain.com': 'Domain controller LDAP service',
+        '_kerberos._tcp.domain.com': 'Kerberos authentication service',
+        '_gc._tcp.domain.com': 'Global catalog service',
+        '_ldap._tcp.dc._msdcs.domain.com': 'Domain controller location',
+        '_kerberos._tcp.dc._msdcs.domain.com': 'Domain controller Kerberos',
+        '_ldap._tcp.pdc._msdcs.domain.com': 'PDC emulator location'
+    },
+    'common_ports': {
+        '53': 'DNS queries (TCP/UDP)',
+        '389': 'LDAP',
+        '636': 'LDAPS',
+        '3268': 'Global Catalog LDAP',
+        '88': 'Kerberos',
+        '464': 'Kerberos password change'
+    },
+    'dns_zone_types': {
+        'ActiveDirectoryIntegrated': 'Zone data stored in Active Directory',
+        'Primary': 'Standard primary zone with zone file',
+        'Secondary': 'Read-only copy of primary zone',
+        'Stub': 'Contains only SOA, NS, and glue records'
+    }
+},
+
+'ad-time-synchronization': {
+    'title': 'Active Directory Time Synchronization Issues - Complete Troubleshooting',
+    'category': 'active-directory',
+    'severity': 'high',
+    'interconnections': ['ad-authentication-issues', 'ad-replication-failure', 'gpo-not-applying', 'network-connectivity-loss'],
+    'steps': [
+        {
+            'type': 'baseline',
+            'title': 'Time Service Status and Configuration Check',
+            'content': 'Verify Windows Time service status and basic time synchronization.',
+            'commands': [
+                'sc query W32Time',
+                'Get-Service -Name W32Time | Format-Table Name,Status',
+                'w32tm /query /status',
+                'w32tm /query /configuration',
+                'w32tm /query /peers',
+                'net time /domain',
+                'date /t && time /t'
+            ]
+        },
+        {
+            'type': 'baseline',
+            'title': 'Domain Controller FSMO Roles Verification',
+            'content': 'Check PDC Emulator role holder and time source hierarchy.',
+            'commands': [
+                'netdom query fsmo',
+                'nltest /dclist:%USERDOMAIN%',
+                'w32tm /query /status /verbose',
+                'dcdiag /test:fsmocheck',
+                'Get-ADDomain | Select-Object PDCEmulator',
+                'Get-ADForest | Select-Object SchemaMaster,DomainNamingMaster'
+            ]
+        },
+        {
+            'type': 'baseline',
+            'title': 'Time Synchronization Accuracy Assessment',
+            'content': 'Assess current time synchronization accuracy across domain infrastructure.',
+            'commands': [
+                'w32tm /monitor',
+                'w32tm /stripchart /computer:%LOGONSERVER% /samples:5',
+                'w32tm /tz',
+                'tzutil /g',
+                'reg query "HKLM\\System\\CurrentControlSet\\Control\\TimeZoneInformation"',
+                'Get-Date',
+                'systeminfo | findstr "Time Zone"'
+            ]
+        },
+        {
+            'type': 'condition',
+            'title': 'Identify Time Synchronization Problem Scope',
+            'content': 'Determine the specific nature and scope of the time synchronization issue.',
+            'questions': [
+                {
+                    'question': 'What type of time synchronization problem are you experiencing?',
+                    'options': [
+                        { 'value': 'kerberos-time-skew', 'text': 'Kerberos authentication failing due to time skew' },
+                        { 'value': 'client-time-drift', 'text': 'Client computers time drifting from domain' },
+                        { 'value': 'dc-time-inconsistency', 'text': 'Domain controllers have inconsistent time' },
+                        { 'value': 'external-time-source-issues', 'text': 'External time source connectivity problems' },
+                        { 'value': 'w32time-service-issues', 'text': 'Windows Time service not functioning' },
+                        { 'value': 'virtual-machine-time-sync', 'text': 'Virtual machine time synchronization issues' },
+                        { 'value': 'timezone-configuration', 'text': 'Time zone configuration problems' }
+                    ]
+                },
+                {
+                    'question': 'What is the time source configuration?',
+                    'options': [
+                        { 'value': 'external-ntp-servers', 'text': 'External NTP servers (pool.ntp.org, etc.)' },
+                        { 'value': 'internal-time-source', 'text': 'Internal hardware time source' },
+                        { 'value': 'pdc-emulator-sync', 'text': 'PDC Emulator as authoritative time source' },
+                        { 'value': 'hypervisor-time-sync', 'text': 'Hypervisor/VM host time synchronization' },
+                        { 'value': 'no-external-source', 'text': 'No external time source configured' },
+                        { 'value': 'unknown-configuration', 'text': 'Unknown time source configuration' }
+                    ]
+                },
+                {
+                    'question': 'What is the infrastructure type?',
+                    'options': [
+                        { 'value': 'physical-servers', 'text': 'Physical servers and workstations' },
+                        { 'value': 'virtual-environment', 'text': 'Virtualized infrastructure (VMware, Hyper-V)' },
+                        { 'value': 'mixed-environment', 'text': 'Mixed physical and virtual environment' },
+                        { 'value': 'cloud-infrastructure', 'text': 'Cloud-based infrastructure (Azure, AWS)' },
+                        { 'value': 'branch-office-setup', 'text': 'Branch office with WAN connectivity' },
+                        { 'value': 'isolated-network', 'text': 'Isolated network without internet access' }
+                    ]
+                }
+            ]
+        },
+        {
+            'type': 'diagnostic',
+            'title': 'Time Synchronization Hierarchy Analysis',
+            'content': 'Analyze the time synchronization hierarchy and configuration.',
+            'commands': [
+                'w32tm /query /configuration /verbose',
+                'w32tm /query /source',
+                'w32tm /query /peers',
+                'reg query "HKLM\\System\\CurrentControlSet\\Services\\W32Time\\Parameters"',
+                'reg query "HKLM\\System\\CurrentControlSet\\Services\\W32Time\\Config"',
+                'reg query "HKLM\\System\\CurrentControlSet\\Services\\W32Time\\TimeProviders\\NtpClient"'
+            ]
+        },
+        {
+            'type': 'diagnostic',
+            'title': 'Domain Controller Time Synchronization Analysis',
+            'content': 'Examine time synchronization across all domain controllers.',
+            'commands': [
+                'netdom query dc | ForEach-Object { w32tm /stripchart /computer:$_ /samples:3 }',
+                'w32tm /monitor /domain:%USERDOMAIN%',
+                'dcdiag /test:timesync /v',
+                'nltest /time:%LOGONSERVER%',
+                'for /f %i in (\'netdom query dc\') do @echo %i && w32tm /stripchart /computer:%i /samples:1',
+                'Get-ADDomainController -Filter * | ForEach-Object { Test-NetConnection $_.HostName -Port 123 }'
+            ]
+        },
+        {
+            'type': 'diagnostic',
+            'title': 'Kerberos Time Tolerance and Authentication Analysis',
+            'content': 'Analyze Kerberos time tolerance settings and authentication impact.',
+            'commands': [
+                'klist tgt',
+                'klist tickets',
+                'Get-ADDefaultDomainPasswordPolicy | Select-Object MaxPasswordAge,MinPasswordAge',
+                'reg query "HKLM\\System\\CurrentControlSet\\Control\\Lsa\\Kerberos\\Parameters" /v MaxClockSkew',
+                'reg query "HKLM\\System\\CurrentControlSet\\Control\\Lsa\\Kerberos\\Parameters" /v MaxTicketAge',
+                'Get-WinEvent -LogName Security -FilterXPath "*[System[EventID=4768 or EventID=4771]]" -MaxEvents 10'
+            ]
+        },
+        {
+            'type': 'diagnostic',
+            'title': 'External Time Source Connectivity Analysis',
+            'content': 'Test connectivity and response from external time sources.',
+            'commands': [
+                'w32tm /stripchart /computer:pool.ntp.org /samples:5',
+                'w32tm /stripchart /computer:time.windows.com /samples:5',
+                'Test-NetConnection -ComputerName pool.ntp.org -Port 123',
+                'Test-NetConnection -ComputerName time.nist.gov -Port 123',
+                'nslookup pool.ntp.org',
+                'tracert pool.ntp.org'
+            ]
+        },
+        {
+            'type': 'diagnostic',
+            'title': 'Time Service Event Log Analysis',
+            'content': 'Examine Windows Time service event logs for synchronization issues.',
+            'commands': [
+                'wevtutil qe System /q:"*[System[Provider[@Name=\'Microsoft-Windows-Time-Service\'] and (Level=1 or Level=2)]]" /rd:true /f:text',
+                'Get-WinEvent -LogName System -FilterXPath "*[System[Provider[@Name=\'Microsoft-Windows-Time-Service\']]]" -MaxEvents 50',
+                'Get-EventLog -LogName System -Source "W32Time" -Newest 20',
+                'wevtutil qe Security /q:"*[System[EventID=4616]]" /rd:true /f:text',
+                'Get-WinEvent -LogName "Microsoft-Windows-Kernel-General/Operational" -FilterXPath "*[System[EventID=1]]" -MaxEvents 5'
+            ]
+        },
+        {
+            'type': 'diagnostic',
+            'title': 'Virtual Machine Time Synchronization Analysis',
+            'content': 'Analyze virtual machine specific time synchronization settings (if applicable).',
+            'commands': [
+                'Get-WmiObject -Class Win32_ComputerSystem | Select-Object Model,Manufacturer',
+                'Get-Service -Name vmictimesync* | Format-Table Name,Status',
+                'reg query "HKLM\\System\\CurrentControlSet\\Services\\W32Time\\TimeProviders\\VMICTimeProvider"',
+                'Get-VMIntegrationService -VMName * -Name "Time Synchronization" 2>$null',
+                'vmware-toolbox-cmd timesync status 2>$null',
+                'Get-ItemProperty "HKLM:\\SOFTWARE\\VMware, Inc.\\VMware Tools" -Name InstallPath 2>$null'
+            ]
+        },
+        {
+            'type': 'remedy',
+            'title': 'Immediate Time Synchronization Repair',
+            'content': 'Execute immediate corrective actions for time synchronization issues.',
+            'commands': [
+                'w32tm /resync /force',
+                'net stop w32time && net start w32time',
+                'w32tm /config /update',
+                'Restart-Service -Name W32Time',
+                'w32tm /resync /rediscover',
+                'tzutil /s "Eastern Standard Time"'
+            ]
+        },
+        {
+            'type': 'remedy',
+            'title': 'PDC Emulator Time Configuration',
+            'content': 'Configure PDC Emulator for external time synchronization.',
+            'commands': [
+                'w32tm /config /manualpeerlist:"pool.ntp.org,time.windows.com" /syncfromflags:manual /reliable:yes /update',
+                'net stop w32time && net start w32time',
+                'w32tm /resync /force',
+                'reg add "HKLM\\System\\CurrentControlSet\\Services\\W32Time\\Config" /v AnnounceFlags /t REG_DWORD /d 5',
+                'reg add "HKLM\\System\\CurrentControlSet\\Services\\W32Time\\TimeProviders\\NtpServer" /v Enabled /t REG_DWORD /d 1',
+                'w32tm /config /update'
+            ]
+        },
+        {
+            'type': 'remedy',
+            'title': 'Domain Member Time Configuration',
+            'content': 'Configure domain member computers for proper time synchronization.',
+            'commands': [
+                'w32tm /config /syncfromflags:domhier /update',
+                'net stop w32time && net start w32time',
+                'w32tm /resync /force',
+                'reg add "HKLM\\System\\CurrentControlSet\\Services\\W32Time\\Parameters" /v Type /t REG_SZ /d NT5DS',
+                'reg add "HKLM\\System\\CurrentControlSet\\Services\\W32Time\\Config" /v AnnounceFlags /t REG_DWORD /d 10',
+                'w32tm /config /update'
+            ]
+        },
+        {
+            'type': 'remedy',
+            'title': 'Kerberos Time Tolerance Adjustment',
+            'content': 'Adjust Kerberos time tolerance settings for authentication issues.',
+            'commands': [
+                'reg add "HKLM\\System\\CurrentControlSet\\Control\\Lsa\\Kerberos\\Parameters" /v MaxClockSkew /t REG_DWORD /d 300',
+                'reg add "HKLM\\System\\CurrentControlSet\\Control\\Lsa\\Kerberos\\Parameters" /v MaxTicketAge /t REG_DWORD /d 600',
+                'gpupdate /force',
+                'klist purge',
+                'net stop kdc && net start kdc',
+                'Restart-Service -Name Netlogon'
+            ]
+        },
+        {
+            'type': 'remedy',
+            'title': 'Virtual Machine Time Synchronization Repair',
+            'content': 'Configure proper time synchronization for virtual machines.',
+            'commands': [
+                'REM Disable VM time synchronization in favor of W32Time',
+                'reg add "HKLM\\System\\CurrentControlSet\\Services\\W32Time\\TimeProviders\\VMICTimeProvider" /v Enabled /t REG_DWORD /d 0',
+                'sc config vmictimesync start= disabled',
+                'Stop-Service -Name vmictimesync* -Force',
+                'REM Configure W32Time for VM environment',
+                'reg add "HKLM\\System\\CurrentControlSet\\Services\\W32Time\\Config" /v MinPollInterval /t REG_DWORD /d 6',
+                'reg add "HKLM\\System\\CurrentControlSet\\Services\\W32Time\\Config" /v MaxPollInterval /t REG_DWORD /d 10',
+                'w32tm /config /update && net stop w32time && net start w32time'
+            ]
+        },
+        {
+            'type': 'remedy',
+            'title': 'Advanced Time Synchronization Troubleshooting',
+            'content': 'Advanced procedures for persistent time synchronization issues.',
+            'commands': [
+                'REM Reset Windows Time service configuration',
+                'net stop w32time',
+                'w32tm /unregister',
+                'w32tm /register',
+                'net start w32time',
+                'REM Configure high-accuracy time synchronization',
+                'reg add "HKLM\\System\\CurrentControlSet\\Services\\W32Time\\Config" /v FrequencyCorrectRate /t REG_DWORD /d 4',
+                'reg add "HKLM\\System\\CurrentControlSet\\Services\\W32Time\\Config" /v HoldPeriod /t REG_DWORD /d 5',
+                'reg add "HKLM\\System\\CurrentControlSet\\Services\\W32Time\\Config" /v LargePhaseOffset /t REG_DWORD /d 50000000',
+                'REM Enable debug logging',
+                'reg add "HKLM\\System\\CurrentControlSet\\Services\\W32Time\\Config" /v EventLogFlags /t REG_DWORD /d 3',
+                'w32tm /config /update && w32tm /resync /force'
+            ]
+        },
+        {
+            'type': 'verification',
+            'title': 'Time Synchronization Validation',
+            'content': 'Verify that time synchronization has been successfully restored.',
+            'commands': [
+                'w32tm /query /status',
+                'w32tm /monitor',
+                'w32tm /stripchart /computer:%LOGONSERVER% /samples:5',
+                'dcdiag /test:timesync',
+                'klist tgt',
+                'Get-Date'
+            ]
+        },
+        {
+            'type': 'verification',
+            'title': 'Comprehensive Time Synchronization Testing',
+            'content': 'Perform comprehensive testing of time synchronization across infrastructure.',
+            'commands': [
+                'netdom query dc | ForEach-Object { echo "Testing $_:" && w32tm /stripchart /computer:$_ /samples:3 }',
+                'w32tm /monitor /domain:%USERDOMAIN%',
+                'nltest /time:%LOGONSERVER%',
+                'kinit %USERNAME% && klist',
+                'Test-ComputerSecureChannel',
+                'Get-WinEvent -LogName System -FilterXPath "*[System[Provider[@Name=\'Microsoft-Windows-Time-Service\'] and EventID=35]]" -MaxEvents 5'
+            ]
+        },
+        {
+            'type': 'prevention',
+            'title': 'Time Synchronization Monitoring and Maintenance',
+            'content': 'Implement monitoring and preventive measures for time synchronization health.',
+            'commands': [
+                'schtasks /create /tn "TimeSync Monitor" /tr "powershell.exe -Command \\"w32tm /query /status | Out-File C:\\\\logs\\\\time_sync.log -Append\\"" /sc hourly',
+                'schtasks /create /tn "TimeSyncHealth" /tr "w32tm /monitor" /sc daily /st 06:00',
+                'reg add "HKLM\\System\\CurrentControlSet\\Services\\W32Time\\Config" /v EventLogFlags /t REG_DWORD /d 2',
+                'auditpol /set /subcategory:"System Time Change" /success:enable /failure:enable',
+                'REM Configure time synchronization alerts',
+                'wevtutil sl Microsoft-Windows-Time-Service/Operational /e:true',
+                'REM Document time synchronization baseline',
+                'w32tm /query /configuration > C:\\logs\\time_config_baseline.txt',
+                'netdom query dc > C:\\logs\\domain_controllers.txt',
+                'REM Set up automated time synchronization check',
+                'schtasks /create /tn "DCTimeCheck" /tr "powershell.exe -Command \\"netdom query dc | ForEach-Object { w32tm /stripchart /computer:$_ /samples:1 } | Out-File C:\\\\logs\\\\dc_time_check.log -Append\\"" /sc daily /st 07:00',
+                'REM Configure performance monitoring for time sync',
+                'logman create counter TimeSync -c "\\W32Time Service\\*" -f csv -o C:\\logs\\timesync_perf.csv -si 60 -rf 01:00:00'
+            ]
+        }
+    ],
+    'prerequisites': [
+        'Domain Administrator privileges',
+        'Local administrator rights on affected computers',
+        'Network connectivity to domain controllers and external time sources',
+        'Understanding of Active Directory time synchronization hierarchy',
+        'Knowledge of Kerberos time tolerance requirements',
+        'Access to firewall configuration for NTP traffic (port 123)',
+        'Understanding of virtual machine time synchronization concepts'
+    ],
+    'estimated_duration': '30-120 minutes',
+    'risk_level': 'high',
+    'backup_recommendation': 'Document current time configuration before making changes. Time synchronization changes can affect authentication across the entire domain.',
+    'common_error_codes': {
+        '0x800705B4': 'Windows Time service timeout',
+        '0x80070005': 'Access denied to time source',
+        '0x800706BA': 'RPC server unavailable for time sync',
+        '4616': 'System time was changed',
+        '35': 'Time service synchronized with external source',
+        '34': 'Time service could not synchronize',
+        '47': 'Time service started successfully',
+        '142': 'Time service stopped',
+        '0x80071771': 'Time source not found',
+        '0x80072EFD': 'Connection to time source failed'
+    },
+    'kerberos_time_settings': {
+        'MaxClockSkew': 'Maximum time difference allowed (default 5 minutes)',
+        'MaxTicketAge': 'Maximum ticket lifetime (default 10 hours)',
+        'MaxRenewAge': 'Maximum renewable age (default 7 days)',
+        'TicketValidateClient': 'Validate client computer clock'
+    },
+    'common_ports': {
+        '123': 'NTP (Network Time Protocol)',
+        '88': 'Kerberos (affected by time skew)',
+        '389': 'LDAP (time stamps in logs)',
+        '445': 'SMB (file timestamps)'
+    },
+    'time_source_hierarchy': [
+        'External NTP servers (Stratum 0-2)',
+        'PDC Emulator (Stratum 3)',
+        'Other Domain Controllers (Stratum 4)', 
+        'Domain Member Computers (Stratum 5)',
+        'Workgroup Computers (local clock)'
+    ],
+    'external_time_sources': {
+        'pool.ntp.org': 'Global NTP pool project',
+        'time.windows.com': 'Microsoft time server',
+        'time.nist.gov': 'NIST time server',
+        'time.google.com': 'Google time server'
+    },
+    'vm_considerations': [
+        'Disable hypervisor time synchronization',
+        'Configure W32Time service properly',
+        'Account for VM host clock drift',
+        'Consider time zone settings',
+        'Monitor for time jumps during snapshots'
+    ]
+},
+
+'ad-group-policy-not-applying': {
+    'title': 'Active Directory Group Policy Not Applying - Complete Troubleshooting',
+    'category': 'group-policy',
+    'severity': 'high',
+    'interconnections': ['gpo-security-filtering-problems', 'gpo-sysvol-replication-issues', 'ad-authentication-issues', 'dns-resolution-failure', 'ad-replication-failure'],
+    'steps': [
+        {
+            'type': 'baseline',
+            'title': 'Group Policy Infrastructure Health Check',
+            'content': 'Verify fundamental Group Policy infrastructure components are operational.',
+            'commands': [
+                'gpresult /r',
+                'gpresult /v',
+                'Get-Service -Name gpsvc,Netlogon,DNS | Format-Table Name,Status',
+                'dcdiag /test:sysvolcheck',
+                'net share | findstr SYSVOL',
+                'Test-Path "\\\\%USERDOMAIN%\\SYSVOL\\%USERDOMAIN%\\Policies"',
+                'Get-GPO -All | Select-Object DisplayName,Id,GpoStatus | Format-Table'
+            ]
+        },
+        {
+            'type': 'baseline',
+            'title': 'Domain Controller and DNS Verification',
+            'content': 'Check domain controller accessibility and DNS resolution for GP processing.',
+            'commands': [
+                'nltest /dsgetdc:%USERDOMAIN%',
+                'nslookup %USERDOMAIN%',
+                'nslookup -type=SRV _ldap._tcp.%USERDOMAIN%',
+                'ping %LOGONSERVER% -n 4',
+                'Test-NetConnection -ComputerName %LOGONSERVER% -Port 389',
+                'Test-NetConnection -ComputerName %LOGONSERVER% -Port 445',
+                'w32tm /query /status'
+            ]
+        },
+        {
+            'type': 'baseline',
+            'title': 'User and Computer Context Analysis',
+            'content': 'Analyze user and computer context for Group Policy processing.',
+            'commands': [
+                'whoami /user /groups',
+                'gpresult /scope computer /r',
+                'gpresult /scope user /r',
+                'echo %USERDNSDOMAIN%',
+                'echo %COMPUTERNAME%',
+                'dsquery computer -samid %COMPUTERNAME%$',
+                'Get-ADOrganizationalUnit -Filter * | Select-Object Name,DistinguishedName'
+            ]
+        },
+        {
+            'type': 'condition',
+            'title': 'Identify Group Policy Application Problem Scope',
+            'content': 'Determine the specific nature and scope of the Group Policy application failure.',
+            'questions': [
+                {
+                    'question': 'What type of Group Policy application issue are you experiencing?',
+                    'options': [
+                        { 'value': 'no-gpo-applying', 'text': 'No Group Policy Objects applying at all' },
+                        { 'value': 'specific-gpo-not-applying', 'text': 'Specific GPO not applying' },
+                        { 'value': 'partial-gpo-application', 'text': 'Only some GPO settings applying' },
+                        { 'value': 'slow-gpo-processing', 'text': 'GPO processing extremely slow' },
+                        { 'value': 'gpo-applying-wrong-targets', 'text': 'GPO applying to wrong computers/users' },
+                        { 'value': 'gpo-not-updating', 'text': 'GPO changes not updating on clients' },
+                        { 'value': 'intermittent-gpo-failures', 'text': 'Intermittent GPO application failures' }
+                    ]
+                },
+                {
+                    'question': 'What is the scope of the GPO application problem?',
+                    'options': [
+                        { 'value': 'single-user', 'text': 'Single user affected' },
+                        { 'value': 'multiple-users', 'text': 'Multiple users in same OU' },
+                        { 'value': 'single-computer', 'text': 'Single computer affected' },
+                        { 'value': 'multiple-computers', 'text': 'Multiple computers affected' },
+                        { 'value': 'entire-ou', 'text': 'Entire Organizational Unit affected' },
+                        { 'value': 'site-wide', 'text': 'Entire site affected' },
+                        { 'value': 'domain-wide', 'text': 'Domain-wide GPO issues' }
+                    ]
+                },
+                {
+                    'question': 'Which Group Policy processing phase is failing?',
+                    'options': [
+                        { 'value': 'computer-startup', 'text': 'Computer startup GPO processing' },
+                        { 'value': 'user-logon', 'text': 'User logon GPO processing' },
+                        { 'value': 'background-refresh', 'text': 'Background GPO refresh' },
+                        { 'value': 'manual-refresh', 'text': 'Manual gpupdate not working' },
+                        { 'value': 'shutdown-processing', 'text': 'Computer shutdown processing' },
+                        { 'value': 'logoff-processing', 'text': 'User logoff processing' }
+                    ]
+                }
+            ]
+        },
+        {
+            'type': 'diagnostic',
+            'title': 'Group Policy Processing Analysis',
+            'content': 'Analyze detailed Group Policy processing information and results.',
+            'commands': [
+                'gpresult /h detailed_gp_report.html',
+                'gpresult /z',
+                'Get-GPResultantSetOfPolicy -ReportType Html -Path rsop_analysis.html',
+                'gpresult /r | findstr "Applied Group Policy Objects"',
+                'gpresult /r | findstr "Denied Group Policy Objects"',
+                'gpresult /scope computer /v | findstr "Group Policy was applied from"',
+                'Get-ItemProperty "HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History"'
+            ]
+        },
+        {
+            'type': 'diagnostic',
+            'title': 'Group Policy Link and Inheritance Analysis',
+            'content': 'Examine Group Policy links, inheritance, and organizational unit structure.',
+            'commands': [
+                'Get-GPInheritance -Target "[ou-distinguished-name]"',
+                'Get-GPLink -Target "[ou-distinguished-name]" -All',
+                'Get-GPO -All | Get-GPOReport -ReportType Xml -Path all_gpos.xml',
+                'dsquery ou -name "[ou-name]"',
+                'gpresult /v | findstr "The computer is a part of the following organizational units"',
+                'Get-ADOrganizationalUnit -Identity "[ou-dn]" -Properties gpLink | Select-Object -ExpandProperty gpLink'
+            ]
+        },
+        {
+            'type': 'diagnostic',
+            'title': 'Group Policy Security and Permissions Verification',
+            'content': 'Check Group Policy security permissions and filtering configuration.',
+            'commands': [
+                'Get-GPPermission -Name "[gpo-name]" -All | Format-Table',
+                'dsacls "CN={[gpo-guid]},CN=Policies,CN=System,DC=domain,DC=com"',
+                'icacls "\\\\%USERDOMAIN%\\SYSVOL\\%USERDOMAIN%\\Policies\\{[gpo-guid]}" /T',
+                'whoami /groups | findstr "Domain"',
+                'net group "Domain Computers" /domain | findstr %COMPUTERNAME%',
+                'Get-ADUser -Identity %USERNAME% -Properties MemberOf'
+            ]
+        },
+        {
+            'type': 'diagnostic',
+            'title': 'SYSVOL and Group Policy Template Analysis',
+            'content': 'Verify SYSVOL replication and Group Policy template accessibility.',
+            'commands': [
+                'dir "\\\\%USERDOMAIN%\\SYSVOL\\%USERDOMAIN%\\Policies" /s',
+                'Compare-Object (Get-ChildItem "\\\\DC1\\SYSVOL\\domain\\Policies" -Recurse) (Get-ChildItem "\\\\DC2\\SYSVOL\\domain\\Policies" -Recurse)',
+                'dcgpofix /checkonly',
+                'repadmin /showrepl * "CN=Domain System Volume,CN=DFSR-GlobalSettings,CN=System,DC=domain,DC=com"',
+                'Get-DfsrState | Where-Object {$_.ReplicationGroupName -eq "Domain System Volume"}',
+                'Test-Path "\\\\%USERDOMAIN%\\SYSVOL\\%USERDOMAIN%\\Policies\\{[gpo-guid]}\\Machine\\Registry.pol"'
+            ]
+        },
+        {
+            'type': 'diagnostic',
+            'title': 'WMI Filter and Advanced Filtering Analysis',
+            'content': 'Examine WMI filters and advanced Group Policy filtering mechanisms.',
+            'commands': [
+                'Get-WmiObject -Class Win32_OperatingSystem | Select-Object Caption,Version',
+                'Get-CimInstance -ClassName Win32_ComputerSystem | Select-Object Name,Domain,Model',
+                'winmgmt /verifyrepository',
+                'Get-GPO -Name "[gpo-name]" | Select-Object -ExpandProperty WmiFilter',
+                'Get-WmiObject -Namespace root\\cimv2 -Query "SELECT * FROM Win32_OperatingSystem WHERE Version LIKE \'10.%\'"',
+                'wmic /namespace:\\\\root\\cimv2 path win32_operatingsystem get version'
+            ]
+        },
+        {
+            'type': 'diagnostic',
+            'title': 'Group Policy Event Log Analysis',
+            'content': 'Examine Group Policy processing event logs for errors and warnings.',
+            'commands': [
+                'Get-WinEvent -LogName "Microsoft-Windows-GroupPolicy/Operational" -MaxEvents 100 | Where-Object {$_.LevelDisplayName -ne "Information"}',
+                'wevtutil qe "Microsoft-Windows-GroupPolicy/Operational" /q:"*[System[EventID=1085 or EventID=1086 or EventID=1000 or EventID=1001 or EventID=1030]]" /rd:true /f:text',
+                'Get-EventLog -LogName Application -Source "Group Policy" -Newest 20',
+                'wevtutil qe System /q:"*[System[Provider[@Name=\'Group Policy\'] and (Level=1 or Level=2)]]" /rd:true /f:text',
+                'Get-WinEvent -LogName Security -FilterXPath "*[System[EventID=4719 or EventID=5136]]" -MaxEvents 10'
+            ]
+        },
+        {
+            'type': 'remedy',
+            'title': 'Immediate Group Policy Refresh and Repair',
+            'content': 'Execute immediate corrective actions for Group Policy application.',
+            'commands': [
+                'gpupdate /force',
+                'gpupdate /force /boot',
+                'secedit /refreshpolicy machine_policy /enforce',
+                'secedit /refreshpolicy user_policy /enforce',
+                'Invoke-GPUpdate -Computer %COMPUTERNAME% -Force',
+                'klist purge',
+                'Restart-Service gpsvc'
+            ]
+        },
+        {
+            'type': 'remedy',
+            'title': 'Group Policy Link and Permission Repair',
+            'content': 'Repair Group Policy links and permissions.',
+            'commands': [
+                'New-GPLink -Name "[gpo-name]" -Target "[ou-dn]" -LinkEnabled Yes',
+                'Set-GPLink -Name "[gpo-name]" -Target "[ou-dn]" -LinkEnabled Yes',
+                'Set-GPPermission -Name "[gpo-name]" -TargetName "Authenticated Users" -TargetType WellKnownSid -PermissionLevel GpoApply',
+                'Set-GPPermission -Name "[gpo-name]" -TargetName "Domain Computers" -TargetType Group -PermissionLevel GpoApply',
+                'Remove-GPLink -Name "[gpo-name]" -Target "[wrong-ou-dn]"',
+                'Set-GPInheritance -Target "[ou-dn]" -IsBlocked No'
+            ]
+        },
+        {
+            'type': 'remedy',
+            'title': 'SYSVOL and Replication Repair',
+            'content': 'Repair SYSVOL replication and Group Policy template synchronization.',
+            'commands': [
+                'net stop DFSR && net start DFSR',
+                'dfsrdiag forcereplication /member:%COMPUTERNAME% /partner:[partner-dc] /rg:"Domain System Volume" /rf:"SYSVOL Share"',
+                'repadmin /syncall * "CN=Domain System Volume,CN=DFSR-GlobalSettings,CN=System,DC=domain,DC=com" /AdeP',
+                'dcgpofix /ignoreschema',
+                'robocopy "\\\\PDC\\SYSVOL\\domain\\Policies" "\\\\%COMPUTERNAME%\\SYSVOL\\domain\\Policies" /MIR /COPYALL',
+                'icacls "\\\\%USERDOMAIN%\\SYSVOL" /grant "Authenticated Users:(OI)(CI)RX"'
+            ]
+        },
+        {
+            'type': 'remedy',
+            'title': 'WMI and Filtering Repair',
+            'content': 'Repair WMI filters and advanced Group Policy filtering issues.',
+            'commands': [
+                'winmgmt /resetrepository',
+                'net stop winmgmt && net start winmgmt',
+                'Remove-GPWmiFilter -Name "[problematic-wmi-filter]"',
+                'New-GPWmiFilter -Name "Windows 10" -Expression "SELECT * FROM Win32_OperatingSystem WHERE Version LIKE \'10.%\'"',
+                'Get-GPO -Name "[gpo-name]" | Set-GPWmiFilter -Filter "Windows 10"',
+                'mofcomp %windir%\\system32\\wbem\\cimwin32.mof'
+            ]
+        },
+        {
+            'type': 'remedy',
+            'title': 'Advanced Group Policy Troubleshooting',
+            'content': 'Advanced procedures for persistent Group Policy application issues.',
+            'commands': [
+                'REM Enable Group Policy debug logging',
+                'reg add "HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\GPExtensions\\{00000000-0000-0000-0000-000000000000}" /v ExtensionDebugLevel /t REG_DWORD /d 2',
+                'REM Clear Group Policy cache',
+                'Remove-Item "$env:ALLUSERSPROFILE\\Microsoft\\Group Policy\\History\\*" -Recurse -Force',
+                'Remove-Item "HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy" /Recurse -Force',
+                'REM Reset Group Policy processing',
+                'reg delete "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\State" /f',
+                'REM Force immediate Group Policy processing',
+                'reg add "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\System" /v GroupPolicyRefreshTime /t REG_DWORD /d 0',
+                'gpupdate /force /wait:0'
+            ]
+        },
+        {
+            'type': 'remedy',
+            'title': 'Computer Trust and Authentication Repair',
+            'content': 'Repair computer trust relationship and authentication issues affecting GP.',
+            'commands': [
+                'Test-ComputerSecureChannel -Repair',
+                'Reset-ComputerMachinePassword',
+                'nltest /sc_reset:%USERDOMAIN%',
+                'netdom resetpwd /server:%LOGONSERVER% /userd:%USERDOMAIN%\\administrator /passwordd:*',
+                'w32tm /resync',
+                'klist purge'
+            ]
+        },
+        {
+            'type': 'verification',
+            'title': 'Group Policy Application Validation',
+            'content': 'Verify that Group Policy is now applying correctly.',
+            'commands': [
+                'gpresult /r',
+                'gpresult /h verification_report.html',
+                'Get-GPResultantSetOfPolicy -ReportType Html -Path final_rsop.html',
+                'gpresult /r | findstr "Applied Group Policy Objects"',
+                'Get-ItemProperty "HKLM:\\SOFTWARE\\Policies\\[test-registry-path]"',
+                'Test-Path "C:\\[test-gpo-file-path]"'
+            ]
+        },
+        {
+            'type': 'verification',
+            'title': 'Comprehensive Group Policy Testing',
+            'content': 'Perform comprehensive testing of Group Policy functionality.',
+            'commands': [
+                'gpupdate /force && timeout /t 30 && gpresult /r',
+                'runas /user:[test-user] "gpresult /r"',
+                'Get-GPO -All | Get-GPOReport -ReportType Html -Path all_gpos_final.html',
+                'Get-WinEvent -LogName "Microsoft-Windows-GroupPolicy/Operational" -MaxEvents 10 | Where-Object {$_.LevelDisplayName -eq "Information"}',
+                'dcgpofix /checkonly',
+                'Get-GPInheritance -Target "[ou-dn]" | Format-List'
+            ]
+        },
+        {
+            'type': 'prevention',
+            'title': 'Group Policy Monitoring and Maintenance',
+            'content': 'Implement monitoring and preventive measures for Group Policy health.',
+            'commands': [
+                'schtasks /create /tn "GPHealthCheck" /tr "powershell.exe -Command \\"gpresult /r | Out-File C:\\\\logs\\\\gp_health.log -Append\\"" /sc daily /st 08:00',
+                'schtasks /create /tn "SYSVOLHealthCheck" /tr "dcgpofix /checkonly" /sc weekly /d MON /st 02:00',
+                'auditpol /set /subcategory:"Directory Service Access" /success:enable /failure:enable',
+                'Get-GPO -All | ForEach-Object { Get-GPOReport -Name $_.DisplayName -ReportType Xml -Path "C:\\logs\\gpo_$($_.DisplayName).xml" }',
+                'REM Configure Group Policy logging',
+                'wevtutil sl "Microsoft-Windows-GroupPolicy/Operational" /e:true /rt:false /ab:false /ms:10485760',
+                'REM Set up Group Policy processing monitoring',
+                'reg add "HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon" /v GPUpdatePending /t REG_DWORD /d 0',
+                'REM Document baseline Group Policy configuration',
+                'Get-GPO -All | Export-Csv C:\\logs\\gpo_baseline.csv -NoTypeInformation',
+                'Get-GPInheritance -Target "DC=domain,DC=com" | Export-Clixml C:\\logs\\gp_inheritance_baseline.xml'
+            ]
+        }
+    ],
+    'prerequisites': [
+        'Domain Administrator or Group Policy Administrator privileges',
+        'Local administrator rights on affected client computers',
+        'Network connectivity to all domain controllers',
+        'Access to Group Policy Management Console (GPMC)',
+        'Knowledge of affected Group Policy Objects and organizational structure',
+        'Understanding of Group Policy processing order and inheritance',
+        'Valid backup of Group Policy Objects and System State'
+    ],
+    'estimated_duration': '45-180 minutes',
+    'risk_level': 'medium-high',
+    'backup_recommendation': 'CRITICAL: Backup all affected Group Policy Objects before making changes. Document current GP links, permissions, and organizational structure.',
+    'common_error_codes': {
+        '1085': 'Group Policy application failed during computer startup',
+        '1086': 'Group Policy application failed during user logon',
+        '1030': 'Group Policy processing failed due to network connectivity',
+        '1000': 'Group Policy application succeeded',
+        '1001': 'Group Policy application failed',
+        '1006': 'Group Policy processing was cancelled due to computer shutdown',
+        '1007': 'Group Policy processing was cancelled due to user logoff',
+        '1129': 'Group Policy processing failed due to slow network connection',
+        '0x80070005': 'Access denied during Group Policy processing',
+        '0x80070002': 'Group Policy file not found',
+        '0x8007000E': 'Out of memory during Group Policy processing',
+        '0x800706BA': 'RPC server unavailable during Group Policy processing'
+    },
+    'gp_processing_phases': {
+        'Computer Startup': 'Synchronous processing during computer boot',
+        'User Logon': 'Synchronous processing during user login',
+        'Background Refresh': 'Asynchronous processing every 90-120 minutes',
+        'Manual Refresh': 'On-demand processing via gpupdate command',
+        'Shutdown/Logoff': 'Processing during computer shutdown or user logoff'
+    },
+    'common_ports': {
+        '389': 'LDAP for Active Directory queries',
+        '636': 'LDAPS - LDAP over SSL',
+        '445': 'SMB/CIFS for SYSVOL access',
+        '88': 'Kerberos authentication',
+        '135': 'RPC Endpoint Mapper',
+        '3268': 'Global Catalog LDAP',
+        '53': 'DNS for domain controller discovery'
+    },
+    'gp_processing_order': [
+        'Local Group Policy',
+        'Site-linked Group Policy Objects',
+        'Domain-linked Group Policy Objects', 
+        'Organizational Unit-linked Group Policy Objects (hierarchical)',
+        'Child OU Group Policy Objects (override parent)'
+    ],
+    'troubleshooting_tools': {
+        'gpresult': 'Display Group Policy information for user/computer',
+        'gpupdate': 'Refresh Group Policy settings',
+        'rsop.msc': 'Resultant Set of Policy snap-in',
+        'gpedit.msc': 'Local Group Policy Editor',
+        'gpmc.msc': 'Group Policy Management Console',
+        'dcgpofix': 'Restore default Group Policy Objects',
+        'Get-GPResultantSetOfPolicy': 'PowerShell cmdlet for RSOP analysis'
+    }
+},
+
+'ad-group-policy-not-applying': {
+    'title': 'Active Directory Group Policy Not Applying - Complete Troubleshooting',
+    'category': 'group-policy',
+    'severity': 'high',
+    'interconnections': ['gpo-security-filtering-problems', 'gpo-sysvol-replication-issues', 'ad-authentication-issues', 'dns-resolution-failure', 'ad-replication-failure'],
+    'steps': [
+        {
+            'type': 'baseline',
+            'title': 'Group Policy Infrastructure Health Check',
+            'content': 'Verify fundamental Group Policy infrastructure components are operational.',
+            'commands': [
+                'gpresult /r',
+                'gpresult /v',
+                'Get-Service -Name gpsvc,Netlogon,DNS | Format-Table Name,Status',
+                'dcdiag /test:sysvolcheck',
+                'net share | findstr SYSVOL',
+                'Test-Path "\\\\%USERDOMAIN%\\SYSVOL\\%USERDOMAIN%\\Policies"',
+                'Get-GPO -All | Select-Object DisplayName,Id,GpoStatus | Format-Table'
+            ]
+        },
+        {
+            'type': 'baseline',
+            'title': 'Domain Controller and DNS Verification',
+            'content': 'Check domain controller accessibility and DNS resolution for GP processing.',
+            'commands': [
+                'nltest /dsgetdc:%USERDOMAIN%',
+                'nslookup %USERDOMAIN%',
+                'nslookup -type=SRV _ldap._tcp.%USERDOMAIN%',
+                'ping %LOGONSERVER% -n 4',
+                'Test-NetConnection -ComputerName %LOGONSERVER% -Port 389',
+                'Test-NetConnection -ComputerName %LOGONSERVER% -Port 445',
+                'w32tm /query /status'
+            ]
+        },
+        {
+            'type': 'baseline',
+            'title': 'User and Computer Context Analysis',
+            'content': 'Analyze user and computer context for Group Policy processing.',
+            'commands': [
+                'whoami /user /groups',
+                'gpresult /scope computer /r',
+                'gpresult /scope user /r',
+                'echo %USERDNSDOMAIN%',
+                'echo %COMPUTERNAME%',
+                'dsquery computer -samid %COMPUTERNAME%$',
+                'Get-ADOrganizationalUnit -Filter * | Select-Object Name,DistinguishedName'
+            ]
+        },
+        {
+            'type': 'condition',
+            'title': 'Identify Group Policy Application Problem Scope',
+            'content': 'Determine the specific nature and scope of the Group Policy application failure.',
+            'questions': [
+                {
+                    'question': 'What type of Group Policy application issue are you experiencing?',
+                    'options': [
+                        { 'value': 'no-gpo-applying', 'text': 'No Group Policy Objects applying at all' },
+                        { 'value': 'specific-gpo-not-applying', 'text': 'Specific GPO not applying' },
+                        { 'value': 'partial-gpo-application', 'text': 'Only some GPO settings applying' },
+                        { 'value': 'slow-gpo-processing', 'text': 'GPO processing extremely slow' },
+                        { 'value': 'gpo-applying-wrong-targets', 'text': 'GPO applying to wrong computers/users' },
+                        { 'value': 'gpo-not-updating', 'text': 'GPO changes not updating on clients' },
+                        { 'value': 'intermittent-gpo-failures', 'text': 'Intermittent GPO application failures' }
+                    ]
+                },
+                {
+                    'question': 'What is the scope of the GPO application problem?',
+                    'options': [
+                        { 'value': 'single-user', 'text': 'Single user affected' },
+                        { 'value': 'multiple-users', 'text': 'Multiple users in same OU' },
+                        { 'value': 'single-computer', 'text': 'Single computer affected' },
+                        { 'value': 'multiple-computers', 'text': 'Multiple computers affected' },
+                        { 'value': 'entire-ou', 'text': 'Entire Organizational Unit affected' },
+                        { 'value': 'site-wide', 'text': 'Entire site affected' },
+                        { 'value': 'domain-wide', 'text': 'Domain-wide GPO issues' }
+                    ]
+                },
+                {
+                    'question': 'Which Group Policy processing phase is failing?',
+                    'options': [
+                        { 'value': 'computer-startup', 'text': 'Computer startup GPO processing' },
+                        { 'value': 'user-logon', 'text': 'User logon GPO processing' },
+                        { 'value': 'background-refresh', 'text': 'Background GPO refresh' },
+                        { 'value': 'manual-refresh', 'text': 'Manual gpupdate not working' },
+                        { 'value': 'shutdown-processing', 'text': 'Computer shutdown processing' },
+                        { 'value': 'logoff-processing', 'text': 'User logoff processing' }
+                    ]
+                }
+            ]
+        },
+        {
+            'type': 'diagnostic',
+            'title': 'Group Policy Processing Analysis',
+            'content': 'Analyze detailed Group Policy processing information and results.',
+            'commands': [
+                'gpresult /h detailed_gp_report.html',
+                'gpresult /z',
+                'Get-GPResultantSetOfPolicy -ReportType Html -Path rsop_analysis.html',
+                'gpresult /r | findstr "Applied Group Policy Objects"',
+                'gpresult /r | findstr "Denied Group Policy Objects"',
+                'gpresult /scope computer /v | findstr "Group Policy was applied from"',
+                'Get-ItemProperty "HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History"'
+            ]
+        },
+        {
+            'type': 'diagnostic',
+            'title': 'Group Policy Link and Inheritance Analysis',
+            'content': 'Examine Group Policy links, inheritance, and organizational unit structure.',
+            'commands': [
+                'Get-GPInheritance -Target "[ou-distinguished-name]"',
+                'Get-GPLink -Target "[ou-distinguished-name]" -All',
+                'Get-GPO -All | Get-GPOReport -ReportType Xml -Path all_gpos.xml',
+                'dsquery ou -name "[ou-name]"',
+                'gpresult /v | findstr "The computer is a part of the following organizational units"',
+                'Get-ADOrganizationalUnit -Identity "[ou-dn]" -Properties gpLink | Select-Object -ExpandProperty gpLink'
+            ]
+        },
+        {
+            'type': 'diagnostic',
+            'title': 'Group Policy Security and Permissions Verification',
+            'content': 'Check Group Policy security permissions and filtering configuration.',
+            'commands': [
+                'Get-GPPermission -Name "[gpo-name]" -All | Format-Table',
+                'dsacls "CN={[gpo-guid]},CN=Policies,CN=System,DC=domain,DC=com"',
+                'icacls "\\\\%USERDOMAIN%\\SYSVOL\\%USERDOMAIN%\\Policies\\{[gpo-guid]}" /T',
+                'whoami /groups | findstr "Domain"',
+                'net group "Domain Computers" /domain | findstr %COMPUTERNAME%',
+                'Get-ADUser -Identity %USERNAME% -Properties MemberOf'
+            ]
+        },
+        {
+            'type': 'diagnostic',
+            'title': 'SYSVOL and Group Policy Template Analysis',
+            'content': 'Verify SYSVOL replication and Group Policy template accessibility.',
+            'commands': [
+                'dir "\\\\%USERDOMAIN%\\SYSVOL\\%USERDOMAIN%\\Policies" /s',
+                'Compare-Object (Get-ChildItem "\\\\DC1\\SYSVOL\\domain\\Policies" -Recurse) (Get-ChildItem "\\\\DC2\\SYSVOL\\domain\\Policies" -Recurse)',
+                'dcgpofix /checkonly',
+                'repadmin /showrepl * "CN=Domain System Volume,CN=DFSR-GlobalSettings,CN=System,DC=domain,DC=com"',
+                'Get-DfsrState | Where-Object {$_.ReplicationGroupName -eq "Domain System Volume"}',
+                'Test-Path "\\\\%USERDOMAIN%\\SYSVOL\\%USERDOMAIN%\\Policies\\{[gpo-guid]}\\Machine\\Registry.pol"'
+            ]
+        },
+        {
+            'type': 'diagnostic',
+            'title': 'WMI Filter and Advanced Filtering Analysis',
+            'content': 'Examine WMI filters and advanced Group Policy filtering mechanisms.',
+            'commands': [
+                'Get-WmiObject -Class Win32_OperatingSystem | Select-Object Caption,Version',
+                'Get-CimInstance -ClassName Win32_ComputerSystem | Select-Object Name,Domain,Model',
+                'winmgmt /verifyrepository',
+                'Get-GPO -Name "[gpo-name]" | Select-Object -ExpandProperty WmiFilter',
+                'Get-WmiObject -Namespace root\\cimv2 -Query "SELECT * FROM Win32_OperatingSystem WHERE Version LIKE \'10.%\'"',
+                'wmic /namespace:\\\\root\\cimv2 path win32_operatingsystem get version'
+            ]
+        },
+        {
+            'type': 'diagnostic',
+            'title': 'Group Policy Event Log Analysis',
+            'content': 'Examine Group Policy processing event logs for errors and warnings.',
+            'commands': [
+                'Get-WinEvent -LogName "Microsoft-Windows-GroupPolicy/Operational" -MaxEvents 100 | Where-Object {$_.LevelDisplayName -ne "Information"}',
+                'wevtutil qe "Microsoft-Windows-GroupPolicy/Operational" /q:"*[System[EventID=1085 or EventID=1086 or EventID=1000 or EventID=1001 or EventID=1030]]" /rd:true /f:text',
+                'Get-EventLog -LogName Application -Source "Group Policy" -Newest 20',
+                'wevtutil qe System /q:"*[System[Provider[@Name=\'Group Policy\'] and (Level=1 or Level=2)]]" /rd:true /f:text',
+                'Get-WinEvent -LogName Security -FilterXPath "*[System[EventID=4719 or EventID=5136]]" -MaxEvents 10'
+            ]
+        },
+        {
+            'type': 'remedy',
+            'title': 'Immediate Group Policy Refresh and Repair',
+            'content': 'Execute immediate corrective actions for Group Policy application.',
+            'commands': [
+                'gpupdate /force',
+                'gpupdate /force /boot',
+                'secedit /refreshpolicy machine_policy /enforce',
+                'secedit /refreshpolicy user_policy /enforce',
+                'Invoke-GPUpdate -Computer %COMPUTERNAME% -Force',
+                'klist purge',
+                'Restart-Service gpsvc'
+            ]
+        },
+        {
+            'type': 'remedy',
+            'title': 'Group Policy Link and Permission Repair',
+            'content': 'Repair Group Policy links and permissions.',
+            'commands': [
+                'New-GPLink -Name "[gpo-name]" -Target "[ou-dn]" -LinkEnabled Yes',
+                'Set-GPLink -Name "[gpo-name]" -Target "[ou-dn]" -LinkEnabled Yes',
+                'Set-GPPermission -Name "[gpo-name]" -TargetName "Authenticated Users" -TargetType WellKnownSid -PermissionLevel GpoApply',
+                'Set-GPPermission -Name "[gpo-name]" -TargetName "Domain Computers" -TargetType Group -PermissionLevel GpoApply',
+                'Remove-GPLink -Name "[gpo-name]" -Target "[wrong-ou-dn]"',
+                'Set-GPInheritance -Target "[ou-dn]" -IsBlocked No'
+            ]
+        },
+        {
+            'type': 'remedy',
+            'title': 'SYSVOL and Replication Repair',
+            'content': 'Repair SYSVOL replication and Group Policy template synchronization.',
+            'commands': [
+                'net stop DFSR && net start DFSR',
+                'dfsrdiag forcereplication /member:%COMPUTERNAME% /partner:[partner-dc] /rg:"Domain System Volume" /rf:"SYSVOL Share"',
+                'repadmin /syncall * "CN=Domain System Volume,CN=DFSR-GlobalSettings,CN=System,DC=domain,DC=com" /AdeP',
+                'dcgpofix /ignoreschema',
+                'robocopy "\\\\PDC\\SYSVOL\\domain\\Policies" "\\\\%COMPUTERNAME%\\SYSVOL\\domain\\Policies" /MIR /COPYALL',
+                'icacls "\\\\%USERDOMAIN%\\SYSVOL" /grant "Authenticated Users:(OI)(CI)RX"'
+            ]
+        },
+        {
+            'type': 'remedy',
+            'title': 'WMI and Filtering Repair',
+            'content': 'Repair WMI filters and advanced Group Policy filtering issues.',
+            'commands': [
+                'winmgmt /resetrepository',
+                'net stop winmgmt && net start winmgmt',
+                'Remove-GPWmiFilter -Name "[problematic-wmi-filter]"',
+                'New-GPWmiFilter -Name "Windows 10" -Expression "SELECT * FROM Win32_OperatingSystem WHERE Version LIKE \'10.%\'"',
+                'Get-GPO -Name "[gpo-name]" | Set-GPWmiFilter -Filter "Windows 10"',
+                'mofcomp %windir%\\system32\\wbem\\cimwin32.mof'
+            ]
+        },
+        {
+            'type': 'remedy',
+            'title': 'Advanced Group Policy Troubleshooting',
+            'content': 'Advanced procedures for persistent Group Policy application issues.',
+            'commands': [
+                'REM Enable Group Policy debug logging',
+                'reg add "HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\GPExtensions\\{00000000-0000-0000-0000-000000000000}" /v ExtensionDebugLevel /t REG_DWORD /d 2',
+                'REM Clear Group Policy cache',
+                'Remove-Item "$env:ALLUSERSPROFILE\\Microsoft\\Group Policy\\History\\*" -Recurse -Force',
+                'Remove-Item "HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy" /Recurse -Force',
+                'REM Reset Group Policy processing',
+                'reg delete "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\State" /f',
+                'REM Force immediate Group Policy processing',
+                'reg add "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\System" /v GroupPolicyRefreshTime /t REG_DWORD /d 0',
+                'gpupdate /force /wait:0'
+            ]
+        },
+        {
+            'type': 'remedy',
+            'title': 'Computer Trust and Authentication Repair',
+            'content': 'Repair computer trust relationship and authentication issues affecting GP.',
+            'commands': [
+                'Test-ComputerSecureChannel -Repair',
+                'Reset-ComputerMachinePassword',
+                'nltest /sc_reset:%USERDOMAIN%',
+                'netdom resetpwd /server:%LOGONSERVER% /userd:%USERDOMAIN%\\administrator /passwordd:*',
+                'w32tm /resync',
+                'klist purge'
+            ]
+        },
+        {
+            'type': 'verification',
+            'title': 'Group Policy Application Validation',
+            'content': 'Verify that Group Policy is now applying correctly.',
+            'commands': [
+                'gpresult /r',
+                'gpresult /h verification_report.html',
+                'Get-GPResultantSetOfPolicy -ReportType Html -Path final_rsop.html',
+                'gpresult /r | findstr "Applied Group Policy Objects"',
+                'Get-ItemProperty "HKLM:\\SOFTWARE\\Policies\\[test-registry-path]"',
+                'Test-Path "C:\\[test-gpo-file-path]"'
+            ]
+        },
+        {
+            'type': 'verification',
+            'title': 'Comprehensive Group Policy Testing',
+            'content': 'Perform comprehensive testing of Group Policy functionality.',
+            'commands': [
+                'gpupdate /force && timeout /t 30 && gpresult /r',
+                'runas /user:[test-user] "gpresult /r"',
+                'Get-GPO -All | Get-GPOReport -ReportType Html -Path all_gpos_final.html',
+                'Get-WinEvent -LogName "Microsoft-Windows-GroupPolicy/Operational" -MaxEvents 10 | Where-Object {$_.LevelDisplayName -eq "Information"}',
+                'dcgpofix /checkonly',
+                'Get-GPInheritance -Target "[ou-dn]" | Format-List'
+            ]
+        },
+        {
+            'type': 'prevention',
+            'title': 'Group Policy Monitoring and Maintenance',
+            'content': 'Implement monitoring and preventive measures for Group Policy health.',
+            'commands': [
+                'schtasks /create /tn "GPHealthCheck" /tr "powershell.exe -Command \\"gpresult /r | Out-File C:\\\\logs\\\\gp_health.log -Append\\"" /sc daily /st 08:00',
+                'schtasks /create /tn "SYSVOLHealthCheck" /tr "dcgpofix /checkonly" /sc weekly /d MON /st 02:00',
+                'auditpol /set /subcategory:"Directory Service Access" /success:enable /failure:enable',
+                'Get-GPO -All | ForEach-Object { Get-GPOReport -Name $_.DisplayName -ReportType Xml -Path "C:\\logs\\gpo_$($_.DisplayName).xml" }',
+                'REM Configure Group Policy logging',
+                'wevtutil sl "Microsoft-Windows-GroupPolicy/Operational" /e:true /rt:false /ab:false /ms:10485760',
+                'REM Set up Group Policy processing monitoring',
+                'reg add "HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon" /v GPUpdatePending /t REG_DWORD /d 0',
+                'REM Document baseline Group Policy configuration',
+                'Get-GPO -All | Export-Csv C:\\logs\\gpo_baseline.csv -NoTypeInformation',
+                'Get-GPInheritance -Target "DC=domain,DC=com" | Export-Clixml C:\\logs\\gp_inheritance_baseline.xml'
+            ]
+        }
+    ],
+    'prerequisites': [
+        'Domain Administrator or Group Policy Administrator privileges',
+        'Local administrator rights on affected client computers',
+        'Network connectivity to all domain controllers',
+        'Access to Group Policy Management Console (GPMC)',
+        'Knowledge of affected Group Policy Objects and organizational structure',
+        'Understanding of Group Policy processing order and inheritance',
+        'Valid backup of Group Policy Objects and System State'
+    ],
+    'estimated_duration': '45-180 minutes',
+    'risk_level': 'medium-high',
+    'backup_recommendation': 'CRITICAL: Backup all affected Group Policy Objects before making changes. Document current GP links, permissions, and organizational structure.',
+    'common_error_codes': {
+        '1085': 'Group Policy application failed during computer startup',
+        '1086': 'Group Policy application failed during user logon',
+        '1030': 'Group Policy processing failed due to network connectivity',
+        '1000': 'Group Policy application succeeded',
+        '1001': 'Group Policy application failed',
+        '1006': 'Group Policy processing was cancelled due to computer shutdown',
+        '1007': 'Group Policy processing was cancelled due to user logoff',
+        '1129': 'Group Policy processing failed due to slow network connection',
+        '0x80070005': 'Access denied during Group Policy processing',
+        '0x80070002': 'Group Policy file not found',
+        '0x8007000E': 'Out of memory during Group Policy processing',
+        '0x800706BA': 'RPC server unavailable during Group Policy processing'
+    },
+    'gp_processing_phases': {
+        'Computer Startup': 'Synchronous processing during computer boot',
+        'User Logon': 'Synchronous processing during user login',
+        'Background Refresh': 'Asynchronous processing every 90-120 minutes',
+        'Manual Refresh': 'On-demand processing via gpupdate command',
+        'Shutdown/Logoff': 'Processing during computer shutdown or user logoff'
+    },
+    'common_ports': {
+        '389': 'LDAP for Active Directory queries',
+        '636': 'LDAPS - LDAP over SSL',
+        '445': 'SMB/CIFS for SYSVOL access',
+        '88': 'Kerberos authentication',
+        '135': 'RPC Endpoint Mapper',
+        '3268': 'Global Catalog LDAP',
+        '53': 'DNS for domain controller discovery'
+    },
+    'gp_processing_order': [
+        'Local Group Policy',
+        'Site-linked Group Policy Objects',
+        'Domain-linked Group Policy Objects', 
+        'Organizational Unit-linked Group Policy Objects (hierarchical)',
+        'Child OU Group Policy Objects (override parent)'
+    ],
+    'troubleshooting_tools': {
+        'gpresult': 'Display Group Policy information for user/computer',
+        'gpupdate': 'Refresh Group Policy settings',
+        'rsop.msc': 'Resultant Set of Policy snap-in',
+        'gpedit.msc': 'Local Group Policy Editor',
+        'gpmc.msc': 'Group Policy Management Console',
+        'dcgpofix': 'Restore default Group Policy Objects',
+        'Get-GPResultantSetOfPolicy': 'PowerShell cmdlet for RSOP analysis'
+    }
+},
+                'dns-resolution-failure': {
+                    'title': 'DNS Resolution Failure - Complete Troubleshooting',
+                    'category': 'dns',
+                    'severity': 'high',
+                    'interconnections': ['ad-replication-failure', 'network-connectivity-loss', 'gpo-not-applying'],
+                    'steps': [
+                        {
+                            'type': 'baseline',
+                            'title': 'Basic System Health Check',
+                            'content': 'Perform fundamental system checks before diving into DNS-specific diagnostics.',
+                            'commands': [
+                                'systeminfo | findstr /B /C:\'OS Name\' /C:\'OS Version\' /C:\'System Boot Time\'',
+                                'net time',
+                                'ipconfig /all',
+                                'route print',
+                                'netstat -rn'
+                            ]
+                        },
+                        {
+                            'type': 'baseline', 
+                            'title': 'DNS Service Status Verification',
+                            'content': 'Check DNS service status and related services on DNS servers.',
+                            'commands': [
+                                'sc query DNS',
+                                'sc query Netlogon', 
+                                'sc query EventLog',
+                                'Get-Service -Name DNS',
+                                'Get-DnsServerResourceRecord -ZoneName [domain-name] -RRType A',
+                                'Get-DnsServerZone'
+                            ]
+                        },
+                        {
+                            'type': 'baseline',
+                            'title': 'Network Connectivity Validation', 
+                            'content': 'Verify basic network connectivity to DNS servers.',
+                            'commands': [
+                                'ping [primary-dns-server] -n 4',
+                                'ping [secondary-dns-server] -n 4', 
+                                'Test-NetConnection -ComputerName [dns-server] -Port 53',
+                                'telnet [dns-server] 53',
+                                'nslookup',
+                                'nslookup [domain-name] [dns-server]'
+                            ]
+                        },
+                        {
+                            'type': 'condition',
+                            'title': 'Identify DNS Problem Scope',
+                            'content': 'Determine the specific nature and scope of the DNS resolution failure.',
+                            'questions': [
+                                {
+                                    'question': 'What type of DNS resolution is failing?',
+                                    'options': [
+                                        { 'value': 'complete-failure', 'text': 'Complete DNS resolution failure (all queries)' },
+                                        { 'value': 'specific-domain', 'text': 'Failure only for specific domain(s)' },
+                                        { 'value': 'internal-only', 'text': 'Internal domain resolution failing' },
+                                        { 'value': 'external-only', 'text': 'External domain resolution failing' },
+                                        { 'value': 'reverse-lookup', 'text': 'Reverse DNS lookup failing' },
+                                        { 'value': 'intermittent', 'text': 'Intermittent DNS resolution failures' }
+                                    ]
+                                },
+                                {
+                                    'question': 'What is the scope of affected systems?',
+                                    'options': [
+                                        { 'value': 'single-client', 'text': 'Single client/workstation' },
+                                        { 'value': 'multiple-clients', 'text': 'Multiple clients in same subnet' },
+                                        { 'value': 'entire-site', 'text': 'Entire site or location' },
+                                        { 'value': 'domain-wide', 'text': 'Domain-wide issue' },
+                                        { 'value': 'dns-server', 'text': 'DNS server itself' }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            'type': 'diagnostic',
+                            'title': 'DNS Configuration Analysis',
+                            'content': 'Analyze current DNS configuration and settings.',
+                            'commands': [
+                                'ipconfig /displaydns',
+                                'nslookup -debug [domain-name]',
+                                'dig [domain-name] @[dns-server]',
+                                'Get-DnsClientServerAddress',
+                                'Get-DnsClientCache',
+                                'Get-NetAdapter | Get-DnsClient'
+                            ]
+                        },
+                        {
+                            'type': 'diagnostic', 
+                            'title': 'DNS Server Zone Analysis',
+                            'content': 'Examine DNS server zones and records (run on DNS server).',
+                            'commands': [
+                                'dnscmd [dns-server] /enumzones',
+                                'dnscmd [dns-server] /zoneinfo [zone-name]',
+                                'Get-DnsServerZone -Name [zone-name]',
+                                'Get-DnsServerResourceRecord -ZoneName [zone-name]',
+                                'dnscmd [dns-server] /statistics',
+                                'Get-DnsServerStatistics'
+                            ]
+                        },
+                        {
+                            'type': 'remedy',
+                            'title': 'Immediate Resolution Steps',
+                            'content': 'Execute immediate corrective actions for DNS resolution issues.',
+                            'commands': [
+                                'ipconfig /flushdns',
+                                'ipconfig /registerdns', 
+                                'ipconfig /release && ipconfig /renew',
+                                'Clear-DnsClientCache',
+                                'Register-DnsClient',
+                                'net stop DNS && net start DNS',
+                                'Restart-Service -Name DNS'
+                            ]
+                        },
+                        {
+                            'type': 'verification',
+                            'title': 'Post-Resolution Validation', 
+                            'content': 'Verify that DNS resolution has been successfully restored.',
+                            'commands': [
+                                'nslookup [test-hostname]',
+                                'ping [test-hostname]',
+                                'Resolve-DnsName -Name [test-hostname]',
+                                'Test-NetConnection -ComputerName [test-hostname] -Port 80',
+                                'Get-DnsClientCache | Select-Object Name,Status'
+                            ]
+                        },
+                        {
+                            'type': 'prevention',
+                            'title': 'Preventive Measures and Monitoring',
+                            'content': 'Implement monitoring and preventive measures for DNS health.',
+                            'commands': [
+                                'schtasks /create /tn \'DNSHealthCheck\' /tr \'powershell.exe -Command "nslookup [domain-name] | Out-File C:\\logs\\dns_health.log -Append"\' /sc hourly',
+                                'dnscmd [dns-server] /config /loglevel 0x8100F331',
+                                'dnscmd [dns-server] /config /logfilepath C:\\logs\\dns.log'
+                            ]
+                        }
+                    ],
+                    'prerequisites': [
+                        'Administrator privileges on affected systems',
+                        'Network connectivity to DNS servers', 
+                        'Knowledge of current DNS server IPs',
+                        'Access to DNS management tools',
+                        'Backup of DNS zones and configuration'
+                    ],
+                    'estimated_duration': '15-90 minutes',
+                    'risk_level': 'medium',
+                    'backup_recommendation': 'Backup DNS zones and server configuration before making changes.',
+                    'common_error_codes': {
+                        'DNS_ERROR_RCODE_NAME_ERROR': 'Domain name does not exist (NXDOMAIN)',
+                        'DNS_ERROR_RCODE_SERVER_FAILURE': 'DNS server failure (SERVFAIL)',
+                        'DNS_ERROR_TIMEOUT': 'DNS query timeout',
+                        '0x80071771': 'DNS name does not exist'
+                    },
+                    'common_ports': {
+                        '53': 'DNS queries (TCP/UDP)',
+                        '953': 'DNS over TLS',
+                        '5353': 'mDNS (Multicast DNS)'
+                    }
+                },
+
+'gpo-security-filtering-problems': {
+    'title': 'Group Policy Security Filtering Problems - Complete Troubleshooting',
+    'category': 'group-policy',
+    'severity': 'medium',
+    'interconnections': ['ad-authentication-issues', 'gpo-not-applying', 'ad-replication-failure', 'gpo-sysvol-replication-issues'],
+    'steps': [
+        {
+            'type': 'baseline',
+            'title': 'Group Policy Infrastructure Health Check',
+            'content': 'Verify Group Policy infrastructure and basic GPO functionality.',
+            'commands': [
+                'gpresult /r',
+                'gpresult /z',
+                'Get-GPO -All | Select-Object DisplayName,Id,GpoStatus | Format-Table',
+                'dcdiag /test:sysvolcheck',
+                'Get-Service -Name Netlogon,DNS | Format-Table Name,Status',
+                'net share | findstr SYSVOL',
+                'Test-Path "\\\\%USERDOMAIN%\\SYSVOL\\%USERDOMAIN%\\Policies"'
+            ]
+        },
+        {
+            'type': 'baseline',
+            'title': 'User and Computer Account Verification',
+            'content': 'Check user and computer account status and group memberships.',
+            'commands': [
+                'whoami /user /groups',
+                'net user %USERNAME% /domain',
+                'Get-ADUser -Identity %USERNAME% -Properties MemberOf | Select-Object -ExpandProperty MemberOf',
+                'Get-ADComputer -Identity %COMPUTERNAME% -Properties MemberOf | Select-Object -ExpandProperty MemberOf',
+                'dsquery user -samid %USERNAME%',
+                'dsquery computer -samid %COMPUTERNAME%$'
+            ]
+        },
+        {
+            'type': 'baseline',
+            'title': 'Group Policy Permissions Overview',
+            'content': 'Get overview of Group Policy permissions and filtering configuration.',
+            'commands': [
+                'Get-GPPermission -All -DomainName %USERDOMAIN% | Format-Table',
+                'Get-GPO -All | ForEach-Object { Get-GPPermission -Name $_.DisplayName -All }',
+                'gpresult /h baseline_gp_report.html',
+                'rsop.msc (for interactive analysis)',
+                'Get-GPResultantSetOfPolicy -ReportType Html -Path rsop_report.html'
+            ]
+        },
+        {
+            'type': 'condition',
+            'title': 'Identify Security Filtering Problem Scope',
+            'content': 'Determine the specific nature and scope of the Group Policy security filtering issue.',
+            'questions': [
+                {
+                    'question': 'What type of security filtering problem are you experiencing?',
+                    'options': [
+                        { 'value': 'gpo-not-applying-users', 'text': 'GPO not applying to specific users' },
+                        { 'value': 'gpo-not-applying-computers', 'text': 'GPO not applying to specific computers' },
+                        { 'value': 'gpo-applying-wrong-targets', 'text': 'GPO applying to wrong users/computers' },
+                        { 'value': 'partial-gpo-application', 'text': 'Only some GPO settings applying' },
+                        { 'value': 'security-group-issues', 'text': 'Security group filtering not working' },
+                        { 'value': 'wmi-filter-conflicts', 'text': 'WMI filter and security filtering conflicts' },
+                        { 'value': 'permission-denied-errors', 'text': 'Permission denied accessing GPO' }
+                    ]
+                },
+                {
+                    'question': 'What is the current security filtering configuration?',
+                    'options': [
+                        { 'value': 'authenticated-users', 'text': 'Using "Authenticated Users" (default)' },
+                        { 'value': 'specific-groups', 'text': 'Filtered to specific security groups' },
+                        { 'value': 'individual-users', 'text': 'Filtered to individual user accounts' },
+                        { 'value': 'computer-groups', 'text': 'Filtered to computer security groups' },
+                        { 'value': 'mixed-filtering', 'text': 'Mixed user and computer filtering' },
+                        { 'value': 'unknown-config', 'text': 'Unknown or inherited configuration' }
+                    ]
+                },
+                {
+                    'question': 'When did the filtering problem start occurring?',
+                    'options': [
+                        { 'value': 'after-gpo-changes', 'text': 'After recent GPO modifications' },
+                        { 'value': 'after-group-changes', 'text': 'After security group membership changes' },
+                        { 'value': 'after-user-creation', 'text': 'After creating new user accounts' },
+                        { 'value': 'after-computer-join', 'text': 'After joining new computers to domain' },
+                        { 'value': 'gradual-degradation', 'text': 'Gradual degradation over time' },
+                        { 'value': 'always-been-issue', 'text': 'Has always been an issue' }
+                    ]
+                }
+            ]
+        },
+        {
+            'type': 'diagnostic',
+            'title': 'GPO Security Permissions Analysis',
+            'content': 'Analyze detailed Group Policy Object security permissions.',
+            'commands': [
+                'Get-GPPermission -Name "[problem-gpo-name]" -All | Format-Table',
+                'Get-GPPermission -Name "[problem-gpo-name]" -TargetName "Authenticated Users" -TargetType WellKnownSid',
+                'Get-GPPermission -Name "[problem-gpo-name]" -TargetName "[security-group]" -TargetType Group',
+                'dsacls "CN={[gpo-guid]},CN=Policies,CN=System,DC=domain,DC=com"',
+                'icacls "\\\\%USERDOMAIN%\\SYSVOL\\%USERDOMAIN%\\Policies\\{[gpo-guid]}" /T',
+                'Get-Acl "\\\\%USERDOMAIN%\\SYSVOL\\%USERDOMAIN%\\Policies\\{[gpo-guid]}" | Format-List'
+            ]
+        },
+        {
+            'type': 'diagnostic',
+            'title': 'Security Group Membership Analysis',
+            'content': 'Examine security group memberships and nested group relationships.',
+            'commands': [
+                'Get-ADGroupMember -Identity "[security-group]" | Format-Table',
+                'Get-ADUser -Identity "[username]" -Properties MemberOf | Select-Object -ExpandProperty MemberOf',
+                'Get-ADPrincipalGroupMembership -Identity "[username]" | Format-Table',
+                'net group "[security-group]" /domain',
+                'dsget group "CN=[security-group],OU=Groups,DC=domain,DC=com" -members -expand',
+                'Get-ADGroup -Filter \'Name -like "*[group-pattern]*\' | Get-ADGroupMember'
+            ]
+        },
+        {
+            'type': 'diagnostic',
+            'title': 'Group Policy Resultant Set Analysis',
+            'content': 'Analyze the Resultant Set of Policy for affected users and computers.',
+            'commands': [
+                'gpresult /user [username] /h user_rsop.html',
+                'gpresult /user [username] /scope computer /h computer_rsop.html',
+                'Get-GPResultantSetOfPolicy -User [username] -Computer [computername] -ReportType Html -Path detailed_rsop.html',
+                'gpresult /user [username] /v | findstr "Applied Group Policy Objects"',
+                'gpresult /user [username] /v | findstr "Denied Group Policy Objects"',
+                'rsop.msc (launch for interactive analysis)'
+            ]
+        },
+        {
+            'type': 'diagnostic',
+            'title': 'Authentication and Token Analysis',
+            'content': 'Examine user authentication tokens and effective permissions.',
+            'commands': [
+                'whoami /all',
+                'klist tgt',
+                'Get-ADUser -Identity [username] -Properties TokenGroups',
+                'whoami /groups | findstr "[security-group]"',
+                'gpresult /user [username] /v | findstr "The user is a part of the following security groups"',
+                'nltest /user:[username]'
+            ]
+        },
+        {
+            'type': 'diagnostic',
+            'title': 'Event Log Analysis for GPO Processing',
+            'content': 'Examine Group Policy processing event logs for filtering-related errors.',
+            'commands': [
+                'Get-WinEvent -LogName "Microsoft-Windows-GroupPolicy/Operational" -MaxEvents 50 | Where-Object {$_.LevelDisplayName -eq "Error"}',
+                'wevtutil qe "Microsoft-Windows-GroupPolicy/Operational" /q:"*[System[EventID=1085 or EventID=1086 or EventID=1000 or EventID=1001]]" /rd:true /f:text',
+                'Get-EventLog -LogName Application -Source "Group Policy" -EntryType Error -Newest 20',
+                'wevtutil qe System /q:"*[System[Provider[@Name=\'Group Policy\'] and (Level=1 or Level=2)]]" /rd:true /f:text',
+                'Get-WinEvent -LogName Security -FilterXPath "*[System[EventID=4719 or EventID=4739]]" -MaxEvents 10'
+            ]
+        },
+        {
+            'type': 'remedy',
+            'title': 'Basic Security Filtering Correction',
+            'content': 'Apply basic corrections to Group Policy security filtering.',
+            'commands': [
+                'Set-GPPermission -Name "[gpo-name]" -TargetName "[security-group]" -TargetType Group -PermissionLevel GpoApply',
+                'Set-GPPermission -Name "[gpo-name]" -TargetName "Authenticated Users" -TargetType WellKnownSid -PermissionLevel None',
+                'Remove-GPPermission -Name "[gpo-name]" -TargetName "[unwanted-group]" -TargetType Group',
+                'gpupdate /force',
+                'Add-ADGroupMember -Identity "[security-group]" -Members "[username]"',
+                'Remove-ADGroupMember -Identity "[security-group]" -Members "[username]" -Confirm:$false'
+            ]
+        },
+        {
+            'type': 'remedy',
+            'title': 'Advanced Permission Repair',
+            'content': 'Repair advanced Group Policy permissions and delegation.',
+            'commands': [
+                'Set-GPPermission -Name "[gpo-name]" -TargetName "Domain Admins" -TargetType Group -PermissionLevel GpoEditDeleteModifySecurity',
+                'Set-GPPermission -Name "[gpo-name]" -TargetName "Enterprise Admins" -TargetType Group -PermissionLevel GpoEditDeleteModifySecurity',
+                'Set-GPPermission -Name "[gpo-name]" -TargetName "SYSTEM" -TargetType WellKnownSid -PermissionLevel GpoEditDeleteModifySecurity',
+                'dsacls "CN={[gpo-guid]},CN=Policies,CN=System,DC=domain,DC=com" /G "[security-group]:GR"',
+                'icacls "\\\\%USERDOMAIN%\\SYSVOL\\%USERDOMAIN%\\Policies\\{[gpo-guid]}" /grant "[security-group]:(OI)(CI)R"'
+            ]
+        },
+        {
+            'type': 'remedy',
+            'title': 'Security Group Membership Resolution',
+            'content': 'Resolve security group membership and nested group issues.',
+            'commands': [
+                'Add-ADGroupMember -Identity "[parent-group]" -Members "[child-group]"',
+                'Get-ADGroup -Identity "[security-group]" | Set-ADGroup -GroupScope Global',
+                'Get-ADGroup -Identity "[security-group]" | Set-ADGroup -GroupScope Universal',
+                'Remove-ADGroupMember -Identity "[conflicting-group]" -Members "[username]" -Confirm:$false',
+                'Move-ADObject -Identity "CN=[user],OU=Users,DC=domain,DC=com" -TargetPath "OU=NewOU,DC=domain,DC=com"',
+                'Get-ADUser -Identity [username] | Set-ADUser -Clear MemberOf'
+            ]
+        },
+        {
+            'type': 'remedy',
+            'title': 'Group Policy Refresh and Cache Clearing',
+            'content': 'Force Group Policy refresh and clear policy caches.',
+            'commands': [
+                'gpupdate /force /boot',
+                'secedit /refreshpolicy machine_policy /enforce',
+                'secedit /refreshpolicy user_policy /enforce',
+                'klist purge',
+                'Invoke-GPUpdate -Computer [target-computer] -Force',
+                'Remove-Item "$env:LOCALAPPDATA\\Microsoft\\Group Policy\\History\\*" -Recurse -Force',
+                'Remove-Item "$env:ALLUSERSPROFILE\\Microsoft\\Group Policy\\History\\*" -Recurse -Force'
+            ]
+        },
+        {
+            'type': 'remedy',
+            'title': 'Advanced Troubleshooting and Reset',
+            'content': 'Advanced procedures for persistent security filtering issues.',
+            'commands': [
+                'REM Reset Group Policy to default permissions',
+                'dcgpofix /ignoreschema',
+                'REM Re-create security filtering from scratch',
+                'Set-GPPermission -Name "[gpo-name]" -Replace -TargetName "Authenticated Users" -TargetType WellKnownSid -PermissionLevel None',
+                'Set-GPPermission -Name "[gpo-name]" -TargetName "[new-security-group]" -TargetType Group -PermissionLevel GpoApply',
+                'REM Force AD replication',
+                'repadmin /syncall /AdeP',
+                'REM Clear Kerberos tickets',
+                'klist purge',
+                'REM Restart Group Policy service',
+                'Restart-Service gpsvc'
+            ]
+        },
+        {
+            'type': 'verification',
+            'title': 'Security Filtering Validation',
+            'content': 'Verify that Group Policy security filtering is working correctly.',
+            'commands': [
+                'Get-GPPermission -Name "[gpo-name]" -All | Format-Table',
+                'gpresult /user [username] /h verification_report.html',
+                'gpresult /user [username] /r | findstr "Applied Group Policy Objects"',
+                'Get-GPResultantSetOfPolicy -User [username] -Computer [computername] -ReportType Html -Path final_rsop.html',
+                'Test-Path "HKLM:\\SOFTWARE\\Policies\\[test-registry-key]"',
+                'Get-ItemProperty "HKLM:\\SOFTWARE\\Policies\\[test-registry-key]"'
+            ]
+        },
+        {
+            'type': 'verification',
+            'title': 'Comprehensive Group Policy Testing',
+            'content': 'Perform comprehensive testing of Group Policy application and filtering.',
+            'commands': [
+                'gpupdate /force && gpresult /r',
+                'runas /user:[test-user] "gpresult /r"',
+                'Get-ADUser -Identity [test-user] -Properties MemberOf | Select-Object -ExpandProperty MemberOf',
+                'whoami /groups | findstr "[security-group]"',
+                'Get-WinEvent -LogName "Microsoft-Windows-GroupPolicy/Operational" -MaxEvents 10 | Where-Object {$_.LevelDisplayName -eq "Information"}',
+                'rsop.msc (verify policy application interactively)'
+            ]
+        },
+        {
+            'type': 'prevention',
+            'title': 'Security Filtering Monitoring and Best Practices',
+            'content': 'Implement monitoring and best practices for Group Policy security filtering.',
+            'commands': [
+                'schtasks /create /tn "GPOPermissionAudit" /tr "powershell.exe -Command \\"Get-GPO -All | Get-GPPermission -All | Export-Csv C:\\\\logs\\\\gpo_permissions.csv -NoTypeInformation\\"" /sc weekly /d SUN /st 02:00',
+                'auditpol /set /subcategory:"Directory Service Access" /success:enable /failure:enable',
+                'Get-GPO -All | ForEach-Object { Get-GPPermission -Name $_.DisplayName -All } | Export-Csv C:\\logs\\baseline_gpo_permissions.csv',
+                'schtasks /create /tn "GroupMembershipAudit" /tr "powershell.exe -Command \\"Get-ADUser -Filter * -Properties MemberOf | Export-Csv C:\\\\logs\\\\user_group_memberships.csv\\"" /sc weekly /d SAT /st 01:00',
+                'REM Configure Group Policy event logging',
+                'reg add "HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\GPExtensions\\{00000000-0000-0000-0000-000000000000}" /v ExtensionDebugLevel /t REG_DWORD /d 2',
+                'REM Document security filtering baseline',
+                'Get-GPO -All | Select-Object DisplayName,Id,GpoStatus | Export-Csv C:\\logs\\gpo_baseline.csv',
+                'REM Set up Group Policy processing monitoring',
+                'wevtutil sl "Microsoft-Windows-GroupPolicy/Operational" /e:true'
+            ]
+        }
+    ],
+    'prerequisites': [
+        'Domain Administrator or Group Policy Administrator privileges',
+        'Knowledge of affected Group Policy Objects and their GUIDs',
+        'Understanding of security group structure and memberships',
+        'Access to Group Policy Management Console (GPMC)',
+        'Network connectivity to domain controllers',
+        'Knowledge of target users and computers affected',
+        'Understanding of Group Policy inheritance and precedence'
+    ],
+    'estimated_duration': '20-90 minutes',
+    'risk_level': 'medium',
+    'backup_recommendation': 'Backup affected Group Policy Objects before making permission changes. Document current security filtering configuration and group memberships.',
+    'common_error_codes': {
+        '1085': 'Group Policy object did not apply because it failed with computer startup',
+        '1086': 'Group Policy object did not apply because it failed with user logon',
+        '1000': 'Group Policy application has been successful',
+        '1001': 'Group Policy application failed',
+        '5136': 'A directory service object was modified (security group changes)',
+        '4719': 'System audit policy was changed',
+        '4739': 'Domain Policy was changed',
+        '0x80070005': 'Access denied - insufficient permissions',
+        '0x8007000E': 'Out of memory during Group Policy processing',
+        '0x800706BA': 'RPC server unavailable during GP processing'
+    },
+    'security_filtering_levels': {
+        'GpoRead': 'Read permissions only - can view GPO settings',
+        'GpoApply': 'Apply permissions - GPO will apply to this security principal',
+        'GpoEdit': 'Edit permissions - can modify GPO settings',
+        'GpoEditDeleteModifySecurity': 'Full control - can edit, delete, and modify security',
+        'None': 'No permissions - explicitly denies GPO application'
+    },
+    'common_ports': {
+        '389': 'LDAP for Active Directory queries',
+        '636': 'LDAPS - LDAP over SSL',
+        '3268': 'Global Catalog LDAP',
+        '445': 'SMB/CIFS for SYSVOL access',
+        '88': 'Kerberos authentication',
+        '135': 'RPC Endpoint Mapper'
+    },
+    'group_scopes': {
+        'Domain Local': 'Can contain users/groups from any domain in forest, can be assigned permissions in same domain only',
+        'Global': 'Can contain users/groups from same domain only, can be assigned permissions anywhere in forest',
+        'Universal': 'Can contain users/groups from any domain in forest, can be assigned permissions anywhere in forest'
+    },
+    'best_practices': [
+        'Use security groups rather than individual users for filtering',
+        'Avoid using "Authenticated Users" for sensitive GPOs',
+        'Document all security filtering changes',
+        'Test GPO application in non-production environment first',
+        'Use WMI filters sparingly to avoid performance impact',
+        'Regular audit of Group Policy permissions',
+        'Implement least privilege principle for GPO access'
+    ]
+},
+
+
+
+
+
+
+
+'ad-authentication-issues': {
+    'title': 'Active Directory Authentication Issues - Complete Troubleshooting',
+    'category': 'active-directory',
+    'severity': 'high',
+    'interconnections': ['dns-resolution-failure', 'ad-replication-failure', 'gpo-not-applying', 'network-connectivity-loss'],
+    'steps': [
+        {
+            'type': 'baseline',
+            'title': 'Authentication Services Health Check',
+            'content': 'Verify fundamental authentication services are running properly.',
+            'commands': [
+                'sc query KDC',
+                'sc query Netlogon',
+                'sc query DNS',
+                'sc query W32Time',
+                'Get-Service -Name KDC,Netlogon,DNS,W32Time | Format-Table Name,Status',
+                'netstat -an | findstr :88',
+                'netstat -an | findstr :389',
+                'netstat -an | findstr :464'
+            ]
+        },
+        {
+            'type': 'baseline',
+            'title': 'Domain Controller and Time Synchronization',
+            'content': 'Check domain controller discovery and time synchronization status.',
+            'commands': [
+                'nltest /dsgetdc:%USERDOMAIN%',
+                'w32tm /query /status',
+                'w32tm /monitor',
+                'w32tm /query /configuration',
+                'netdom query fsmo',
+                'dcdiag /test:knowsofroleholders /v',
+                'ping %LOGONSERVER% -n 4'
+            ]
+        },
+        {
+            'type': 'baseline',
+            'title': 'Basic Authentication Connectivity Test',
+            'content': 'Test basic authentication connectivity and LDAP access.',
+            'commands': [
+                'nltest /sc_query:%USERDOMAIN%',
+                'ldp.exe (interactive LDAP connection test)',
+                'Test-NetConnection -ComputerName %LOGONSERVER% -Port 88',
+                'Test-NetConnection -ComputerName %LOGONSERVER% -Port 389',
+                'Test-NetConnection -ComputerName %LOGONSERVER% -Port 464',
+                'klist tgt',
+                'whoami /user /groups'
+            ]
+        },
+        {
+            'type': 'condition',
+            'title': 'Identify Authentication Problem Scope',
+            'content': 'Determine the specific nature and scope of the authentication failure.',
+            'questions': [
+                {
+                    'question': 'What type of authentication failure are you experiencing?',
+                    'options': [
+                        { 'value': 'logon-failure', 'text': 'User cannot log on to domain' },
+                        { 'value': 'service-auth-failure', 'text': 'Service authentication failures' },
+                        { 'value': 'kerberos-errors', 'text': 'Kerberos authentication errors' },
+                        { 'value': 'trust-relationship-failure', 'text': 'Computer trust relationship failures' },
+                        { 'value': 'cross-domain-auth', 'text': 'Cross-domain authentication issues' },
+                        { 'value': 'smart-card-auth', 'text': 'Smart card authentication problems' },
+                        { 'value': 'account-lockout', 'text': 'Account lockout issues' }
+                    ]
+                },
+                {
+                    'question': 'What is the scope of affected users/systems?',
+                    'options': [
+                        { 'value': 'single-user', 'text': 'Single user account affected' },
+                        { 'value': 'multiple-users', 'text': 'Multiple user accounts affected' },
+                        { 'value': 'single-computer', 'text': 'Single computer/workstation affected' },
+                        { 'value': 'multiple-computers', 'text': 'Multiple computers affected' },
+                        { 'value': 'entire-site', 'text': 'Entire site or OU affected' },
+                        { 'value': 'domain-wide', 'text': 'Domain-wide authentication issues' }
+                    ]
+                },
+                {
+                    'question': 'When do the authentication failures occur?',
+                    'options': [
+                        { 'value': 'initial-logon', 'text': 'During initial user logon' },
+                        { 'value': 'resource-access', 'text': 'When accessing network resources' },
+                        { 'value': 'after-password-change', 'text': 'After password changes' },
+                        { 'value': 'intermittent', 'text': 'Intermittent authentication failures' },
+                        { 'value': 'specific-times', 'text': 'At specific times of day' },
+                        { 'value': 'after-dc-reboot', 'text': 'After domain controller restarts' }
+                    ]
+                }
+            ]
+        },
+        {
+            'type': 'diagnostic',
+            'title': 'User Account and Password Policy Analysis',
+            'content': 'Analyze user account status and password policy compliance.',
+            'commands': [
+                'net user [username] /domain',
+                'Get-ADUser -Identity [username] -Properties PasswordLastSet,AccountLockoutTime,BadLogonCount,LastLogonDate',
+                'dsquery user -name [username]',
+                'Get-ADDefaultDomainPasswordPolicy',
+                'Get-ADFineGrainedPasswordPolicy -Filter *',
+                'net accounts /domain',
+                'Get-EventLog -LogName Security -InstanceId 4625,4771,4768 -Newest 50'
+            ]
+        },
+        {
+            'type': 'diagnostic',
+            'title': 'Kerberos Authentication Analysis',
+            'content': 'Examine Kerberos ticket granting and authentication process.',
+            'commands': [
+                'klist',
+                'klist tgt',
+                'klist tickets',
+                'kinit [username] (if available)',
+                'setspn -L [computer-account]',
+                'setspn -Q *\\[service-account]',
+                'Get-WinEvent -LogName Security -FilterXPath "*[System[EventID=4768 or EventID=4769 or EventID=4771]]" -MaxEvents 20'
+            ]
+        },
+        {
+            'type': 'diagnostic',
+            'title': 'Computer Trust Relationship Analysis',
+            'content': 'Check computer account trust relationship with domain.',
+            'commands': [
+                'nltest /sc_query:%USERDOMAIN%',
+                'Test-ComputerSecureChannel',
+                'Get-ADComputer -Identity $env:COMPUTERNAME -Properties PasswordLastSet,TrustedForDelegation',
+                'netdom verify %COMPUTERNAME% /domain:%USERDOMAIN%',
+                'dsquery computer -name %COMPUTERNAME%',
+                'Get-EventLog -LogName System -Source NETLOGON -Newest 20'
+            ]
+        },
+        {
+            'type': 'diagnostic',
+            'title': 'Authentication Event Log Analysis',
+            'content': 'Examine authentication-related event logs for detailed error information.',
+            'commands': [
+                'wevtutil qe Security /q:"*[System[EventID=4625 or EventID=4771 or EventID=4768 or EventID=4769]]" /rd:true /f:text /c:50',
+                'Get-WinEvent -LogName Security -FilterXPath "*[System[EventID=4740]]" -MaxEvents 10',
+                'wevtutil qe System /q:"*[System[Provider[@Name=\'NETLOGON\'] and (Level=1 or Level=2)]]" /rd:true /f:text',
+                'Get-EventLog -LogName Application -Source "Group Policy" -EntryType Error -Newest 10',
+                'auditpol /get /category:"Logon/Logoff"'
+            ]
+        },
+        {
+            'type': 'diagnostic',
+            'title': 'DNS and Service Principal Name Verification',
+            'content': 'Verify DNS resolution and Service Principal Name configuration.',
+            'commands': [
+                'nslookup %USERDOMAIN%',
+                'nslookup -type=SRV _kerberos._tcp.%USERDOMAIN%',
+                'nslookup -type=SRV _ldap._tcp.%USERDOMAIN%',
+                'setspn -L %COMPUTERNAME%',
+                'setspn -Q HOST\\%COMPUTERNAME%',
+                'dcdiag /test:dns /v',
+                'nltest /dsgetdc:%USERDOMAIN% /force'
+            ]
+        },
+        {
+            'type': 'diagnostic',
+            'title': 'Group Policy and Authentication Policy Check',
+            'content': 'Analyze Group Policy settings affecting authentication.',
+            'commands': [
+                'gpresult /r /scope computer',
+                'gpresult /h auth_gp_report.html',
+                'secedit /export /cfg current_policy.inf',
+                'Get-GPO -Name "Default Domain Policy" | Get-GPOReport -ReportType Html -Path default_domain_policy.html',
+                'rsop.msc (interactive)',
+                'auditpol /get /category:*'
+            ]
+        },
+        {
+            'type': 'remedy',
+            'title': 'Immediate Authentication Resolution',
+            'content': 'Execute immediate corrective actions for authentication failures.',
+            'commands': [
+                'klist purge',
+                'ipconfig /flushdns',
+                'gpupdate /force',
+                'w32tm /resync',
+                'nltest /sc_reset:%USERDOMAIN%',
+                'net stop netlogon && net start netlogon',
+                'Restart-Service -Name Netlogon,KDC'
+            ]
+        },
+        {
+            'type': 'remedy',
+            'title': 'Computer Trust Relationship Repair',
+            'content': 'Repair computer trust relationship with domain.',
+            'commands': [
+                'Test-ComputerSecureChannel -Repair',
+                'Reset-ComputerMachinePassword',
+                'netdom resetpwd /server:%LOGONSERVER% /userd:%USERDOMAIN%\\administrator /passwordd:*',
+                'nltest /sc_reset:%USERDOMAIN%',
+                'Restart-Computer -Force'
+            ]
+        },
+        {
+            'type': 'remedy',
+            'title': 'User Account Unlock and Password Reset',
+            'content': 'Unlock user accounts and reset passwords if necessary.',
+            'commands': [
+                'net user [username] /active:yes /domain',
+                'Unlock-ADAccount -Identity [username]',
+                'Set-ADAccountPassword -Identity [username] -Reset',
+                'Enable-ADAccount -Identity [username]',
+                'Set-ADUser -Identity [username] -ChangePasswordAtLogon $true',
+                'Get-ADUser -Identity [username] -Properties AccountLockoutTime | Set-ADUser -Clear AccountLockoutTime'
+            ]
+        },
+        {
+            'type': 'remedy',
+            'title': 'Kerberos Troubleshooting and SPN Repair',
+            'content': 'Resolve Kerberos authentication and Service Principal Name issues.',
+            'commands': [
+                'setspn -R [service-account]',
+                'setspn -D HOST\\[duplicate-spn] [account]',
+                'setspn -S HOST\\[computer-fqdn] [computer-account]',
+                'klist purge',
+                'kinit [username] (if MIT Kerberos tools available)',
+                'reg add "HKLM\\System\\CurrentControlSet\\Control\\Lsa\\Kerberos\\Parameters" /v LogLevel /t REG_DWORD /d 1',
+                'net stop kdc && net start kdc'
+            ]
+        },
+        {
+            'type': 'remedy',
+            'title': 'Advanced Authentication Troubleshooting',
+            'content': 'Advanced procedures for persistent authentication issues.',
+            'commands': [
+                'REM Enable Kerberos logging',
+                'reg add "HKLM\\System\\CurrentControlSet\\Control\\Lsa\\Kerberos\\Parameters" /v LogLevel /t REG_DWORD /d 1',
+                'REM Reset LSA secrets',
+                'sc stop netlogon && sc start netlogon',
+                'REM Clear cached credentials',
+                'cmdkey /list',
+                'cmdkey /delete:* /generic',
+                'REM Re-establish secure channel',
+                'netdom verify %COMPUTERNAME% /domain:%USERDOMAIN% /verbose',
+                'REM Force Kerberos authentication',
+                'reg add "HKLM\\System\\CurrentControlSet\\Control\\Lsa" /v DisableDomainCreds /t REG_DWORD /d 1'
+            ]
+        },
+        {
+            'type': 'verification',
+            'title': 'Authentication Functionality Testing',
+            'content': 'Verify that authentication has been successfully restored.',
+            'commands': [
+                'whoami /user /groups',
+                'klist tgt',
+                'nltest /sc_query:%USERDOMAIN%',
+                'Test-ComputerSecureChannel',
+                'gpupdate /force',
+                'gpresult /r',
+                'net use \\\\%LOGONSERVER%\\SYSVOL'
+            ]
+        },
+        {
+            'type': 'verification',
+            'title': 'Comprehensive Authentication Testing',
+            'content': 'Perform comprehensive authentication functionality tests.',
+            'commands': [
+                'runas /user:%USERDOMAIN%\\[testuser] cmd',
+                'Test-NetConnection -ComputerName %LOGONSERVER% -Port 88',
+                'kinit [username] && klist (if available)',
+                'ldp.exe (test LDAP authentication)',
+                'Get-EventLog -LogName Security -InstanceId 4624,4768 -Newest 5',
+                'dsquery user -name [username] | dsget user -display'
+            ]
+        },
+        {
+            'type': 'prevention',
+            'title': 'Authentication Monitoring and Maintenance',
+            'content': 'Implement monitoring and preventive measures for authentication health.',
+            'commands': [
+                'schtasks /create /tn "AuthHealthCheck" /tr "powershell.exe -Command \\"Test-ComputerSecureChannel | Out-File C:\\\\logs\\\\auth_health.log -Append\\"" /sc daily /st 07:00',
+                'auditpol /set /subcategory:"Logon" /success:enable /failure:enable',
+                'auditpol /set /subcategory:"Account Lockout" /success:enable /failure:enable',
+                'auditpol /set /subcategory:"Kerberos Authentication Service" /success:enable /failure:enable',
+                'schtasks /create /tn "KerberosTicketCleanup" /tr "klist purge" /sc weekly /d SUN /st 01:00',
+                'Get-ADDefaultDomainPasswordPolicy | Export-Clixml C:\\logs\\password_policy_baseline.xml',
+                'REM Configure account lockout monitoring',
+                'wevtutil sl Security /ms:104857600'
+            ]
+        }
+    ],
+    'prerequisites': [
+        'Domain Administrator or equivalent authentication privileges',
+        'Local administrator rights on affected workstations',
+        'Network connectivity to domain controllers',
+        'Knowledge of affected user accounts and computer names',
+        'Access to domain controller event logs',
+        'Understanding of Kerberos authentication process',
+        'Valid backup of domain controller System State'
+    ],
+    'estimated_duration': '30-120 minutes',
+    'risk_level': 'high',
+    'backup_recommendation': 'Ensure System State backup of domain controllers before making authentication policy changes. Document current password policies and account settings.',
+    'common_error_codes': {
+        '4625': 'Failed user account logon',
+        '4771': 'Kerberos pre-authentication failed',
+        '4768': 'Kerberos TGT request failed', 
+        '4769': 'Kerberos service ticket request failed',
+        '4740': 'User account was locked out',
+        '0xC000006D': 'Logon failure - bad username',
+        '0xC000006E': 'Logon failure - account restriction',
+        '0xC0000071': 'Logon failure - password expired',
+        '0xC0000072': 'Logon failure - account disabled',
+        '0xC000006F': 'Logon failure - logon outside allowed time',
+        '0xC0000070': 'Logon failure - workstation restriction',
+        '0xC000015B': 'Logon type not granted'
+    },
+    'common_ports': {
+        '88': 'Kerberos authentication (TCP/UDP)',
+        '389': 'LDAP (TCP)',
+        '636': 'LDAPS - LDAP over SSL (TCP)',
+        '464': 'Kerberos password change (TCP/UDP)',
+        '3268': 'Global Catalog LDAP (TCP)',
+        '3269': 'Global Catalog LDAPS (TCP)',
+        '135': 'RPC Endpoint Mapper',
+        '445': 'SMB/CIFS for SYSVOL access'
+    },
+    'kerberos_error_codes': {
+        '0x6': 'KDC_ERR_C_PRINCIPAL_UNKNOWN - Client not found in database',
+        '0x7': 'KDC_ERR_S_PRINCIPAL_UNKNOWN - Service not found in database',
+        '0x18': 'KDC_ERR_PREAUTH_FAILED - Pre-authentication failed',
+        '0x19': 'KDC_ERR_PREAUTH_REQUIRED - Pre-authentication required',
+        '0x25': 'KDC_ERR_CLOCK_SKEW_TOO_GREAT - Clock skew too great',
+        '0x1F': 'KRB_AP_ERR_TKT_EXPIRED - Ticket expired',
+        '0x20': 'KRB_AP_ERR_TKT_NYV - Ticket not yet valid',
+        '0x21': 'KRB_AP_ERR_REPEAT - Request is a replay'
+    },
+    'related_services': {
+        'KDC': 'Kerberos Key Distribution Center',
+        'Netlogon': 'Network Logon Service',
+        'DNS': 'Domain Name System for SRV record resolution',
+        'W32Time': 'Windows Time Service for Kerberos time sync',
+        'NTDS': 'Active Directory Domain Services',
+        'LDAP': 'Lightweight Directory Access Protocol'
+    }
+},
+
+
+
+'gpo-sysvol-replication-issues': {
+    'title': 'Group Policy SYSVOL Replication Issues - Complete Troubleshooting',
+    'category': 'group-policy',
+    'severity': 'high',
+    'interconnections': ['ad-replication-failure', 'dns-resolution-failure', 'gpo-not-applying', 'sysvol-not-replicating'],
+    'steps': [
+        {
+            'type': 'baseline',
+            'title': 'SYSVOL and GPO Service Health Check',
+            'content': 'Verify fundamental SYSVOL and Group Policy services are running properly.',
+            'commands': [
+                'sc query NTFRS',
+                'sc query DFSR',
+                'sc query Netlogon',
+                'sc query DNS',
+                'Get-Service -Name NTFRS,DFSR,Netlogon,DNS | Format-Table Name,Status',
+                'net share | findstr SYSVOL',
+                'net share | findstr NETLOGON'
+            ]
+        },
+        {
+            'type': 'baseline',
+            'title': 'Domain Controller SYSVOL Structure Verification',
+            'content': 'Check SYSVOL folder structure and basic replication mechanism status.',
+            'commands': [
+                'dir C:\\Windows\\SYSVOL /s /a',
+                'dfsrmig /getmigrationstate',
+                'dfsrmig /getglobalstate',
+                'repadmin /showrepl * "CN=System,DC=domain,DC=com"',
+                'dcdiag /test:sysvolcheck',
+                'dcdiag /test:frssysvol'
+            ]
+        },
+        {
+            'type': 'baseline',
+            'title': 'Group Policy Infrastructure Assessment',
+            'content': 'Assess Group Policy infrastructure and GPO accessibility.',
+            'commands': [
+                'gpresult /r',
+                'gpresult /z',
+                'Get-GPO -All | Select-Object DisplayName,Id,GpoStatus',
+                'dcgpofix /checkonly',
+                'dir "\\\\domain.com\\sysvol\\domain.com\\Policies" /s',
+                'Get-GPOReport -All -ReportType Xml -Path AllGPOs.xml'
+            ]
+        },
+        {
+            'type': 'condition',
+            'title': 'Identify SYSVOL-GPO Problem Scope',
+            'content': 'Determine the specific nature and scope of the SYSVOL replication and Group Policy issues.',
+            'questions': [
+                {
+                    'question': 'What type of SYSVOL/GPO issue are you experiencing?',
+                    'options': [
+                        { 'value': 'sysvol-not-replicating', 'text': 'SYSVOL not replicating between domain controllers' },
+                        { 'value': 'gpo-templates-missing', 'text': 'Group Policy templates missing or outdated' },
+                        { 'value': 'frs-dfsr-migration-stuck', 'text': 'FRS to DFSR migration stuck or failed' },
+                        { 'value': 'sysvol-access-denied', 'text': 'Access denied errors to SYSVOL share' },
+                        { 'value': 'gpo-inconsistent-dcs', 'text': 'GPOs inconsistent across domain controllers' },
+                        { 'value': 'journal-wrap-error', 'text': 'FRS journal wrap error affecting SYSVOL' }
+                    ]
+                },
+                {
+                    'question': 'What is the replication mechanism currently in use?',
+                    'options': [
+                        { 'value': 'frs-only', 'text': 'FRS (File Replication Service) - Legacy' },
+                        { 'value': 'dfsr-only', 'text': 'DFSR (DFS Replication) - Modern' },
+                        { 'value': 'migration-progress', 'text': 'Currently migrating from FRS to DFSR' },
+                        { 'value': 'unknown-mechanism', 'text': 'Unknown replication mechanism' }
+                    ]
+                },
+                {
+                    'question': 'How many domain controllers are affected?',
+                    'options': [
+                        { 'value': 'single-dc', 'text': 'Single domain controller affected' },
+                        { 'value': 'multiple-dcs', 'text': 'Multiple domain controllers affected' },
+                        { 'value': 'all-dcs', 'text': 'All domain controllers affected' },
+                        { 'value': 'new-dc-only', 'text': 'Only newly promoted domain controllers' }
+                    ]
+                }
+            ]
+        },
+        {
+            'type': 'diagnostic',
+            'title': 'SYSVOL Replication Status Analysis',
+            'content': 'Analyze current SYSVOL replication status and identify bottlenecks.',
+            'commands': [
+                'repadmin /showrepl * "CN=Domain System Volume,CN=DFSR-GlobalSettings,CN=System,DC=domain,DC=com"',
+                'dfsrdiag dumpmig',
+                'dfsrdiag backlog /rgname:"Domain System Volume" /rfname:"SYSVOL Share" /rmem:DC1 /rmem:DC2',
+                'dfsrdiag replicationstate',
+                'Get-DfsReplicationGroup | Where-Object {$_.GroupName -eq "Domain System Volume"}',
+                'Get-DfsrConnection | Where-Object {$_.GroupName -eq "Domain System Volume"}'
+            ]
+        },
+        {
+            'type': 'diagnostic',
+            'title': 'Group Policy Template Consistency Check',
+            'content': 'Verify Group Policy template consistency across domain controllers.',
+            'commands': [
+                'dcgpofix /checkonly',
+                'Compare-Object (Get-ChildItem "\\\\DC1\\SYSVOL\\domain.com\\Policies" -Recurse) (Get-ChildItem "\\\\DC2\\SYSVOL\\domain.com\\Policies" -Recurse)',
+                'Get-GPO -All | ForEach-Object { dcgpofix /gpo:$_.Id /checkonly }',
+                'dir "\\\\DC1\\SYSVOL\\domain.com\\Policies\\{*}\\Machine" /s',
+                'dir "\\\\DC2\\SYSVOL\\domain.com\\Policies\\{*}\\Machine" /s'
+            ]
+        },
+        {
+            'type': 'diagnostic',
+            'title': 'FRS vs DFSR Migration State Analysis',
+            'content': 'Determine FRS to DFSR migration status and potential issues.',
+            'commands': [
+                'dfsrmig /getmigrationstate',
+                'dfsrmig /getglobalstate',
+                'wevtutil qe "DFS Replication" /q:\'*[System[Provider[@Name="DFSR"] and (Level=1 or Level=2)]]\' /rd:true /f:text',
+                'wevtutil qe "File Replication Service" /q:\'*[System[Provider[@Name="NtFrs"] and (Level=1 or Level=2)]]\' /rd:true /f:text',
+                'reg query "HKLM\\System\\CurrentControlSet\\Services\\DFSR\\Parameters\\SysVols\\Seeding SysVols"'
+            ]
+        },
+        {
+            'type': 'diagnostic',
+            'title': 'SYSVOL Access and Permissions Analysis',
+            'content': 'Check SYSVOL share permissions and access rights.',
+            'commands': [
+                'icacls "C:\\Windows\\SYSVOL" /T',
+                'Get-SmbShareAccess -Name SYSVOL',
+                'Get-SmbShareAccess -Name NETLOGON',
+                'whoami /groups | findstr "Domain"',
+                'net share SYSVOL',
+                'net share NETLOGON',
+                'cacls "C:\\Windows\\SYSVOL\\domain\\Policies" /T'
+            ]
+        },
+        {
+            'type': 'diagnostic',
+            'title': 'Event Log Analysis for SYSVOL-GPO Issues',
+            'content': 'Examine relevant event logs for SYSVOL and Group Policy errors.',
+            'commands': [
+                'wevtutil qe "DFS Replication" /q:\'*[System[(Level=1 or Level=2) and TimeCreated[timediff(@SystemTime) <= 86400000]]]\' /rd:true /f:text',
+                'wevtutil qe "File Replication Service" /q:\'*[System[(Level=1 or Level=2) and TimeCreated[timediff(@SystemTime) <= 86400000]]]\' /rd:true /f:text',
+                'Get-WinEvent -LogName "Microsoft-Windows-GroupPolicy/Operational" -MaxEvents 50 | Where-Object {$_.Level -le 2}',
+                'wevtutil qe System /q:\'*[System[Provider[@Name="NETLOGON"] and (Level=1 or Level=2)]]\' /rd:true /f:text',
+                'Get-EventLog -LogName Application -Source "Group Policy" -Newest 20'
+            ]
+        },
+        {
+            'type': 'remedy',
+            'title': 'Immediate SYSVOL Replication Resolution',
+            'content': 'Execute immediate corrective actions for SYSVOL replication issues.',
+            'commands': [
+                'net stop DFSR && net start DFSR',
+                'net stop NTFRS && net start NTFRS',
+                'dfsrdiag forcereplication /member:[server] /partner:[partner] /rg:"Domain System Volume" /rf:"SYSVOL Share"',
+                'repadmin /syncall * "CN=Domain System Volume,CN=DFSR-GlobalSettings,CN=System,DC=domain,DC=com" /AdeP',
+                'gpupdate /force',
+                'dcgpofix /ignoreschema'
+            ]
+        },
+        {
+            'type': 'remedy',
+            'title': 'FRS to DFSR Migration Recovery',
+            'content': 'Resolve FRS to DFSR migration issues for SYSVOL replication.',
+            'commands': [
+                'dfsrmig /setglobalstate 0',
+                'dfsrmig /setglobalstate 1',
+                'dfsrmig /setglobalstate 2',
+                'dfsrmig /setglobalstate 3',
+                'net stop NTFRS',
+                'sc config NTFRS start= disabled',
+                'Restart-Service DFSR'
+            ]
+        },
+        {
+            'type': 'remedy',
+            'title': 'SYSVOL Permissions and Access Repair',
+            'content': 'Fix SYSVOL share permissions and access issues.',
+            'commands': [
+                'icacls "C:\\Windows\\SYSVOL" /grant "Authenticated Users:(OI)(CI)RX"',
+                'icacls "C:\\Windows\\SYSVOL\\domain" /grant "Domain Controllers:(OI)(CI)F"',
+                'Grant-SmbShareAccess -Name SYSVOL -AccountName "Everyone" -AccessRight Read',
+                'Grant-SmbShareAccess -Name NETLOGON -AccountName "Everyone" -AccessRight Read',
+                'net share SYSVOL /grant:everyone,read',
+                'secedit /configure /db secedit.sdb /cfg %windir%\\inf\\defltbase.inf /areas USER_RIGHTS'
+            ]
+        },
+        {
+            'type': 'remedy',
+            'title': 'Group Policy Template Synchronization',
+            'content': 'Synchronize Group Policy templates across domain controllers.',
+            'commands': [
+                'dcgpofix /ignoreschema',
+                'robocopy "\\\\PDC\\SYSVOL\\domain.com\\Policies" "C:\\Windows\\SYSVOL\\domain\\Policies" /MIR /COPYALL /SEC',
+                'gpupdate /force /boot',
+                'secedit /refreshpolicy machine_policy /enforce',
+                'secedit /refreshpolicy user_policy /enforce',
+                'klist purge'
+            ]
+        },
+        {
+            'type': 'remedy',
+            'title': 'Advanced SYSVOL Database Recovery',
+            'content': 'Advanced procedures for SYSVOL database corruption or severe replication issues.',
+            'commands': [
+                'net stop DFSR',
+                'dfsrdiag stopnow',
+                'REM Backup current DFSR database',
+                'copy "C:\\System Volume Information\\DFSR\\database_*" "C:\\temp\\dfsr_backup\\"',
+                'REM Remove corrupted database (CAUTION: Data loss possible)',
+                'del "C:\\System Volume Information\\DFSR\\database_*" /F /Q',
+                'net start DFSR',
+                'REM Force non-authoritative sync',
+                'wmic /namespace:\\\\root\\microsoftdfs path dfsrreplicatedfolderconfig where "ReplicatedFolderName=\'SYSVOL Share\'" call suspendreplication',
+                'wmic /namespace:\\\\root\\microsoftdfs path dfsrreplicatedfolderconfig where "ReplicatedFolderName=\'SYSVOL Share\'" call resumereplication'
+            ]
+        },
+        {
+            'type': 'verification',
+            'title': 'SYSVOL Replication Validation',
+            'content': 'Verify that SYSVOL replication has been successfully restored.',
+            'commands': [
+                'dfsrdiag replicationstate',
+                'dfsrdiag backlog /rgname:"Domain System Volume" /rfname:"SYSVOL Share" /rmem:[DC1] /rmem:[DC2]',
+                'dcdiag /test:sysvolcheck',
+                'dcdiag /test:frssysvol',
+                'repadmin /showrepl * "CN=Domain System Volume,CN=DFSR-GlobalSettings,CN=System,DC=domain,DC=com"',
+                'Get-DfsrState | Where-Object {$_.ReplicationGroupName -eq "Domain System Volume"}'
+            ]
+        },
+        {
+            'type': 'verification',
+            'title': 'Group Policy Functionality Testing',
+            'content': 'Test Group Policy functionality and template consistency.',
+            'commands': [
+                'gpresult /r',
+                'gpupdate /force',
+                'dcgpofix /checkonly',
+                'Get-GPOReport -All -ReportType Html -Path GPOReport.html',
+                'Test-Path "\\\\domain.com\\SYSVOL\\domain.com\\Policies\\{*}\\Machine"',
+                'Compare-Object (dir "\\\\DC1\\SYSVOL\\domain.com\\Policies" -Recurse | Select-Object Name,Length) (dir "\\\\DC2\\SYSVOL\\domain.com\\Policies" -Recurse | Select-Object Name,Length)'
+            ]
+        },
+        {
+            'type': 'prevention',
+            'title': 'SYSVOL-GPO Monitoring and Maintenance',
+            'content': 'Implement monitoring and preventive measures for SYSVOL and Group Policy health.',
+            'commands': [
+                'schtasks /create /tn "SYSVOLHealthCheck" /tr "powershell.exe -Command \\"dcdiag /test:sysvolcheck | Out-File C:\\\\logs\\\\sysvol_health.log -Append\\"" /sc daily /st 06:00',
+                'schtasks /create /tn "GPOConsistencyCheck" /tr "dcgpofix /checkonly" /sc weekly /d SUN /st 02:00',
+                'dfsrdiag dumpmig > C:\\logs\\dfsr_migration_status.log',
+                'Get-DfsrConnectionSchedule | Export-Csv C:\\logs\\dfsr_schedule.csv',
+                'REM Configure DFSR staging quota',
+                'dfsradmin membership set /rname:"Domain System Volume" /rfname:"SYSVOL Share" /member:[servername] /stagingpath:"C:\\Windows\\SYSVOL_DFSR\\staging" /stagingsize:16384',
+                'REM Enable DFSR debug logging',
+                'wevtutil sl "DFS Replication" /l:5'
+            ]
+        }
+    ],
+    'prerequisites': [
+        'Domain Administrator or Enterprise Administrator privileges',
+        'Access to all domain controllers in the domain',
+        'Knowledge of current domain structure and DC names',
+        'Understanding of FRS vs DFSR replication mechanisms',
+        'Valid System State backup of domain controllers',
+        'Network connectivity between all domain controllers',
+        'Sufficient disk space for SYSVOL replication staging'
+    ],
+    'estimated_duration': '45-180 minutes',
+    'risk_level': 'high',
+    'backup_recommendation': 'CRITICAL: Ensure System State backup and SYSVOL folder backup before attempting repairs. Document current replication state and GPO structure.',
+    'common_error_codes': {
+        '13508': 'FRS cannot replicate with partner due to authentication failure',
+        '13568': 'FRS journal wrap error - SYSVOL replication stopped',
+        '4012': 'DFSR was unable to replicate due to staging folder issues',
+        '2212': 'DFSR staging folder exceeded the staging quota',
+        '5014': 'FRS cannot establish an outbound connection to partner',
+        '1202': 'Security policy prevents access to SYSVOL share',
+        '8453': 'Replication access was denied due to insufficient privileges'
+    },
+    'common_ports': {
+        '135': 'RPC Endpoint Mapper',
+        '389': 'LDAP for AD queries',
+        '445': 'SMB/CIFS for SYSVOL share access',
+        '464': 'Kerberos password change',
+        '3268': 'Global Catalog LDAP',
+        '49152-65535': 'Dynamic RPC ports (Windows 2008+)'
+    },
+    'related_services': {
+        'NTFRS': 'File Replication Service (Legacy)',
+        'DFSR': 'DFS Replication Service (Modern)',
+        'Netlogon': 'Network logon and SYSVOL sharing',
+        'DNS': 'Domain Name System for DC discovery',
+        'KDC': 'Kerberos Key Distribution Center',
+        'W32Time': 'Windows Time Service for synchronization'
+    }
+},
+
+                'ad-replication-failure': {
+        'title': 'Active Directory Replication Failure - Complete Troubleshooting',
+        'category': 'active-directory',
+        'severity': 'high',
+        'interconnections': ['dns-resolution-failure', 'sysvol-not-replicating', 'gpo-not-applying', 'network-connectivity-issues'],
+        'steps': [
+            {
+                'type': 'baseline',
+                'title': 'Basic System Health Check',
+                'content': 'Perform fundamental system checks before diving into AD-specific diagnostics.',
+                'commands': [
+                    'systeminfo | findstr /B /C:\'OS Name\' /C:\'OS Version\' /C:\'System Boot Time\'',
+                    'net time',
+                    'wmic computersystem get TotalPhysicalMemory',
+                    'wmic diskdrive get Size,Model',
+                    'wmic logicaldisk where DriveType=3 get DeviceID,Size,FreeSpace'
+                ]
+            },
+            {
+                'type': 'baseline',
+                'title': 'Service Status Verification',
+                'content': 'Check essential AD services are running on all domain controllers.',
+                'commands': [
+                    'sc query NTDS',
+                    'sc query DNS',
+                    'sc query Netlogon',
+                    'sc query KDC',
+                    'sc query DFSR',
+                    'sc query \'DFS Replication\''
+                ]
+            },
+            {
+                'type': 'baseline',
+                'title': 'Network Connectivity & DNS Validation',
+                'content': 'Verify basic network connectivity and DNS resolution fundamentals.',
+                'commands': [
+                    'ipconfig /all',
+                    'nslookup [domain-name]',
+                    'nslookup [target-dc-name]',
+                    'ping [target-dc-ip] -n 4',
+                    'Test-NetConnection -ComputerName [target-dc] -Port 389',
+                    'Test-NetConnection -ComputerName [target-dc] -Port 636',
+                    'Test-NetConnection -ComputerName [target-dc] -Port 3268',
+                    'Test-NetConnection -ComputerName [target-dc] -Port 88'
+                ]
+            },
+            {
+                'type': 'condition',
+                'title': 'Identify Replication Problem Scope',
+                'content': 'Determine the specific nature and scope of the AD replication failure.',
+                'questions': [
+                    {
+                        'question': 'What is the scope of replication failure?',
+                        'options': [
+                            { 'value': 'complete-failure', 'text': 'Complete replication failure between all DCs' },
+                            { 'value': 'specific-dc', 'text': 'Failure only with specific domain controller(s)' },
+                            { 'value': 'slow-replication', 'text': 'Slow or significantly delayed replication' },
+                            { 'value': 'partial-failure', 'text': 'Some objects replicate while others don\'t' },
+                            { 'value': 'intermittent', 'text': 'Intermittent replication failures' }
+                        ]
+                    },
+                    {
+                        'question': 'When was replication last successful?',
+                        'options': [
+                            { 'value': 'recent-failure', 'text': 'Within the last 24 hours' },
+                            { 'value': 'days-ago', 'text': 'Several days ago' },
+                            { 'value': 'weeks-ago', 'text': 'Weeks or more ago' },
+                            { 'value': 'unknown', 'text': 'Unknown timeline' }
+                        ]
+                    }
+                ]
+            },
+            {
+                'type': 'diagnostic',
+                'title': 'Replication Status Overview',
+                'content': 'Get comprehensive replication status across all domain controllers.',
+                'commands': [
+                    'repadmin /replsummary',
+                    'repadmin /showrepl * /errorsonly',
+                    'repadmin /queue *',
+                    'repadmin /latency *',
+                    'repadmin /kcc * /force',
+                    'dcdiag /test:replications /v'
+                ]
+            },
+            {
+                'type': 'diagnostic',
+                'title': 'Detailed Replication Analysis',
+                'content': 'Perform in-depth analysis of replication partners and status.',
+                'commands': [
+                    'repadmin /showrepl [problem-dc] /verbose',
+                    'repadmin /replsummary [problem-dc]',
+                    'repadmin /showobjmeta [problem-dc] \'CN=Configuration,DC=[domain],DC=[tld]\'',
+                    'repadmin /showutdvec [problem-dc] \'CN=Configuration,DC=[domain],DC=[tld]\'',
+                    'repadmin /bind [problem-dc]'
+                ]
+            },
+            {
+                'type': 'diagnostic',
+                'title': 'Event Log Analysis',
+                'content': 'Check relevant event logs for replication errors and warnings.',
+                'commands': [
+                    'wevtutil qe System /q:\'*[System[(Level=1 or Level=2) and TimeCreated[timediff(@SystemTime) <= 86400000]]]\' /rd:true /f:text',
+                    'wevtutil qe \'Directory Service\' /q:\'*[System[(Level=1 or Level=2) and TimeCreated[timediff(@SystemTime) <= 86400000]]]\' /rd:true /f:text',
+                    'wevtutil qe \'DFS Replication\' /q:\'*[System[(Level=1 or Level=2) and TimeCreated[timediff(@SystemTime) <= 86400000]]]\' /rd:true /f:text',
+                    'Get-WinEvent -LogName \'Directory Service\' -MaxEvents 50 | Where-Object {$_.Level -le 2 -and $_.TimeCreated -gt (Get-Date).AddDays(-1)} | Format-List'
+                ]
+            },
+            {
+                'type': 'diagnostic',
+                'title': 'DNS and Time Synchronization',
+                'content': 'Verify DNS configuration and time synchronization between DCs.',
+                'commands': [
+                    'dcdiag /test:dns /v',
+                    'w32tm /query /configuration',
+                    'w32tm /query /status /verbose',
+                    'w32tm /monitor',
+                    'netdom query fsmo',
+                    'nltest /dsgetdc:[domain-name]',
+                    'dcdiag /test:knowsofroleholders /v'
+                ]
+            },
+            {
+                'type': 'remedy',
+                'title': 'Immediate Resolution Steps',
+                'content': 'Execute corrective actions to resolve replication issues.',
+                'commands': [
+                    'repadmin /syncall /AdeP',
+                    'repadmin /kcc * /force',
+                    'repadmin /replsingleobj [source-dc] [target-dc] [object-dn]',
+                    'net stop ntfrs && net start ntfrs',
+                    'net stop dfsr && net start dfsr',
+                    'gpupdate /force'
+                ]
+            },
+            {
+                'type': 'remedy',
+                'title': 'Advanced Troubleshooting Steps',
+                'content': 'Advanced procedures for persistent replication issues. WARNING: These commands should be executed carefully.',
+                'commands': [
+                    'REM Temporarily disable inbound replication for troubleshooting',
+                    'repadmin /options [problem-dc] +DISABLE_INBOUND_REPL',
+                    'REM Re-enable inbound replication after diagnosis',
+                    'repadmin /options [problem-dc] -DISABLE_INBOUND_REPL',
+                    'dcdiag /fix',
+                    'REM Database integrity check - Run ntdsutil interactively:',
+                    'REM ntdsutil',
+                    'REM activate instance ntds',
+                    'REM semantic database analysis',
+                    'REM go',
+                    'REM quit',
+                    'REM quit'
+                ]
+            },
+            {
+                'type': 'remedy',
+                'title': 'Database Maintenance (If Required)',
+                'content': 'Perform database maintenance only if corruption is suspected. STOP AD DS service first.',
+                'commands': [
+                    'net stop ntds',
+                    'REM Run ntdsutil database integrity check interactively:',
+                    'REM ntdsutil',
+                    'REM activate instance ntds', 
+                    'REM files',
+                    'REM integrity',
+                    'REM quit',
+                    'REM quit',
+                    'net start ntds'
+                ]
+            },
+            {
+                'type': 'verification',
+                'title': 'Post-Resolution Validation',
+                'content': 'Verify that replication has been successfully restored.',
+                'commands': [
+                    'repadmin /replsummary',
+                    'repadmin /showrepl * /errorsonly',
+                    'dcdiag /test:replications /v',
+                    'repadmin /queue *',
+                    'Get-ADReplicationFailure -Target * -Scope Domain',
+                    'Get-ADReplicationPartnerMetadata -Target [dc-name] | Select-Object Server,LastReplicationSuccess,LastReplicationResult'
+                ]
+            },
+            {
+                'type': 'prevention',
+                'title': 'Preventive Measures and Monitoring',
+                'content': 'Implement monitoring and preventive measures to avoid future issues.',
+                'commands': [
+                    'schtasks /create /tn \'ADReplMonitor\' /tr \'powershell.exe -Command "repadmin /replsummary | Out-File C:\\\\logs\\\\replsummary.log -Append"\' /sc daily /st 09:00',
+                    'Install-WindowsFeature RSAT-AD-PowerShell',
+                    'Get-ADReplicationPartnerMetadata -Target * | Format-Table Server,Partner,LastReplicationSuccess,LastReplicationResult',
+                    'REM Consider implementing AD replication monitoring with SCOM or third-party tools'
+                ]
+            }
+        ],
+        'prerequisites': [
+            'Domain Administrator privileges',
+            'Network connectivity to all domain controllers',
+            'DNS properly configured and resolving',
+            'Time synchronization across all DCs (within 5 minutes)',
+            'Adequate disk space on system drives (minimum 15% free)',
+            'Valid System State backup available'
+        ],
+        'estimated_duration': '30-120 minutes',
+        'risk_level': 'medium-high',
+        'backup_recommendation': 'Ensure System State backup is available before major repairs. Test backup restoration procedures.',
+        'common_error_codes': {
+            '8524': 'DNS lookup failure',
+            '8606': 'Insufficient attributes',
+            '8614': 'Schema mismatch', 
+            '1722': 'RPC server unavailable',
+            '5': 'Access denied',
+            '1256': 'The remote system is not available'
+        }
+    },
+
+    'gpo-not-applying': {
+        'title': 'Group Policy Not Applying',
+        'category': 'group-policy',
+        'severity': 'medium',
+        'interconnections': ['ad-replication-failure', 'dns-resolution-failure'],
+        'steps': [
+            {
+                'type': 'condition',
+                'title': 'Group Policy Application Issue',
+                'content': 'Group Policy Objects are not being applied to target computers or users.',
+                'questions': [
+                    {
+                        'question': 'What GPO application issue are you seeing?',
+                        'options': [
+                            { 'value': 'no-application', 'text': 'GPO not applying at all' },
+                            { 'value': 'slow-application', 'text': 'GPO applying very slowly' },
+                            { 'value': 'partial-application', 'text': 'Some settings apply, others don\'t' },
+                            { 'value': 'error-during-application', 'text': 'Errors during GPO processing' }
+                        ]
+                    }
+                ]
+            },
+            {
+                'type': 'cause',
+                'title': 'GPO Infrastructure Check',
+                'content': 'Check SYSVOL replication and GPO structure.',
+                'commands': [
+                    'gpresult /r',
+                    'gpresult /h gpreport.html',
+                    'gpupdate /force',
+                    'dcgpofix'
+                ]
+            },
+            {
+                'type': 'remedy',
+                'title': 'GPO Application Fix',
+                'content': 'Resolve Group Policy application issues.',
+                'commands': [
+                    'gpupdate /force /boot',
+                    'secedit /refreshpolicy machine_policy /enforce',
+                    'klist purge',
+                    'gpfixup /olddns:[old-domain] /newdns:[new-domain]'
+                ]
+            }
+        ]
+    },
+
+    'network-connectivity-loss': {
+        'title': 'Network Connectivity Loss',
+        'category': 'network',
+        'severity': 'high',
+        'interconnections': ['dns-resolution-failure', 'ad-replication-failure'],
+        'steps': [
+            {
+                'type': 'condition',
+                'title': 'Network Connectivity Issue',
+                'content': 'Network connectivity has been lost or is intermittent.',
+                'questions': [
+                    {
+                        'question': 'What type of connectivity issue?',
+                        'options': [
+                            { 'value': 'complete-loss', 'text': 'Complete network connectivity loss' },
+                            { 'value': 'intermittent', 'text': 'Intermittent connectivity problems' },
+                            { 'value': 'slow-performance', 'text': 'Very slow network performance' },
+                            { 'value': 'specific-hosts', 'text': 'Cannot reach specific hosts' }
+                        ]
+                    }
+                ]
+            },
+            {
+                'type': 'cause',
+                'title': 'Network Diagnostics',
+                'content': 'Check network configuration and connectivity.',
+                'commands': [
+                    'ipconfig /all',
+                    'ping 8.8.8.8',
+                    'tracert 8.8.8.8',
+                    'netstat -rn'
+                ]
+            },
+            {
+                'type': 'remedy',
+                'title': 'Network Resolution',
+                'content': 'Restore network connectivity.',
+                'commands': [
+                    'ipconfig /release && ipconfig /renew',
+                    'netsh winsock reset',
+                    'netsh int ip reset',
+                    'arp -d *'
+                ]
+            }
+                    ]
+                }
+            }
+        };
+
+        // Application state
+        let currentView = 'dashboard';
+        let currentScenario = null;
+        let currentStep = 0;
+        let userSelections = {};
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
+
+        function initializeApp() {
+            generateSidebar();
+            generateQuickAccess();
+            setupEventListeners();
+            showDashboard();
+        }
+
+        function generateSidebar() {
+            const categoriesContainer = document.getElementById('categoriesContainer');
+            
+            Object.entries(troubleshootingDatabase.categories).forEach(([categoryId, category]) => {
+                const categoryEl = document.createElement('div');
+                categoryEl.className = 'category';
+                categoryEl.innerHTML = `
+                    <div class="category-header" onclick="toggleCategory('${categoryId}')">
+                        <span>${category.icon} ${category.name}</span>
+                        <span class="issue-count">${category.issues.length}</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="category-items">
+                        ${category.issues.map(issueId => {
+                            const scenario = troubleshootingDatabase.scenarios[issueId];
+                            const title = scenario ? scenario.title : issueId.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                            return `<div class="nav-item" onclick="loadTroubleshootingScenario('${issueId}')">${title}</div>`;
+                        }).join('')}
+                    </div>
+                `;
+                categoriesContainer.appendChild(categoryEl);
+            });
+        }
+
+        function generateQuickAccess() {
+            const quickAccessGrid = document.getElementById('quickAccessGrid');
+            
+            const topIssues = [
+                { id: 'dns-resolution-failure', icon: '🌐', title: 'DNS Resolution', desc: 'Name resolution failures - Enhanced V4' },
+                { id: 'ad-replication-failure', icon: '🔄', title: 'AD Replication', desc: 'Domain controller replication problems' },
+                { id: 'gpo-not-applying', icon: '📋', title: 'Group Policy Issues', desc: 'GPO not applying to targets' },
+                { id: 'network-connectivity-loss', icon: '🌐', title: 'Network Issues', desc: 'Connectivity and routing problems' }
+            ];
+
+            topIssues.forEach(issue => {
+                const quickItem = document.createElement('div');
+                quickItem.className = 'quick-item';
+                quickItem.onclick = () => loadTroubleshootingScenario(issue.id);
+                quickItem.innerHTML = `
+                    <div class="quick-icon">${issue.icon}</div>
+                    <div class="quick-title">${issue.title}</div>
+                    <div class="quick-desc">${issue.desc}</div>
+                `;
+                quickAccessGrid.appendChild(quickItem);
+            });
+        }
+
+        function toggleCategory(categoryId) {
+            const categoryEl = document.querySelector(`[onclick="toggleCategory('${categoryId}')"]`).parentElement;
+            categoryEl.classList.toggle('expanded');
+        }
+
+        function showDashboard() {
+            currentView = 'dashboard';
+            document.getElementById('dashboardView').style.display = 'block';
+            document.getElementById('troubleshootingView').classList.remove('active');
+            
+            document.getElementById('pageTitle').textContent = 'IT Infrastructure Troubleshooting Hub V4';
+            document.getElementById('pageSubtitle').textContent = 'Enhanced DITA-structured troubleshooting with full metadata support';
+        }
+
+        function loadTroubleshootingScenario(scenarioId) {
+            currentView = 'troubleshooting';
+            currentScenario = scenarioId;
+            currentStep = 0;
+            userSelections = {};
+
+            const scenario = troubleshootingDatabase.scenarios[scenarioId];
+            if (!scenario) {
+                generateBasicScenario(scenarioId);
+                return;
+            }
+
+            document.getElementById('dashboardView').style.display = 'none';
+            document.getElementById('troubleshootingView').classList.add('active');
+            
+            document.getElementById('pageTitle').textContent = scenario.title;
+            document.getElementById('pageSubtitle').textContent = 'Enhanced DITA-structured troubleshooting process';
+
+            renderTroubleshootingContent(scenario);
+        }
+
+        function generateBasicScenario(scenarioId) {
+            const title = scenarioId.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            
+            document.getElementById('dashboardView').style.display = 'none';
+            document.getElementById('troubleshootingView').classList.add('active');
+            document.getElementById('pageTitle').textContent = title;
+            document.getElementById('pageSubtitle').textContent = 'DITA-structured troubleshooting process';
+
+            const troubleshootingView = document.getElementById('troubleshootingView');
+            troubleshootingView.innerHTML = `
+                <div class="dita-structure condition">
+                    <div class="dita-label">🔍 CONDITION</div>
+                    <h3>${title}</h3>
+                    <p>This troubleshooting scenario is currently being developed. The enhanced V4 system supports full metadata, error codes, and multi-step workflows.</p>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" onclick="showDashboard()">← Back to Dashboard</button>
+                </div>
+            `;
+        }
+
+        function renderTroubleshootingContent(scenario) {
+            const troubleshootingView = document.getElementById('troubleshootingView');
+            
+            let progressHtml = '<div class="step-progress">';
+            scenario.steps.forEach((step, index) => {
+                const stepClass = index < currentStep ? 'completed' : (index === currentStep ? 'active' : '');
+                progressHtml += `
+                    <div class="progress-step ${stepClass}">
+                        <div class="progress-circle">${index + 1}</div>
+                        <div>${step.title}</div>
+                    </div>
+                `;
+            });
+            progressHtml += '</div>';
+
+            // Enhanced metadata display
+            let metadataHtml = '';
+            if (scenario.prerequisites || scenario.estimated_duration || scenario.risk_level) {
+                metadataHtml = `
+                    <div class="dita-structure">
+                        <div class="dita-label">📋 SCENARIO METADATA</div>
+                        ${scenario.estimated_duration ? `<p><strong>Estimated Duration:</strong> ${scenario.estimated_duration}</p>` : ''}
+                        ${scenario.risk_level ? `<p><strong>Risk Level:</strong> ${scenario.risk_level}</p>` : ''}
+                        ${scenario.backup_recommendation ? `<p><strong>Backup Recommendation:</strong> ${scenario.backup_recommendation}</p>` : ''}
+                        ${scenario.prerequisites ? `
+                            <p><strong>Prerequisites:</strong></p>
+                            <ul style="margin-left: 20px;">
+                                ${scenario.prerequisites.map(req => `<li>${req}</li>`).join('')}
+                            </ul>
+                        ` : ''}
+                    </div>
+                `;
+            }
+
+            let interconnectionHtml = '';
+            if (scenario.interconnections && scenario.interconnections.length > 0) {
+                interconnectionHtml = `
+                    <div class="interconnection-alert">
+                        <h3>🔗 Related System Issues</h3>
+                        <p>This problem often interconnects with other system issues. Consider checking these areas:</p>
+                        <div class="interconnection-links">
+                            ${scenario.interconnections.map(relatedId => {
+                                const relatedScenario = troubleshootingDatabase.scenarios[relatedId];
+                                const title = relatedScenario ? relatedScenario.title : relatedId.replace(/-/g, ' ');
+                                return `<a href="#" class="interconnection-link" onclick="loadTroubleshootingScenario('${relatedId}')">${title}</a>`;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            const currentStepData = scenario.steps[currentStep];
+            let stepContentHtml = renderStep(currentStepData, currentStep);
+
+            troubleshootingView.innerHTML = `
+                ${progressHtml}
+                ${metadataHtml}
+                ${interconnectionHtml}
+                ${stepContentHtml}
+            `;
+        }
+
+        function renderStep(stepData, stepIndex) {
+            const ditaClass = stepData.type;
+            
+            // Enhanced icon mapping for all step types
+            const iconMap = {
+                'baseline': '📊',
+                'condition': '🔍', 
+                'cause': '🔍',
+                'diagnostic': '🔬',
+                'remedy': '🛠️',
+                'verification': '✅',
+                'prevention': '🛡️'
+            };
+            
+            let icon = iconMap[stepData.type] || '📋';
+            
+            let contentHtml = `
+                <div class="dita-structure ${ditaClass}">
+                    <div class="dita-label">${icon} ${stepData.type.toUpperCase()}</div>
+                    <h3>${stepData.title}</h3>
+                    <p>${stepData.content}</p>
+                </div>
+            `;
+
+            if (stepData.questions) {
+                stepData.questions.forEach((question, qIndex) => {
+                    contentHtml += `
+                        <div class="question-container">
+                            <h4>${question.question}</h4>
+                        </div>
+                        <div class="options-grid">
+                            ${question.options.map((option, oIndex) => `
+                                <div class="option-card" data-value="${option.value}" onclick="selectOption(this)">
+                                    <strong>${option.text}</strong>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                });
+            }
+
+            if (stepData.commands) {
+                contentHtml += `
+                    <div class="remedy-section">
+                        <h3>Commands and Scripts</h3>
+                        ${stepData.commands.map(command => `
+                            <div class="command-block">
+                                <button class="copy-btn" onclick="copyToClipboard(\`${command.replace(/`/g, '\\`')}\`)">Copy</button>
+                                ${command}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            const scenario = troubleshootingDatabase.scenarios[currentScenario];
+            contentHtml += `
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" onclick="${stepIndex === 0 ? 'showDashboard()' : 'previousStep()'}">${stepIndex === 0 ? '← Dashboard' : '← Previous'}</button>
+                    <button class="btn btn-primary" id="nextStepBtn" onclick="nextStep()" ${stepData.questions ? 'disabled' : ''}>${stepIndex === scenario.steps.length - 1 ? 'Complete' : 'Next Step →'}</button>
+                </div>
+            `;
+
+            return contentHtml;
+        }
+
+        function selectOption(optionEl) {
+            optionEl.parentElement.querySelectorAll('.option-card').forEach(el => el.classList.remove('selected'));
+            optionEl.classList.add('selected');
+            userSelections[`step-${currentStep}`] = optionEl.dataset.value;
+            document.getElementById('nextStepBtn').disabled = false;
+        }
+
+        function nextStep() {
+            const scenario = troubleshootingDatabase.scenarios[currentScenario];
+            if (currentStep < scenario.steps.length - 1) {
+                currentStep++;
+                renderTroubleshootingContent(scenario);
+            } else {
+                showCompletionSummary();
+            }
+        }
+
+        function previousStep() {
+            if (currentStep > 0) {
+                currentStep--;
+                const scenario = troubleshootingDatabase.scenarios[currentScenario];
+                renderTroubleshootingContent(scenario);
+            }
+        }
+
+        function showCompletionSummary() {
+            const scenario = troubleshootingDatabase.scenarios[currentScenario];
+            let referenceInfoHtml = '';
+            
+            // Add error codes and ports if available
+            if (scenario.common_error_codes || scenario.common_ports) {
+                referenceInfoHtml = `
+                    <div class="dita-structure">
+                        <div class="dita-label">📚 REFERENCE INFORMATION</div>
+                        ${scenario.common_error_codes ? `
+                            <h4>Common Error Codes:</h4>
+                            <div style="font-family: monospace; background: #f8f9fa; padding: 10px; border-radius: 4px; margin: 10px 0;">
+                                ${Object.entries(scenario.common_error_codes).map(([code, desc]) => 
+                                    `<div><strong>${code}:</strong> ${desc}</div>`
+                                ).join('')}
+                            </div>
+                        ` : ''}
+                        ${scenario.common_ports ? `
+                            <h4>Common Ports:</h4>
+                            <div style="font-family: monospace; background: #f8f9fa; padding: 10px; border-radius: 4px; margin: 10px 0;">
+                                ${Object.entries(scenario.common_ports).map(([port, desc]) => 
+                                    `<div><strong>Port ${port}:</strong> ${desc}</div>`
+                                ).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }
+
+            const troubleshootingView = document.getElementById('troubleshootingView');
+            troubleshootingView.innerHTML = `
+                <div class="dita-structure">
+                    <div class="dita-label">✅ TROUBLESHOOTING COMPLETE</div>
+                    <h2>Resolution Summary</h2>
+                    <p>You have successfully completed the enhanced DITA-structured troubleshooting process.</p>
+                </div>
+
+                <div class="remedy-section">
+                    <h3>📋 Session Summary</h3>
+                    <p><strong>Issue:</strong> ${scenario.title}</p>
+                    <p><strong>Steps Completed:</strong> ${scenario.steps.length}</p>
+                    <p><strong>Methodology:</strong> Enhanced DITA (Baseline → Condition → Diagnostic → Remedy → Verification → Prevention)</p>
+                    <p><strong>Interconnected Systems Checked:</strong> ${scenario.interconnections ? scenario.interconnections.length : 0}</p>
+                    ${scenario.estimated_duration ? `<p><strong>Total Time:</strong> ${scenario.estimated_duration}</p>` : ''}
+                    ${scenario.risk_level ? `<p><strong>Risk Level:</strong> ${scenario.risk_level}</p>` : ''}
+                </div>
+
+                ${referenceInfoHtml}
+
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" onclick="showDashboard()">← Back to Dashboard</button>
+                    <button class="btn btn-primary" onclick="exportSession()">📄 Export Session</button>
+                </div>
+            `;
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                console.log('Copied to clipboard:', text);
+            });
+        }
+
+        function exportSession() {
+            const sessionData = {
+                timestamp: new Date().toISOString(),
+                scenario: currentScenario,
+                scenarioTitle: troubleshootingDatabase.scenarios[currentScenario].title,
+                selections: userSelections,
+                methodology: 'Enhanced DITA V4 Structured Troubleshooting',
+                stepsCompleted: currentStep + 1,
+                version: 'V4'
+            };
+
+            const blob = new Blob([JSON.stringify(sessionData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `troubleshooting-session-v4-${currentScenario}-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function setupEventListeners() {
+            document.getElementById('searchInput').addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+                console.log('Searching for:', searchTerm);
+            });
+        }
+    </script>
+</body>
+</html>
