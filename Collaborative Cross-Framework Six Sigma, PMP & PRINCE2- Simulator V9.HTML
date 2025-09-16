@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Architecture: Collaborative Cross-Framework (Six Sigma, PMP & PRINCE2) Simulator (V9) - Powered by Gemini</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px 0;
+            box-sizing: border-box;
+        }
+        #simulator-container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            width: 1020px; /* Wider for EA diagrams */
+            max-width: 98%;
+            padding: 2rem;
+            box-sizing: border-box;
+        }
+        h1 {
+            color: #1c3d5a;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 0.5rem;
+            margin-top: 0;
+            font-size: 1.8em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        h1 .gemini-tag {
+            font-size: 0.6em;
+            color: #666;
+            font-weight: normal;
+            background-color: #e0e0e0;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        h2 {
+            color: #007bff; /* Blue for Six Sigma focus */
+            font-size: 1.3em;
+            margin-top: 1.5rem;
+            margin-bottom: 0.8rem;
+        }
+        #network-animation {
+            background-color: #0d1117;
+            color: #c9d1d9;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 1rem;
+            border-radius: 6px;
+            white-space: pre;
+            font-size: 11px; /* Smaller to fit the gigantic EA diagram */
+            overflow-x: auto;
+            min-height: 320px; /* Taller for more info */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+        .section-title {
+            font-weight: bold;
+            color: #1c3d5a;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+        }
+        .section-title.briefing-title::before {
+            content: "📚 Scenario Overview: ";
+            color: #007bff;
+            margin-right: 5px;
+        }
+        .section-title.task-title::before {
+            content: "❓ Your Collaborative Cross-Framework EA Challenge: ";
+            color: #dc3545;
+            margin-right: 5px;
+        }
+
+        .briefing, .step-description {
+            margin: 0.5rem 0 1rem 0;
+            line-height: 1.6;
+            background-color: #e6f7ff;
+            border-left: 4px solid #007bff;
+            padding: 0.8rem 1rem;
+            border-radius: 4px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+        }
+        .step-description {
+            background-color: #f0fdf4;
+            border-left-color: #28a745;
+        }
+        .task {
+            margin: 0.5rem 0 1rem 0;
+            font-weight: normal;
+            font-size: 1em;
+            color: #333;
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 0.8rem 1rem;
+            border-radius: 4px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+        }
+        #choices {
+            margin-top: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            text-align: left;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        button:hover {
+            background-color: #0056b3;
+            transform: translateY(-1px);
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        #interaction-area {
+            display: none;
+        }
+        .final-message {
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+            color: #0c5460;
+            padding: 1.5rem;
+            text-align: center;
+            font-size: 1.2rem;
+            margin-top: 2rem;
+        }
+        .waiting-message {
+            text-align: center;
+            margin-top: 1rem;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+<div id="simulator-container">
+    <h1>
+        Enterprise Architecture: Collaborative Cross-Framework (Six Sigma, PMP & PRINCE2) Simulator (V9)
+        <span class="gemini-tag">Powered by Gemini</span>
+    </h1>
+    <div id="step-content">
+        <h2 class="framework-focus" id="framework-focus"></h2>
+        <div class="section-title briefing-title"></div>
+        <div class="briefing" id="briefing"></div>
+        <pre id="network-animation"></pre>
+        <div class="step-description" id="step-description"></div>
+        <div id="interaction-area">
+            <div class="section-title task-title"></div>
+            <div class="task" id="task"></div>
+            <div id="choices"></div>
+        </div>
+        <div class="waiting-message" id="waiting-message" style="display: none;">Animating concept... Please wait.</div>
+    </div>
+</div>
+
+<script>
+    // --- ANIMATION CONFIGURATION (Simplified for conceptual diagrams) ---
+    const ANIMATION_DURATION_PER_FRAME = 2000; // Milliseconds per static conceptual frame
+
+    // --- SIMULATOR DATA ---
+    const scenarioSteps = {
+        "start": {
+            focus: "Welcome: The EA & Collaborative Cross-Framework Knowledge Base (V9)",
+            briefing: "Welcome to OmniCorp's 'Digital Renaissance 2030'! As Chief Enterprise Architect, you'll lead a monumental transformation program, integrating EA principles with Six Sigma DMAIC, PMP, and PRINCE2 to achieve strategic objectives: cloud-native operations, AI-powered hyper-personalization, and 30% operational cost reduction.",
+            animatedSequence: [
+                {
+                    staticNetwork: `
+                  ┌───────────────────────────────────────────────────────────┐
+                  │           ENTERPRISE ARCHITECTURE (EA) OVERVIEW         │
+                  │ (Business, Data, Application, Technology Layers)          │
+                  │   Guiding "Digital Renaissance 2030" Transformation     │
+                  └───────────────┬───────────────────────┬───────────────────┘
+                                  │                       │
+          ┌───────────────────────V───────────────────────V───────────────────────┐
+          │                                                                       │
+          │  PRINCE2 GOVERNANCE             PMP PROGRAM MANAGEMENT        SIX SIGMA DMAIC        │
+          │ (Strategic Oversight, Bus Just., (Scope, Schedule, Resources, (Data-Driven Process  │
+          │  Controlled Stages, Benefits)    Stakeholders, Risks)       Improvement, Metrics)  │
+          └───────────────────────┬───────────────────────┬───────────────────────┘
+                                  │                       │
+                                  V                       V
+                      ┌───────────────────────────────────────────────────┐
+                      │    INTEGRATED EA TRANSFORMATION LIFECYCLE         │
+                      │ (Vision, Current State, Target State, Roadmap, Governance) │
+                      └───────────────────────────────────────────────────┘
+    
+    (The Gigantic Collaborative Cross-Framework & EA Ecosystem for OmniCorp)`,
+                    description: "This comprehensive diagram illustrates EA as the overarching structure, supported by PRINCE2's governance, PMP's program management, and Six Sigma's data-driven improvement. Together, they drive OmniCorp's 'Digital Renaissance 2030' transformation.",
+                    duration: 6000
+                }
+            ],
+            task: "Our journey begins by establishing the strategic vision and foundational governance for OmniCorp's 'Digital Renaissance 2030'. This requires deep integration of EA, PRINCE2, PMP, and Six Sigma 'Define' thinking. Click 'Continue' to face your first strategic challenge.",
+            choices: [
+                {
+                    text: "Continue to 'EA Vision & Business Architecture' Phase",
+                    outcomeBriefing: "An integrated start ensures that the EA transformation is not just technically sound, but also strategically justified, formally governed, and focused on delivering measurable business value.",
+                    nextStepId: "scenario1_ea_vision_define"
+                }
+            ]
+        },
+        "scenario1_ea_vision_define": {
+            focus: "Phase 1: EA Vision & Business Architecture (PRINCE2/PMP/Define)",
+            briefing: "As CEA, you must articulate the 'Digital Renaissance 2030' vision, define key business capabilities, and establish a high-level Target Business Architecture. This phase requires formal program initiation (PRINCE2), clear strategic alignment (PMP), and defining Critical To Quality (CTQ) business outcomes (Six Sigma 'Define').",
+            animatedSequence: [
+                {
+                    staticNetwork: `
+                  ┌───────────────────────────────────────────────────────────┐
+                  │    [EA: BUSINESS ARCHITECTURE / STRATEGIC VISION]       │
+                  │ (Future State Capabilities, Value Streams, Business Goals)│
+                  └───────┬────────────────────────────────────────────┬───────┘
+                          │                      │
+                  ┌───────V───────────────┐      │  (Sets Program Scope)
+                  │   [PRINCE2: SU/DP]    │      │
+                  │ (Business Case, Project Brief, Project Mandate for Program)│
+                  └───────┬───────────────┘      │
+                          │ (Strategic Justification & Governance)
+                  ┌───────V───────────────┐      │
+                  │   [PMP: INITIATING]   │      │
+                  │ (Program Charter, High-level Stakeholder Reg., Benefits Mgmt Plan)│
+                  └───────┬───────────────┘      │
+                          │ (Defines Program Context & Key Deliverables)
+                  ┌───────V──────────────────────V───────┐
+                  │    [SIX SIGMA DMAIC: D E F I N E]    │
+                  │  (High-level CTQs for Business Outcomes: e.g., <5s customer journey,  │
+                  │   20% faster new product launch, 99.9% data accuracy)    │
+                  │  (Problem/Opportunity: OmniCorp's current agility/cost/CX gaps)   │
+                  └───────────────────────────────────────────────────────────┘
+    
+    (Collaboratively Defining the EA Transformation Program: Strategic, Managerial & Process Focus)`,
+                    description: "This foundational phase uses PRINCE2 for governance and business justification, PMP for program charter and stakeholder management, and Six Sigma for defining the critical business outcomes and transformation opportunities.",
+                    duration: 4000
+                }
+            ],
+            task: "To successfully initiate 'Digital Renaissance 2030', which action best integrates EA vision with cross-framework governance and definition?",
+            choices: [
+                {
+                    text: "Develop a 'Target Business Architecture' (EA) outlining future capabilities. Present a 'Program Business Case' (PRINCE2) to the Board, incorporating 'Program CTQs' (Six Sigma) like '30% cost reduction'. Secure approval of the 'Program Charter' (PMP) that encompasses the EA vision and forms the basis for subsequent architectural stages.",
+                    outcomeBriefing: "Excellent! This action seamlessly integrates all frameworks. The 'Target Business Architecture' (EA) provides the strategic direction. PRINCE2's 'Program Business Case' ensures board-level buy-in and justification. PMP's 'Program Charter' formalizes the initiative, setting the boundaries for the EA work. Six Sigma's CTQs make the business outcomes measurable, providing clear targets for the entire transformation. This holistic approach ensures strategic alignment, formal authorization, and measurable objectives from day one.",
+                    nextStepId: "scenario2_ea_current_measure"
+                },
+                {
+                    text: "Immediately start designing cloud infrastructure (EA Tech Arch) based on general assumptions, and form a small agile team without formal program initiation or business case approval.",
+                    outcomeBriefing: "This approach is premature and carries significant risks from all perspectives. It bypasses strategic business alignment (EA, PRINCE2), lacks formal authorization and stakeholder engagement (PMP), and skips defining the current state or measurable objectives (Six Sigma). Starting with technology without a clear business vision and formal governance often leads to misaligned solutions, rework, and project failure. The collaborative power is completely lost here.",
+                    nextStepId: "scenario2_ea_current_measure"
+                }
+            ]
+        },
+        "scenario2_ea_current_measure": {
+            focus: "Phase 2: EA Current State Architecture & Baseline (Measure)",
+            briefing: "With a defined vision, you must now understand OmniCorp's 'as-is' state across all EA layers (Business, Data, Application, Technology). This involves rigorous data collection (PMP), establishing baseline performance metrics (Six Sigma 'Measure'), and documenting the current architecture (EA) to identify areas for improvement.",
+            animatedSequence: [
+                {
+                    staticNetwork: `
+                  ┌───────────────────────────────────────────────────────────┐
+                  │     [EA: CURRENT STATE ARCHITECTURE DOCUMENTATION]      │
+                  │ (As-Is Business Processes, Data Models, Application Inventory,   │
+                  │  Technology Stack, Infrastructure Footprint)             │
+                  └───────┬────────────────────────────────────────────┬───────┘
+                          │                      │
+                  ┌───────V───────────────┐      │
+                  │   [PRINCE2: IP/CS]    │      │
+                  │ (Quality Mgmt Approach for Arch. artifacts, Stage Control)│
+                  └───────┬───────────────┘      │
+                          │ (Ensures Arch. doc quality)
+                  ┌───────V───────────────┐      │
+                  │    [PMP: PLANNING]    │      │
+                  │ (Data Collection Plan, Scope Baseline, Resource Plan for Analysis)│
+                  └───────┬───────────────┘      │
+                          │ (Structured approach to data/artifact gathering)
+                  ┌───────V──────────────────────V───────┐
+                  │    [SIX SIGMA DMAIC: M E A S U R E]  │
+                  │  (Baseline Metrics: Avg. Process Cycle Time, Data Duplication Rate,  │
+                  │   Application Uptime, Infrastructure Cost/Txn)          │
+                  │  (Tools: Process Mapping, Arch. Inventory, Performance Reports)   │
+                  └───────────────────────────────────────────────────────────┘
+    
+    (Collaboratively Measuring: EA Baseline, Data Quality & Planning)`,
+                    description: "This phase leverages EA for comprehensive 'as-is' documentation. PRINCE2 ensures the quality of architectural artifacts. PMP provides the structured plan for data collection and resource allocation. Six Sigma guides the establishment of critical baseline performance metrics.",
+                    duration: 4000
+                }
+            ],
+            task: "To establish a reliable current state architecture and performance baseline, which action best demonstrates collaborative cross-framework EA knowledge?",
+            choices: [
+                {
+                    text: "Initiate a series of 'Current State Architecture' workshops (EA) across Business, Data, Application, and Technology domains, leading to 'Architecture Description Documents'. Develop a 'Data Collection Plan' (PMP) to gather baseline metrics (e.g., process cycle times, system uptime) for Six Sigma 'Measure' phase, ensuring data validity with PRINCE2 'Quality Criteria'.",
+                    outcomeBriefing: "Outstanding! This choice exemplifies deep cross-framework and EA collaboration. The EA workshops drive comprehensive 'as-is' documentation. PMP's 'Data Collection Plan' provides the structured approach for gathering quantitative data. PRINCE2's 'Quality Criteria' ensure the architectural artifacts and collected data are accurate and reliable. Six Sigma's 'Measure' phase then uses this robust baseline for objective analysis. This integrated approach creates a solid foundation for transformation.",
+                    nextStepId: "scenario3_ea_gap_analyze"
+                },
+                {
+                    text: "Rely solely on existing, often outdated, architecture diagrams and anecdotal evidence from IT teams, declaring them sufficient for the baseline.",
+                    outcomeBriefing: "This approach is fundamentally flawed and undermines the entire transformation. Six Sigma demands accurate, measured data, not assumptions. EA requires a clear, comprehensive understanding of the current state. PMP cannot effectively plan or control without reliable information. PRINCE2's principle of 'Focus on Products' is violated if the architectural baseline is not a high-quality product. This will lead to designing solutions for unverified problems and cause significant rework later.",
+                    nextStepId: "scenario3_ea_gap_analyze"
+                }
+            ]
+        },
+        "scenario3_ea_gap_analyze": {
+            focus: "Phase 3: EA Gap Analysis & Target Architecture Design (Analyze)",
+            briefing: "With current state documented and baselines established, you must now identify the gaps between 'as-is' and 'to-be' architectures, analyze the root causes of underperformance, and design the detailed 'Target Architecture' across all layers. This involves Six Sigma's analytical prowess, PMP's planning, and PRINCE2's issue management.",
+            animatedSequence: [
+                {
+                    staticNetwork: `
+                  ┌───────────────────────────────────────────────────────────┐
+                  │    [EA: GAP ANALYSIS & TARGET ARCHITECTURE DESIGN]      │
+                  │ (Identify deficiencies, Root Causes, Design To-Be Business, Data,│
+                  │  Application, Technology Architectures)                  │
+                  └───────┬────────────────────────────────────────────┬───────┘
+                          │                      │
+                  ┌───────V───────────────┐      │
+                  │   [PRINCE2: CS/SB]    │      │
+                  │ (Issue Management for Arch. Gaps, Exception Reports)     │
+                  └───────┬───────────────┘      │
+                          │ (Governs Architectural Issues)
+                  ┌───────V───────────────┐      │
+                  │    [PMP: PLANNING]    │      │
+                  │ (Risk Mgmt Plan, Resource Plan for Design, Scope Refinement)│
+                  └───────┬───────────────┘      │
+                          │ (Plans for design activities & manages risks)
+                  ┌───────V──────────────────────V───────┐
+                  │    [SIX SIGMA DMAIC: A N A L Y Z E]  │
+                  │  (Tools: Gap Analysis Matrix, Root Cause Analysis (5 Whys/Fishbone),│
+                  │   Statistical Correlation, Value Stream Mapping)         │
+                  │  (Output: Quantified Gaps, Prioritized Root Causes for architectural flaws)│
+                  └───────────────────────────────────────────────────────────┘
+    
+    (Collaboratively Analyzing: EA Gaps, Root Causes & Target Design)`,
+                    description: "In 'Analyze', EA drives the gap identification and target architecture design. Six Sigma provides the powerful analytical tools for root causes. PMP manages planning and risks for design activities. PRINCE2 ensures architectural issues are managed and reported for governance.",
+                    duration: 4000
+                }
+            ],
+            task: "You've identified 'fragmented data silos' and 'monolithic legacy applications' as key architectural root causes hindering agility and driving up costs. How do you confirm these findings and integrate them into your target architecture design and program management?",
+            choices: [
+                {
+                    text: "Perform a 'Root Cause Analysis' (Six Sigma) on data fragmentation and application dependencies. Document these as 'Architectural Deficiencies' (EA). Update the 'Program Issue Register' (PRINCE2) with these findings. Refine the 'Target Data and Application Architectures' (EA) based on these insights and update the 'Program Risk Register' (PMP) for associated design risks.",
+                    outcomeBriefing: "Excellent! This action is a prime example of collaborative cross-framework knowledge in EA. Six Sigma's RCA provides robust analytical depth. Documenting 'Architectural Deficiencies' (EA) formalizes the problems. Updating PRINCE2's 'Program Issue Register' ensures governance and visibility. Refining the 'Target Architectures' (EA) directly incorporates the learning, and updating PMP's 'Program Risk Register' ensures these architectural risks are proactively managed. This integrated approach ensures deeply understood problems inform robust architectural solutions.",
+                    nextStepId: "scenario4_ea_roadmap_improve"
+                },
+                {
+                    text: "Assume the identified architectural issues are correct and immediately jump to solutioning by proposing new cloud services, bypassing formal analysis or risk assessment.",
+                    outcomeBriefing: "This shortcut undermines the analytical rigor of all frameworks. Without Six Sigma's validated root causes, EA solutions might address symptoms, not underlying issues. PMP's risk management is ignored, inviting project failure. PRINCE2's 'Manage by Exception' requires formal reporting of significant issues. Jumping to solutions without proper analysis and formal integration of findings is a recipe for expensive architectural rework and potentially building the wrong solution.",
+                    nextStepId: "scenario4_ea_roadmap_improve"
+                }
+            ]
+        },
+        "scenario4_ea_roadmap_improve": {
+            focus: "Phase 4: EA Roadmap, Implementation & Transition (Improve)",
+            briefing: "With a defined Target Architecture, your focus shifts to planning the transition, managing solution implementation, and executing the architectural roadmap. This phase integrates Six Sigma's solution design, PMP's execution and resource management, and PRINCE2's controlled delivery of architectural increments.",
+            animatedSequence: [
+                {
+                    staticNetwork: `
+                  ┌───────────────────────────────────────────────────────────┐
+                  │    [EA: ARCHITECTURAL ROADMAP & TRANSITION PLANNING]    │
+                  │ (Phased Implementation, Migration Strategies, Capability Realization)│
+                  └───────┬────────────────────────────────────────────┬───────┘
+                          │                      │
+                  ┌───────V───────────────┐      │
+                  │   [PRINCE2: CS/MP]    │      │
+                  │ (Authorize Work Packages for Arch. increments, Manage by Exception, Quality Check)│
+                  └───────┬───────────────┘      │
+                          │ (Controlled delivery of architectural "products")
+                  ┌───────V───────────────┐      │
+                  │    [PMP: EXECUTING]   │      │
+                  │ (Direct & Manage Program Work, Acquire Resources for projects,   │
+                  │  Perform Integrated Change Control)                  │
+                  └───────┬───────────────┘      │
+                          │ (Manages overall execution of transformation projects)
+                  ┌───────V──────────────────────V───────┐
+                  │    [SIX SIGMA DMAIC: I M P R O V E]  │
+                  │  (Solutions: Implement Cloud-Native Platform, Data Lake, Microservices,│
+                  │   Automated CI/CD, Process Re-engineering)              │
+                  │  (Pilot & Validate architectural components against CTQs)   │
+                  └───────────────────────────────────────────────────────────┘
+    
+    (Collaboratively Improving: EA Roadmap, Execution & Solution Validation)`,
+                    description: "In 'Improve', EA defines the roadmap and transition strategy. Six Sigma designs and validates specific architectural solutions. PMP manages the execution of transformation projects within the program. PRINCE2 provides controlled delivery of architectural increments as 'Work Packages', ensuring quality and governance.",
+                    duration: 4000
+                }
+            ],
+            task: "To successfully implement the architectural roadmap, replacing legacy applications with cloud-native microservices and consolidating data silos, what is the most comprehensive collaborative cross-framework EA action?",
+            choices: [
+                {
+                    text: "Define 'Architectural Work Packages' (PRINCE2 'Products') for microservice development and data platform build, complete with 'Product Descriptions' (EA). Authorize these as projects, assigning dedicated teams and resources (PMP 'Acquire Resources'). Manage their execution (PMP 'Direct & Manage Project Work'), ensuring each architectural increment is rigorously validated against Six Sigma CTQs (e.g., latency, scalability, data consistency).",
+                    outcomeBriefing: "Excellent! This action is the epitome of cross-framework and EA collaboration. PRINCE2's 'Work Packages' provide a controlled mechanism for delivering specific architectural 'products' (e.g., a new microservice). PMP ensures effective resource allocation and project execution. EA's 'Product Descriptions' ensure clarity of architectural deliverables. Six Sigma's validation against CTQs scientifically proves the effectiveness of each architectural improvement, ensuring the transformation yields tangible, measurable benefits.",
+                    nextStepId: "scenario5_ea_governance_control"
+                },
+                {
+                    text: "Push for rapid development and deployment of new architectural components, prioritizing speed over rigorous testing, formal handover, or alignment with the broader architectural roadmap.",
+                    outcomeBriefing: "This 'move fast and break things' approach is highly detrimental in an EA context. It violates PRINCE2's 'Focus on Products' and 'Quality Criteria' by neglecting proper testing and handover. It sidesteps PMP's quality management, change control, and resource planning. It fails Six Sigma's validation requirements. Rushing architectural changes without controlled implementation and validation often leads to technical debt, system instability, and failure to achieve the desired transformation, completely undermining the 'Improve' phase.",
+                    nextStepId: "scenario5_ea_governance_control"
+                }
+            ]
+        },
+        "scenario5_ea_governance_control": {
+            focus: "Phase 5: EA Governance & Benefits Realization (Control)",
+            briefing: "With the 'Digital Renaissance 2030' program delivering architectural improvements, the 'Control' phase focuses on sustaining gains, establishing ongoing EA governance, and realizing the strategic benefits. This involves Six Sigma's ongoing monitoring, PMP's formal program closure, and PRINCE2's benefits realization and final closure processes.",
+            animatedSequence: [
+                {
+                    staticNetwork: `
+                  ┌───────────────────────────────────────────────────────────┐
+                  │           [EA: ARCHITECTURE GOVERNANCE & LIFECYCLE]       │
+                  │ (Architecture Review Board, Standards, Principles, Tooling)│
+                  │          [EA: BENEFITS REALIZATION MONITORING]          │
+                  │ (Track attainment of strategic objectives post-transformation)│
+                  └───────┬────────────────────────────────────────────┬───────┘
+                          │                      │
+                  ┌───────V───────────────┐      │
+                  │   [PRINCE2: CP/DP]    │      │
+                  │ (Confirm Benefits, Project Closure, Lessons Learned,   │
+                  │  Benefits Review Plan for program)                   │
+                  └───────┬───────────────┘      │
+                          │ (Ensures sustained benefits & formal program closure)
+                  ┌───────V───────────────┐      │
+                  │    [PMP: CLOSING]     │      │
+                  │ (Close Program, Lessons Learned, Update Organizational   │
+                  │  Process Assets/EA Repository)                       │
+                  └───────┬───────────────┘      │
+                          │ (Formalizes program completion & knowledge capture)
+                  ┌───────V──────────────────────V───────┐
+                  │    [SIX SIGMA DMAIC: C O N T R O L]  │
+                  │  (Tools: Statistical Process Control (SPC) for key metrics,   │
+                  │          Control Plan for architectural standards, Ongoing Audits) │
+                  │  (Output: Sustainable Architecture, Measurable Benefits,   │
+                  │           Transformed Enterprise)                       │
+                  └───────────────────────────────────────────────────────────┘
+    
+    (Collaboratively Controlling: EA Governance, Benefits & Sustainment)`,
+                    description: "In 'Control', EA establishes enduring governance. Six Sigma's tools ensure sustained performance. PMP formalizes program closure and knowledge transfer. PRINCE2 ensures benefits are reviewed, and the program is closed responsibly, cementing OmniCorp's 'Digital Renaissance'.",
+                    duration: 4000
+                }
+            ],
+            task: "To ensure the transformed 'Digital Renaissance 2030' architecture delivers sustained value and the program is formally closed, what is the most comprehensive collaborative cross-framework EA action?",
+            choices: [
+                {
+                    text: "Establish an 'Architecture Review Board' (EA) and a 'Control Plan' (Six Sigma) for key performance indicators (e.g., cloud cost/transaction, API latency, data quality). Finalize the 'Benefits Review Plan' (PRINCE2) to continuously track ROI. Formally 'Close the Program' (PMP/PRINCE2), conduct a comprehensive 'Lessons Learned' session (PMP), and update the 'Enterprise Architecture Repository' (EA) with target state documentation and new standards.",
+                    outcomeBriefing: "Absolutely perfect! This action encapsulates the full power of collaborative cross-framework EA knowledge. The 'Architecture Review Board' (EA) ensures ongoing architectural integrity. Six Sigma's 'Control Plan' and KPIs ensure continuous monitoring. PRINCE2's 'Benefits Review Plan' guarantees long-term value realization. PMP's formal program closure and 'Lessons Learned' capture invaluable organizational knowledge. Updating the 'EA Repository' ensures the new architecture is a living, governed asset. This integrated approach ensures sustainability, maximizes value, and demonstrates true mastery of leading complex EA transformations.",
+                    nextStepId: "end"
+                },
+                {
+                    text: "Declare the transformation complete and move on, assuming the new architecture will naturally govern itself and deliver benefits without ongoing oversight or formal closeout.",
+                    outcomeBriefing: "This is a critical failure point in any transformation. Without ongoing EA Governance, the new architecture will decay. Without Six Sigma's Control Plan, performance will degrade. Without PMP's formal closure and lessons learned, valuable insights are lost. Without PRINCE2's Benefits Review Plan, the strategic value is never fully confirmed. This approach completely neglects the 'Control' phase, leading to unsustainable gains and undermining the massive investment in the 'Digital Renaissance 2030' program.",
+                    nextStepId: "end"
+                }
+            ]
+        },
+        "end": {
+            focus: "Simulation Complete: Mastery of Collaborative Cross-Framework EA Transformation!",
+            briefing: "Congratulations! You have successfully navigated OmniCorp's 'Digital Renaissance 2030' by expertly leveraging the integrated power of Enterprise Architecture, Six Sigma's DMAIC, PMP's program management, and PRINCE2's robust governance. You now possess a 'Gigantic Collaborative Cross-Framework Knowledge' essential for leading complex enterprise-level transformations!",
+            animatedSequence: [
+                {
+                    staticNetwork: `
+                  ┌───────────────────────────────────────────────────────────┐
+                  │           ENTERPRISE ARCHITECTURE (EA) OVERVIEW         │
+                  │ (Business, Data, Application, Technology Layers)          │
+                  │   Successfully guided "Digital Renaissance 2030"        │
+                  └───────────────┬───────────────────────┬───────────────────┘
+                                  │                       │
+          ┌───────────────────────V───────────────────────V───────────────────────┐
+          │                                                                       │
+          │  PRINCE2 GOVERNANCE             PMP PROGRAM MANAGEMENT        SIX SIGMA DMAIC        │
+          │ (Strategic Oversight, Bus Just., (Scope, Schedule, Resources, (Data-Driven Process  │
+          │  Controlled Stages, Benefits)    Stakeholders, Risks)       Improvement, Metrics)  │
+          └───────────────────────┬───────────────────────┬───────────────────────┘
+                                  │                       │
+                                  V                       V
+                      ┌───────────────────────────────────────────────────┐
+                      │    INTEGRATED EA TRANSFORMATION LIFECYCLE         │
+                      │ (Vision, Current State, Target State, Roadmap, Governance) │
+                      └───────────────────────────────────────────────────┘
+    
+    🏆 YOU'VE ACHIEVED GIGANTIC COLLABORATIVE CROSS-FRAMEWORK & EA KNOWLEDGE! 🏆
+    
+                     Powered by Gemini`,
+                    description: "A final overview of the fully integrated ecosystem, demonstrating how Enterprise Architecture, Six Sigma, PMP, and PRINCE2 combine to deliver unparalleled strategic transformation and sustained organizational value.",
+                    duration: 5000
+                }
+            ],
+            task: "Thank you for participating in this advanced simulator. Your ability to integrate and apply these powerful frameworks within an Enterprise Architecture context will drive profound and lasting value in any organization!",
+            choices: []
+        }
+    };
+
+    // --- SIMULATOR ENGINE ---
+    let currentStepId = "start";
+    let mainAnimationTimeout;
+
+    const frameworkFocusEl = document.getElementById('framework-focus');
+    const briefingEl = document.getElementById('briefing');
+    const networkEl = document.getElementById('network-animation');
+    const stepDescriptionEl = document.getElementById('step-description');
+    const taskEl = document.getElementById('task');
+    const choicesEl = document.getElementById('choices');
+    const interactionAreaEl = document.getElementById('interaction-area');
+    const waitingMessageEl = document.getElementById('waiting-message');
+    const briefingTitleEl = document.querySelector('.section-title.briefing-title');
+    const taskTitleEl = document.querySelector('.section-title.task-title');
+
+
+    function stopCurrentAnimations() {
+        clearTimeout(mainAnimationTimeout);
+    }
+
+    async function animateSequence(sequence) {
+        stopCurrentAnimations(); // Clear any running animations
+        interactionAreaEl.style.display = 'none';
+        waitingMessageEl.style.display = 'block';
+
+        for (let i = 0; i < sequence.length; i++) {
+            const frame = sequence[i];
+            stepDescriptionEl.textContent = frame.description;
+            stepDescriptionEl.style.display = 'flex';
+
+            if (frame.staticNetwork) {
+                networkEl.textContent = frame.staticNetwork;
+                await new Promise(resolve => mainAnimationTimeout = setTimeout(resolve, frame.duration));
+            }
+        }
+
+        waitingMessageEl.style.display = 'none';
+        interactionAreaEl.style.display = 'block';
+    }
+
+    async function displayStep(stepId) {
+        const step = scenarioSteps[stepId];
+        if (!step) {
+            console.error("Step not found:", stepId);
+            return;
+        }
+
+        currentStepId = stepId;
+
+        stopCurrentAnimations(); // Ensure all previous animations are stopped
+
+        // Reset elements
+        stepDescriptionEl.style.display = 'none';
+        stepDescriptionEl.innerHTML = '';
+        choicesEl.innerHTML = '';
+        interactionAreaEl.style.display = 'none';
+        taskEl.className = 'task'; // Reset class for task
+        briefingTitleEl.style.display = 'block';
+        taskTitleEl.style.display = 'block';
+
+
+        // Populate initial step content
+        frameworkFocusEl.textContent = step.focus;
+        briefingEl.textContent = step.briefing;
+        taskEl.textContent = step.task;
+
+        if (stepId === "end") {
+            briefingTitleEl.style.display = 'none'; // Hide briefing title for final message
+            briefingEl.style.display = 'none'; // Hide briefing content for final message
+            taskTitleEl.style.display = 'none';
+            choicesEl.style.display = 'none';
+            taskEl.className = 'final-message';
+        } else {
+            briefingEl.style.display = 'flex';
+            choicesEl.style.display = 'flex';
+        }
+
+        // Run the animated sequence
+        await animateSequence(step.animatedSequence);
+
+        // After animation, set up choices
+        if (step.choices && step.choices.length > 0) {
+            step.choices.forEach((choice, index) => {
+                const button = document.createElement('button');
+                button.textContent = choice.text;
+                button.addEventListener('click', () => handleChoice(choice));
+                choicesEl.appendChild(button);
+            });
+        }
+    }
+
+    function handleChoice(selectedChoice) {
+        // Display the outcome briefing in the stepDescription area
+        stepDescriptionEl.innerHTML = selectedChoice.outcomeBriefing;
+        stepDescriptionEl.style.display = 'flex';
+
+        // Disable all choice buttons
+        Array.from(choicesEl.children).forEach(button => button.disabled = true);
+        
+        // Prepare for next step
+        const nextStepId = selectedChoice.nextStepId;
+        if (nextStepId) {
+            // Add a small delay for user to read outcome, then go to next step
+            setTimeout(() => {
+                displayStep(nextStepId);
+            }, 5000); // 5 seconds to read outcome and explanation
+        }
+    }
+
+    // --- START SIMULATION ---
+    displayStep(currentStepId);
+
+</script>
+</body>
+</html>
