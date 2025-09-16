@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IT Service Improvement: Collaborative Cross-Framework (Six Sigma, PMP & PRINCE2) Simulator (V8) - Powered by Gemini</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px 0;
+            box-sizing: border-box;
+        }
+        #simulator-container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            width: 980px; /* Slightly wider for the complex diagram */
+            max-width: 98%;
+            padding: 2rem;
+            box-sizing: border-box;
+        }
+        h1 {
+            color: #1c3d5a;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 0.5rem;
+            margin-top: 0;
+            font-size: 1.8em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        h1 .gemini-tag {
+            font-size: 0.6em;
+            color: #666;
+            font-weight: normal;
+            background-color: #e0e0e0;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        h2 {
+            color: #007bff; /* Blue for Six Sigma focus */
+            font-size: 1.3em;
+            margin-top: 1.5rem;
+            margin-bottom: 0.8rem;
+        }
+        #network-animation {
+            background-color: #0d1117;
+            color: #c9d1d9;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 1rem;
+            border-radius: 6px;
+            white-space: pre;
+            font-size: 12px; /* Smaller to fit the gigantic diagram */
+            overflow-x: auto;
+            min-height: 280px; /* Taller for more info */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+        .section-title {
+            font-weight: bold;
+            color: #1c3d5a;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+        }
+        .section-title.briefing-title::before {
+            content: "📚 Scenario Overview: ";
+            color: #007bff;
+            margin-right: 5px;
+        }
+        .section-title.task-title::before {
+            content: "❓ Your Collaborative Cross-Framework Challenge: ";
+            color: #dc3545;
+            margin-right: 5px;
+        }
+
+        .briefing, .step-description {
+            margin: 0.5rem 0 1rem 0;
+            line-height: 1.6;
+            background-color: #e6f7ff;
+            border-left: 4px solid #007bff;
+            padding: 0.8rem 1rem;
+            border-radius: 4px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+        }
+        .step-description {
+            background-color: #f0fdf4;
+            border-left-color: #28a745;
+        }
+        .task {
+            margin: 0.5rem 0 1rem 0;
+            font-weight: normal;
+            font-size: 1em;
+            color: #333;
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 0.8rem 1rem;
+            border-radius: 4px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+        }
+        #choices {
+            margin-top: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            text-align: left;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        button:hover {
+            background-color: #0056b3;
+            transform: translateY(-1px);
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        #interaction-area {
+            display: none;
+        }
+        .final-message {
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+            color: #0c5460;
+            padding: 1.5rem;
+            text-align: center;
+            font-size: 1.2rem;
+            margin-top: 2rem;
+        }
+        .waiting-message {
+            text-align: center;
+            margin-top: 1rem;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+<div id="simulator-container">
+    <h1>
+        IT Service Improvement: Collaborative Cross-Framework (Six Sigma, PMP & PRINCE2) Simulator (V8)
+        <span class="gemini-tag">Powered by Gemini</span>
+    </h1>
+    <div id="step-content">
+        <h2 class="framework-focus" id="framework-focus"></h2>
+        <div class="section-title briefing-title"></div>
+        <div class="briefing" id="briefing"></div>
+        <pre id="network-animation"></pre>
+        <div class="step-description" id="step-description"></div>
+        <div id="interaction-area">
+            <div class="section-title task-title"></div>
+            <div class="task" id="task"></div>
+            <div id="choices"></div>
+        </div>
+        <div class="waiting-message" id="waiting-message" style="display: none;">Animating concept... Please wait.</div>
+    </div>
+</div>
+
+<script>
+    // --- ANIMATION CONFIGURATION (Simplified for conceptual diagrams) ---
+    const ANIMATION_DURATION_PER_FRAME = 2000; // Milliseconds per static conceptual frame
+
+    // --- SIMULATOR DATA ---
+    const scenarioSteps = {
+        "start": {
+            focus: "Welcome: The Gigantic Collaborative Cross-Framework Knowledge Base",
+            briefing: "This simulator represents the ultimate integration: Six Sigma's DMAIC, PMP's project management, and PRINCE2's governance. You will explore their powerful synergies for IT service improvement, leveraging the strengths of each to achieve strategic and operational excellence.",
+            animatedSequence: [
+                {
+                    staticNetwork: `
+                  ┌───────────────────────────────────────────────────────────┐
+                  │                      PRINCE2 GOVERNANCE                   │
+                  │ (Principles: Bus Just., Learn, Roles, Stages, Exception,  │
+                  │  Focus on Products, Tailor)                               │
+                  │ Processes: Starting up a Project (SU), Directing a Project (DP),   │
+                  │            Initiating a Project (IP), Controlling a Stage (CS),   │
+                  │            Managing Product Delivery (MP), Managing a Stage Boundary (SB),│
+                  │            Closing a Project (CP)                         │
+                  └───────┬────────────────────────────────────────────┬───────┘
+                          │ (Project Board oversight, Stage Authorization)   │
+                          │                                            │
+                  ┌───────V───────────────┐                  ┌───────V───────────────┐
+                  │   PMP PROCESS GROUPS  │                  │   PMP PROCESS GROUPS  │
+                  │  (Initiating/Planning)├──────────────────┤(Executing/M&C/Closing)│
+                  │     Project Charter   │                  │   Work Performance    │
+                  │   Stakeholder Reg.    │                  │  Information/Reports  │
+                  │   Risk/Quality Plans  │                  │   Integrated Change   │
+                  └───────┬───────────────┘                  └───────┬───────────────┘
+                          │(Provides Mgmt Framework for DMAIC)        │ (Monitors & Controls DMAIC execution)
+                          │                                           │
+                  ┌───────V───────────────────────────────────────────V───────┐
+                  │               SIX SIGMA DMAIC LIFECYCLE                   │
+                  │                                                           │
+                  │   D E F I N E  <-----------------------------------------┐│
+                  │       (Problem Statement, CTQs, Project Scope)           ││
+                  │       │  PMP: Scope Def., PRINCE2: PID                 ││
+                  │       V                                                  ││
+                  │   M E A S U R E                                          ││
+                  │       (Data Collection, Baseline, Process Mapping)       ││
+                  │       │  PMP: Collect Data, PRINCE2: Quality Criteria  ││
+                  │       V                                                  ││
+                  │   A N A L Y Z E                                          ││
+                  │       (Root Cause Analysis, Statistical Tools)           ││
+                  │       │  PMP: Analysis, PRINCE2: Issue Mgmt.           ││
+                  │       V                                                  ││
+                  │   I M P R O V E                                          ││
+                  │       (Solution Design, Pilot, Implement)                ││
+                  │       │  PMP: Direct Work, PRINCE2: Product Delivery   ││
+                  │       V                                                  ││
+                  │   C O N T R O L -----------------------------------------┘│
+                  │       (Sustain Gains, Monitor, Standardize)              │
+                  │          PMP: Close Project, PRINCE2: Benefits Review    │
+                  └───────────────────────────────────────────────────────────┘
+    
+    (The Gigantic Collaborative Cross-Framework IT Service Improvement Ecosystem)`,
+                    description: "This comprehensive diagram illustrates the interconnectedness: PRINCE2 provides the overarching governance and strategic direction, PMP offers the project management discipline for execution, and Six Sigma's DMAIC drives the data-driven process improvement cycle.",
+                    duration: 6000
+                }
+            ],
+            task: "Our journey begins by formally establishing the project, ensuring its strategic alignment, clear scope, and robust justification. Click 'Continue' to dive into our first collaborative challenge.",
+            choices: [
+                {
+                    text: "Continue to 'Define' Phase: Persistent Outage Incidents",
+                    outcomeBriefing: "An integrated start ensures that the project is not just well-managed (PMP), but also strategically justified and governed (PRINCE2), and focused on measurable process improvement (Six Sigma).",
+                    nextStepId: "scenario1_define"
+                }
+            ]
+        },
+        "scenario1_define": {
+            focus: "Phase 1: DEFINE (Cross-Framework Project Initiation & Definition)",
+            briefing: "Your organization experiences recurring, high-impact outages, leading to significant financial loss and reputational damage. As the Project Manager/Manager, you must collaboratively initiate and define this Six Sigma improvement project. This involves creating a compelling business case (PRINCE2), a clear project charter (PMP), identifying key stakeholders, and establishing Critical To Quality (CTQ) metrics from multiple perspectives.",
+            animatedSequence: [
+                {
+                    staticNetwork: `
+                  ┌───────────────────────────────────────────────────────────┐
+                  │             [PRINCE2: SU - Start up a Project]            │
+                  │ (Appoint Exec/PM, Create Project Brief & Business Case)   │
+                  └───────┬────────────────────────────────────────────┬───────┘
+                          │                      │
+                  ┌───────V───────────────┐      │
+                  │   [PMP: INITIATING]   │      │
+                  │ (Develop Project Charter, Identify Stakeholders)          │
+                  └───────┬───────────────┘      │
+                          │                      │
+                  ┌───────V──────────────────────V───────┐
+                  │    [SIX SIGMA DMAIC: D E F I N E]    │
+                  │  Problem: Recurring Outages (ITIL: Problem Mgmt)         │
+                  │  CTQs: <5 min MTTR, <1% Outage Freq., 100% RCA completion │
+                  │  Scope: Critical Infrastructure Outage Process           │
+                  └───────────────────────────────────────────────────────────┘
+    
+    (Collaboratively Defining the Project: Strategic, Managerial & Process Focus)`,
+                    description: "This initial phase demands the integrated power of all three frameworks: PRINCE2 for strategic direction and justification, PMP for formal project setup and stakeholder engagement, and Six Sigma for clearly articulating the problem and desired quality outcomes (CTQs).",
+                    duration: 4000
+                }
+            ],
+            task: "To robustly initiate and define this critical project, which action best demonstrates collaborative cross-framework knowledge?",
+            choices: [
+                {
+                    text: "Convene the Project Board (PRINCE2) to review the 'Project Brief' and 'Business Case', formally authorize the 'Project Charter' (PMP), and collectively validate the Six Sigma 'Problem Statement' and 'CTQ' metrics with key business and IT stakeholders (PMP 'Identify Stakeholders').",
+                    outcomeBriefing: "Excellent! This action seamlessly integrates all three. PRINCE2's Project Board ensures strategic oversight and justification. PMP's Project Charter formalizes the project, and its stakeholder management ensures broad buy-in. Six Sigma's Problem Statement and CTQs provide the clear, measurable objectives needed for process improvement. This holistic approach sets the project up for success by ensuring strategic alignment, formal authorization, and a clear, data-driven objective.",
+                    nextStepId: "scenario2_measure"
+                },
+                {
+                    text: "Draft a project plan based on a quick meeting with the IT Director and immediately assemble a Six Sigma team to start collecting data.",
+                    outcomeBriefing: "While quick, this approach carries significant risks from all three perspectives. It bypasses formal authorization (PRINCE2), lacks comprehensive stakeholder engagement (PMP), and jumps into data collection without a fully defined problem or CTQs (Six Sigma). Such a start often leads to scope creep, stakeholder misalignment, and ultimately, ineffective improvements. The collaborative power is lost.",
+                    nextStepId: "scenario2_measure"
+                }
+            ]
+        },
+        "scenario2_measure": {
+            focus: "Phase 2: MEASURE (Cross-Framework Baseline Establishment)",
+            briefing: "With a collaboratively defined project, you enter the 'Measure' phase. Your goal is to establish accurate baselines for outage frequency, Mean Time To Restore (MTTR), and Mean Time Between Failures (MTBF). This requires a meticulously planned data collection strategy (PMP), ensuring data quality (PRINCE2), and identifying key process steps for analysis (Six Sigma).",
+            animatedSequence: [
+                {
+                    staticNetwork: `
+                  ┌───────────────────────────────────────────────────────────┐
+                  │             [PRINCE2: IP - Initiating a Project]          │
+                  │ (Plan Quality Management Approach, Define Quality Criteria)│
+                  └───────┬────────────────────────────────────────────┬───────┘
+                          │                      │
+                  ┌───────V───────────────┐      │
+                  │    [PMP: PLANNING]    │      │
+                  │ (Plan Quality Mgmt., Plan Scope, Collect Requirements)    │
+                  └───────┬───────────────┘      │
+                          │                      │
+                  ┌───────V──────────────────────V───────┐
+                  │    [SIX SIGMA DMAIC: M E A S U R E]  │
+                  │  Process Mapping: Outage Response Workflow                │
+                  │  Data Collection: Incident Tickets, Monitoring Logs, RCA Reports       │
+                  │  Metrics: Baseline MTTR = X hrs, Outage Freq. = Y/month   │
+                  └───────────────────────────────────────────────────────────┘
+    
+    (Collaboratively Measuring: Quality, Planning & Baseline Data)`,
+                    description: "In 'Measure', PRINCE2's quality planning ensures data integrity, PMP provides the structured plan for data collection, and Six Sigma guides the identification of critical data points and process steps to quantify the current state of outage incidents.",
+                    duration: 4000
+                }
+            ],
+            task: "To establish a reliable baseline for outage metrics, which action demonstrates the strongest collaborative cross-framework approach?",
+            choices: [
+                {
+                    text: "Develop a 'Quality Management Approach' (PRINCE2) for data accuracy, create a detailed 'Data Collection Plan' (PMP) specifying metrics, sources (e.g., ITSM, monitoring tools), and frequency. Use Six Sigma process mapping tools (e.g., Value Stream Map) to identify data gaps and critical points in the outage resolution process.",
+                    outcomeBriefing: "Outstanding! This choice exemplifies deep cross-framework collaboration. PRINCE2's Quality Management Approach ensures the data itself is a 'fit-for-purpose product'. PMP's Data Collection Plan provides the structured execution. Six Sigma's process mapping identifies *what* data is truly meaningful. Together, these ensure data integrity, comprehensive collection, and relevance to the improvement objectives, forming an unshakeable baseline.",
+                    nextStepId: "scenario3_analyze"
+                },
+                {
+                    text: "Ask the IT operations team to provide 'their best guess' at MTTR and outage frequency, then record it as the baseline.",
+                    outcomeBriefing: "This approach is fundamentally flawed across all frameworks. Six Sigma is data-driven, not opinion-driven. PMP requires accurate information for planning and control. PRINCE2 emphasizes 'Focus on Products' and 'Business Justification' based on facts. Relying on guesses leads to an unreliable baseline, invalidating the entire DMAIC cycle and jeopardizing project credibility.",
+                    nextStepId: "scenario3_analyze"
+                }
+            ]
+        },
+        "scenario3_analyze": {
+            focus: "Phase 3: ANALYZE (Cross-Framework Root Cause Identification & Impact Assessment)",
+            briefing: "With robust baseline data, you now enter the 'Analyze' phase. The goal is to identify the true root causes of the recurring outages. This requires Six Sigma's analytical tools, PMP's rigorous analysis and reporting, and PRINCE2's issue management and stage control processes.",
+            animatedSequence: [
+                {
+                    staticNetwork: `
+                  ┌───────────────────────────────────────────────────────────┐
+                  │           [PRINCE2: CS - Controlling a Stage]             │
+                  │ (Issue Management, Highlight Reports to Project Board)    │
+                  └───────┬────────────────────────────────────────────┬───────┘
+                          │                      │
+                  ┌───────V───────────────┐      │
+                  │    [PMP: EXECUTING]   │      │
+                  │ (Direct & Manage Project Work - Conduct Analysis)         │
+                  │ [PMP: MONITORING & CONTROLLING]                           │
+                  │ (Perform Integrated Change Control - Analyze Variances)   │
+                  └───────┬───────────────┘      │
+                          │                      │
+                  ┌───────V──────────────────────V───────┐
+                  │    [SIX SIGMA DMAIC: A N A L Y Z E]  │
+                  │  Tools: Fishbone Diagram, 5 Whys, Pareto Chart            │
+                  │  Output: Verified Root Causes (e.g., Inadequate Monitoring, │
+                  │          Lack of Runbooks, Manual Deployment Errors)      │
+                  └───────────────────────────────────────────────────────────┘
+    
+    (Collaboratively Analyzing: Governance, Management & Process Root Causes)`,
+                    description: "In 'Analyze', Six Sigma provides the powerful tools for root cause identification. PMP ensures the analysis is structured and reported, and PRINCE2 governs the process by managing issues and keeping the Project Board informed through highlight reports.",
+                    duration: 4000
+                }
+            ],
+            task: "You've identified 'inconsistent deployment procedures and lack of automated validation' as major root causes. How do you confirm this and integrate it into the project's overall management?",
+            choices: [
+                {
+                    text: "Perform a 'FMEA (Failure Mode and Effects Analysis)' (Six Sigma) to quantify risk, confirm root causes with '5 Whys', create a 'Root Cause Analysis Report' (PMP 'Work Performance Information'), update the 'Issue Register' (PRINCE2) with these findings, and present a 'Highlight Report' to the Project Board (PRINCE2 'Directing a Project').",
+                    outcomeBriefing: "Excellent! This action is a prime example of collaborative cross-framework knowledge. FMEA and 5 Whys (Six Sigma) provide robust analytical depth. The PMP report formally documents the findings. Updating the PRINCE2 Issue Register ensures visibility and accountability, and the Highlight Report to the Project Board ensures transparent governance. This holistic approach ensures thoroughly vetted root causes are formally recognized and integrated into project oversight, preparing for effective 'Improve' solutions.",
+                    nextStepId: "scenario4_improve"
+                },
+                {
+                    text: "Announce the findings in a team meeting and immediately brainstorm solutions, without formal documentation or external review.",
+                    outcomeBriefing: "This shortcut undermines all three frameworks. Six Sigma demands data-driven verification. PMP requires formal reporting and stakeholder communication. PRINCE2 emphasizes 'Manage by Exception' and 'Focus on Products', meaning significant findings require formal management and review by the Project Board. Bypassing these steps risks developing solutions for unverified causes, leading to further issues and project failure.",
+                    nextStepId: "scenario4_improve"
+                }
+            ]
+        },
+        "scenario4_improve": {
+            focus: "Phase 4: IMPROVE (Cross-Framework Solution Development & Implementation)",
+            briefing: "With verified root causes, you enter the 'Improve' phase. Your goal is to design, pilot, and implement solutions to eliminate or mitigate the identified causes of outages. This involves Six Sigma's solution design, PMP's execution and resource management, and PRINCE2's controlled product delivery and stage management.",
+            animatedSequence: [
+                {
+                    staticNetwork: `
+                  ┌───────────────────────────────────────────────────────────┐
+                  │           [PRINCE2: CS - Controlling a Stage]             │
+                  │ (Authorize Work Package, Manage by Exception, Quality Check) │
+                  │           [PRINCE2: MP - Managing Product Delivery]       │
+                  │ (Accept/Execute Work Package, Deliver Specialist Products)│
+                  └───────┬────────────────────────────────────────────┬───────┘
+                          │                      │
+                  ┌───────V───────────────┐      │
+                  │    [PMP: EXECUTING]   │      │
+                  │ (Direct & Manage Project Work, Acquire Resources)         │
+                  │ [PMP: MONITORING & CONTROLLING]                           │
+                  │ (Perform Quality Control, Implement Risk Responses)       │
+                  └───────┬───────────────┘      │
+                          │                      │
+                  ┌───────V──────────────────────V───────┐
+                  │    [SIX SIGMA DMAIC: I M P R O V E]  │
+                  │  Solutions: Implement Automated Deployment Pipeline,       │
+                  │             Develop Standardized Runbooks, Enhance Monitoring Alerts. │
+                  │  Output: Tested, Validated & Implemented Solutions        │
+                  └───────────────────────────────────────────────────────────┘
+    
+    (Collaboratively Improving: Control, Execution & Solution Design)`,
+                    description: "In 'Improve', Six Sigma designs the solutions. PMP manages the execution, resources, and risk responses. PRINCE2 ensures the solutions are developed as 'products' via 'Work Packages' and delivered with controlled quality, aligning all efforts for effective implementation.",
+                    duration: 4000
+                }
+            ],
+            task: "To successfully implement the solution (automated deployment and standardized runbooks), how do you best leverage the collaborative strengths of all three frameworks?",
+            choices: [
+                {
+                    text: "Create 'Product Descriptions' (PRINCE2) for the automated pipeline and runbooks. Develop a 'Work Package' (PRINCE2) for development, assign resources (PMP), manage its execution using the 'Direct and Manage Project Work' process (PMP), and ensure rigorous piloting and validation against Six Sigma CTQs (e.g., reduced deployment errors, faster recovery).",
+                    outcomeBriefing: "Excellent! This action is the epitome of cross-framework collaboration. PRINCE2's 'Product Descriptions' clearly define the deliverables, and 'Work Packages' provide controlled assignment. PMP's 'Direct and Manage Project Work' ensures efficient execution and resource allocation. Six Sigma's validation against CTQs scientifically proves the effectiveness of the improvement. This integrated approach ensures the solutions are well-defined, effectively managed, and demonstrably achieve the desired quality improvements.",
+                    nextStepId: "scenario5_control"
+                },
+                {
+                    text: "Quickly build the automation and documentation with a small team, then push it live immediately to get quick wins, bypassing extensive testing or formal handover.",
+                    outcomeBriefing: "This 'move fast and break things' approach is highly detrimental in this integrated context. It violates PRINCE2's 'Manage by Stages' and 'Focus on Products' by not properly delivering a quality-checked 'product'. It sidesteps PMP's quality management and change control. It fails Six Sigma's validation requirement. Rushing deployment without controlled testing and formal handover often leads to new issues, negating any 'improvements' and eroding trust.",
+                    nextStepId: "scenario5_control"
+                }
+            ]
+        },
+        "scenario5_control": {
+            focus: "Phase 5: CONTROL (Cross-Framework Sustainment, Handover & Closure)",
+            briefing: "With solutions implemented, the 'Control' phase focuses on sustaining the gains. This involves Six Sigma's ongoing monitoring, PMP's formal closure and lessons learned, and PRINCE2's benefits realization and project closure processes, ensuring the improved IT service remains excellent long-term.",
+            animatedSequence: [
+                {
+                    staticNetwork: `
+                  ┌───────────────────────────────────────────────────────────┐
+                  │           [PRINCE2: CP - Closing a Project]               │
+                  │ (Evaluate Project, Confirm Benefits, Handover Products)   │
+                  │           [PRINCE2: DP - Directing a Project]             │
+                  │ (Benefits Review Plan, Lessons Learned Register)          │
+                  └───────┬────────────────────────────────────────────┬───────┘
+                          │                      │
+                  ┌───────V───────────────┐      │
+                  │    [PMP: CLOSING]     │      │
+                  │ (Close Project or Phase, Lessons Learned, Update OPA)     │
+                  │ [PMP: MONITORING & CONTROLLING]                           │
+                  │ (Perform Quality Control - Monitor Ongoing Performance)   │
+                  └───────┬───────────────┘      │
+                          │                      │
+                  ┌───────V──────────────────────V───────┐
+                  │    [SIX SIGMA DMAIC: C O N T R O L]  │
+                  │  Tools: Statistical Process Control (SPC) Charts,          │
+                  │          Control Plan, Process Audits, Standard Operating Procedures (SOPs) │
+                  │  Output: Sustainable Process, Measurable Benefits, Closed Project │
+                  └───────────────────────────────────────────────────────────┘
+    
+    (Collaboratively Controlling: Governance, Management & Process Sustainment)`,
+                    description: "In 'Control', Six Sigma's tools sustain improvements. PMP formalizes project closure and knowledge transfer. PRINCE2 ensures benefits are reviewed and products formally handed over, maintaining the improved state and closing the project responsibly.",
+                    duration: 4000
+                }
+            ],
+            task: "To ensure the reduced outage frequency and MTTR are sustained and the project formally closed, what is the most comprehensive collaborative cross-framework action?",
+            choices: [
+                {
+                    text: "Implement a 'Control Plan' (Six Sigma) with SPC charts for MTTR/Outage Freq., establish regular process audits, and update SOPs. Create a 'Benefits Review Plan' (PRINCE2) to track the ROI post-project closure. Formally 'Close the Project' (PMP/PRINCE2), conduct a 'Lessons Learned' session (PMP), and update 'Organizational Process Assets' (PMP).",
+                    outcomeBriefing: "Absolutely perfect! This action encapsulates the full power of collaborative cross-framework knowledge. Six Sigma's Control Plan and SPC charts ensure continuous monitoring. PRINCE2's Benefits Review Plan ensures ongoing business justification. PMP's formal project closure and Lessons Learned capture valuable knowledge for future projects and organizational learning. This integrated approach not only sustains the gains but also closes the project responsibly, maximizing long-term value and demonstrating mastery of all three frameworks.",
+                    nextStepId: "end"
+                },
+                {
+                    text: "Simply declare the project a success and reassign the team, assuming the improvements will stick without ongoing effort or formal closeout.",
+                    outcomeBriefing: "This is a classic failure point for projects lacking integrated controls. Without a Six Sigma Control Plan, improvements will regress. Without PMP's formal closure and lessons learned, valuable knowledge is lost. Without PRINCE2's Benefits Review Plan, the business justification is never confirmed. This approach completely ignores the 'Control' phase, leading to unsustainable gains and undermining the entire improvement effort.",
+                    nextStepId: "end"
+                }
+            ]
+        },
+        "end": {
+            focus: "Simulation Complete: Mastery of Collaborative Cross-Framework IT Service Improvement!",
+            briefing: "Congratulations! You have successfully navigated an IT service improvement project by expertly leveraging the integrated power of Six Sigma's DMAIC, PMP's project management, and PRINCE2's robust governance. You now possess a 'Gigantic Collaborative Cross-Framework Knowledge' essential for leading complex improvement initiatives.",
+            animatedSequence: [
+                {
+                    staticNetwork: `
+                  ┌───────────────────────────────────────────────────────────┐
+                  │                      PRINCE2 GOVERNANCE                   │
+                  │ (Principles: Bus Just., Learn, Roles, Stages, Exception,  │
+                  │  Focus on Products, Tailor)                               │
+                  │ Processes: SU, DP, IP, CS, MP, SB, CP                     │
+                  └───────┬────────────────────────────────────────────┬───────┘
+                          │                      │
+                  ┌───────V───────────────┐  ┌───────V───────────────┐
+                  │   PMP PROCESS GROUPS  │  │   PMP PROCESS GROUPS  │
+                  │  (Initiating/Planning)├──────────────────┤(Executing/M&C/Closing)│
+                  │                       │  │                       │
+                  └───────┬───────────────┘  └───────┬───────────────┘
+                          │                      │
+                  ┌───────V──────────────────────V───────┐
+                  │               SIX SIGMA DMAIC LIFECYCLE                   │
+                  │                                                           │
+                  │   D E F I N E  <-----------------------------------------┐│
+                  │       │                                                  ││
+                  │       V                                                  ││
+                  │   M E A S U R E                                          ││
+                  │       │                                                  ││
+                  │       V                                                  ││
+                  │   A N A L Y Z E                                          ││
+                  │       │                                                  ││
+                  │       V                                                  ││
+                  │   I M P R O V E                                          ││
+                  │       │                                                  ││
+                  │       V                                                  ││
+                  │   C O N T R O L -----------------------------------------┘│
+                  │                                                           │
+                  └───────────────────────────────────────────────────────────┘
+    
+    🏆 YOU'VE ACHIEVED GIGANTIC COLLABORATIVE CROSS-FRAMEWORK KNOWLEDGE! 🏆
+    
+                     Powered by Gemini`,
+                    description: "A final overview of the fully integrated ecosystem, demonstrating how Six Sigma, PMP, and PRINCE2 combine to deliver unparalleled IT service improvement and project success.",
+                    duration: 5000
+                }
+            ],
+            task: "Thank you for participating in this advanced simulator. Your ability to integrate and apply these powerful frameworks will drive significant value in any organization!",
+            choices: []
+        }
+    };
+
+    // --- SIMULATOR ENGINE ---
+    let currentStepId = "start";
+    let mainAnimationTimeout;
+
+    const frameworkFocusEl = document.getElementById('framework-focus');
+    const briefingEl = document.getElementById('briefing');
+    const networkEl = document.getElementById('network-animation');
+    const stepDescriptionEl = document.getElementById('step-description');
+    const taskEl = document.getElementById('task');
+    const choicesEl = document.getElementById('choices');
+    const interactionAreaEl = document.getElementById('interaction-area');
+    const waitingMessageEl = document.getElementById('waiting-message');
+    const briefingTitleEl = document.querySelector('.section-title.briefing-title');
+    const taskTitleEl = document.querySelector('.section-title.task-title');
+
+
+    function stopCurrentAnimations() {
+        clearTimeout(mainAnimationTimeout);
+    }
+
+    async function animateSequence(sequence) {
+        stopCurrentAnimations(); // Clear any running animations
+        interactionAreaEl.style.display = 'none';
+        waitingMessageEl.style.display = 'block';
+
+        for (let i = 0; i < sequence.length; i++) {
+            const frame = sequence[i];
+            stepDescriptionEl.textContent = frame.description;
+            stepDescriptionEl.style.display = 'flex';
+
+            if (frame.staticNetwork) {
+                networkEl.textContent = frame.staticNetwork;
+                await new Promise(resolve => mainAnimationTimeout = setTimeout(resolve, frame.duration));
+            }
+        }
+
+        waitingMessageEl.style.display = 'none';
+        interactionAreaEl.style.display = 'block';
+    }
+
+    async function displayStep(stepId) {
+        const step = scenarioSteps[stepId];
+        if (!step) {
+            console.error("Step not found:", stepId);
+            return;
+        }
+
+        currentStepId = stepId;
+
+        stopCurrentAnimations(); // Ensure all previous animations are stopped
+
+        // Reset elements
+        stepDescriptionEl.style.display = 'none';
+        stepDescriptionEl.innerHTML = '';
+        choicesEl.innerHTML = '';
+        interactionAreaEl.style.display = 'none';
+        taskEl.className = 'task'; // Reset class for task
+        briefingTitleEl.style.display = 'block';
+        taskTitleEl.style.display = 'block';
+
+
+        // Populate initial step content
+        frameworkFocusEl.textContent = step.focus;
+        briefingEl.textContent = step.briefing;
+        taskEl.textContent = step.task;
+
+        if (stepId === "end") {
+            briefingTitleEl.style.display = 'none'; // Hide briefing title for final message
+            briefingEl.style.display = 'none'; // Hide briefing content for final message
+            taskTitleEl.style.display = 'none';
+            choicesEl.style.display = 'none';
+            taskEl.className = 'final-message';
+        } else {
+            briefingEl.style.display = 'flex';
+            choicesEl.style.display = 'flex';
+        }
+
+        // Run the animated sequence
+        await animateSequence(step.animatedSequence);
+
+        // After animation, set up choices
+        if (step.choices && step.choices.length > 0) {
+            step.choices.forEach((choice, index) => {
+                const button = document.createElement('button');
+                button.textContent = choice.text;
+                button.addEventListener('click', () => handleChoice(choice));
+                choicesEl.appendChild(button);
+            });
+        }
+    }
+
+    function handleChoice(selectedChoice) {
+        // Display the outcome briefing in the stepDescription area
+        stepDescriptionEl.innerHTML = selectedChoice.outcomeBriefing;
+        stepDescriptionEl.style.display = 'flex';
+
+        // Disable all choice buttons
+        Array.from(choicesEl.children).forEach(button => button.disabled = true);
+        
+        // Prepare for next step
+        const nextStepId = selectedChoice.nextStepId;
+        if (nextStepId) {
+            // Add a small delay for user to read outcome, then go to next step
+            setTimeout(() => {
+                displayStep(nextStepId);
+            }, 5000); // 5 seconds to read outcome and explanation
+        }
+    }
+
+    // --- START SIMULATION ---
+    displayStep(currentStepId);
+
+</script>
+</body>
+</html>
