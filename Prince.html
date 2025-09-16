@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IT Service Improvement: Six Sigma, PMP & PRINCE2 Simulator (V7) - Powered by Gemini</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px 0;
+            box-sizing: border-box;
+        }
+        #simulator-container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            width: 950px;
+            max-width: 98%;
+            padding: 2rem;
+            box-sizing: border-box;
+        }
+        h1 {
+            color: #1c3d5a;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 0.5rem;
+            margin-top: 0;
+            font-size: 1.8em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        h1 .gemini-tag {
+            font-size: 0.6em;
+            color: #666;
+            font-weight: normal;
+            background-color: #e0e0e0;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        h2 {
+            color: #007bff; /* Blue for Six Sigma focus */
+            font-size: 1.3em;
+            margin-top: 1.5rem;
+            margin-bottom: 0.8rem;
+        }
+        #network-animation {
+            background-color: #0d1117;
+            color: #c9d1d9;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 1rem;
+            border-radius: 6px;
+            white-space: pre;
+            font-size: 13px; /* Slightly smaller to fit more info */
+            overflow-x: auto;
+            min-height: 220px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+        .section-title {
+            font-weight: bold;
+            color: #1c3d5a;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+        }
+        .section-title.briefing-title::before {
+            content: "📚 Scenario Overview: ";
+            color: #007bff;
+            margin-right: 5px;
+        }
+        .section-title.task-title::before {
+            content: "❓ Your Six Sigma, PMP & PRINCE2 Challenge: ";
+            color: #dc3545;
+            margin-right: 5px;
+        }
+
+        .briefing, .step-description {
+            margin: 0.5rem 0 1rem 0;
+            line-height: 1.6;
+            background-color: #e6f7ff;
+            border-left: 4px solid #007bff;
+            padding: 0.8rem 1rem;
+            border-radius: 4px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+        }
+        .step-description {
+            background-color: #f0fdf4;
+            border-left-color: #28a745;
+        }
+        .task {
+            margin: 0.5rem 0 1rem 0;
+            font-weight: normal;
+            font-size: 1em;
+            color: #333;
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 0.8rem 1rem;
+            border-radius: 4px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+        }
+        #choices {
+            margin-top: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            text-align: left;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        button:hover {
+            background-color: #0056b3;
+            transform: translateY(-1px);
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        #interaction-area {
+            display: none;
+        }
+        .final-message {
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+            color: #0c5460;
+            padding: 1.5rem;
+            text-align: center;
+            font-size: 1.2rem;
+            margin-top: 2rem;
+        }
+        .waiting-message {
+            text-align: center;
+            margin-top: 1rem;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+<div id="simulator-container">
+    <h1>
+        IT Service Improvement: Six Sigma, PMP & PRINCE2 Simulator (V7)
+        <span class="gemini-tag">Powered by Gemini</span>
+    </h1>
+    <div id="step-content">
+        <h2 class="framework-focus" id="framework-focus"></h2>
+        <div class="section-title briefing-title"></div>
+        <div class="briefing" id="briefing"></div>
+        <pre id="network-animation"></pre>
+        <div class="step-description" id="step-description"></div>
+        <div id="interaction-area">
+            <div class="section-title task-title"></div>
+            <div class="task" id="task"></div>
+            <div id="choices"></div>
+        </div>
+        <div class="waiting-message" id="waiting-message" style="display: none;">Animating concept... Please wait.</div>
+    </div>
+</div>
+
+<script>
+    // --- ANIMATION CONFIGURATION (Simplified for conceptual diagrams) ---
+    const ANIMATION_DURATION_PER_FRAME = 2000; // Milliseconds per static conceptual frame
+
+    // --- SIMULATOR DATA ---
+    const scenarioSteps = {
+        "start": {
+            focus: "Welcome: IT Service Improvement - Six Sigma, PMP & PRINCE2",
+            briefing: "This simulator integrates Six Sigma's DMAIC methodology with PMP's project management and PRINCE2's governance for robust IT service improvement. Each DMAIC phase is aligned with relevant PMP Process Groups and PRINCE2 Principles/Processes.",
+            animatedSequence: [
+                {
+                    staticNetwork: `      [PRINCE2: SU / DP]  <-- Business Case
+               |
+      [PMP: INITIATING]
+               |
+               V
+      D E F I N E    [PMP: PLANNING]
+        /       \\   /
+     /           \\ /
+  M E A S U R E --- A N A L Y Z E  [PMP: EXECUTING]
+     \\           / \\
+        \\       /   \\
+          I M P R O V E  [PMP: MONITORING & CONTROLLING]
+              |
+              V
+          C O N T R O L
+              |
+              V
+      [PMP: CLOSING]  --> [PRINCE2: CP]
+    
+    (Integrated DMAIC, PMP, and PRINCE2 for IT Service Excellence)`,
+                    description: "Introducing the comprehensive framework: DMAIC for process improvement, structured by PMP, and governed by PRINCE2's principles and processes for controlled project delivery.",
+                    duration: 4000
+                }
+            ],
+            task: "Our initial challenge is to formally start and define an IT service improvement project, ensuring strong business justification and project governance. Click 'Continue' to begin.",
+            choices: [
+                {
+                    text: "Continue to 'Define' Phase: IT Change Management Bottlenecks",
+                    outcomeBriefing: "Excellent. A well-justified and clearly defined project, with appropriate governance, is critical for success in any improvement initiative.",
+                    nextStepId: "scenario1_define"
+                }
+            ]
+        },
+        "scenario1_define": {
+            focus: "Phase 1: DEFINE (PMP: Initiating/Planning; PRINCE2: SU/DP/IP) - IT Change Management Bottlenecks",
+            briefing: "Your organization experiences frequent delays and failures in IT change deployments, leading to service disruption. As the Project Manager/Manager of this Six Sigma project, in the 'Define' phase, you must ensure business justification (PRINCE2 Business Case), create a Project Charter (PMP), define project scope, and identify Critical To Quality (CTQ) metrics from the business and operational perspectives, adhering to PRINCE2's 'Starting up a Project' (SU) and 'Initiating a Project' (IP) processes.",
+            animatedSequence: [
+                {
+                    staticNetwork: `    [PRINCE2: SU - Appoint Exec & PM, Create Project Brief]
+             |
+             V
+    [PMP: INITIATING - Develop Project Charter]
+             |
+             V
+          [PROJECT CHARTER & PRINCE2: PID - Project Initiation Doc]
+          +-----------------+-------------------+
+          | Problem: Slow,  | Business Case:    |
+          |  Failed Changes |  ROI, Reduced Risk|
+          | Scope: Major    | CTQs: Swift,      |
+          |  Infra Changes  |  Successful       |
+          | Stakeholders:   |  Deployment,      |
+          |  Change Mgmt,   |  Minimized        |
+          |  DevOps, Ops    |  Downtime         |
+          +-----------------+-------------------+
+             |
+             V
+           [PRINCE2: IP - Plan Quality, Risk, Config]
+    
+    (Defining with Integrated Governance and Project Management)`,
+                    description: "Visualizing the 'Define' phase: Establishing the business case (PRINCE2), creating the Project Charter (PMP), and detailing initial plans and CTQs within the PRINCE2 'Starting up a Project' and 'Initiating a Project' framework.",
+                    duration: 4000
+                }
+            ],
+            task: "To formally define this IT Change Management improvement project, which action best integrates Six Sigma's CTQ identification, PMP's stakeholder engagement, and PRINCE2's business justification and project brief elements?",
+            choices: [
+                {
+                    text: "Develop a 'Project Brief' (PRINCE2) and 'Project Charter' (PMP) after consulting with the Executive Sponsor (PRINCE2 'Executive' role) and key business stakeholders. This involves defining the Business Case, project objectives, scope, and Critical To Quality (CTQ) metrics for change success.",
+                    outcomeBriefing: "Correct. This approach exemplifies the synergistic integration. The PRINCE2 'Project Brief' (containing the Business Case) and PMP 'Project Charter' provide robust project definition. Engaging the Executive Sponsor and stakeholders ensures alignment, clear CTQs, and a strong foundation, adhering to PRINCE2's 'Business Justification' and 'Defined Roles and Responsibilities' principles, and PMP's stakeholder management.",
+                    nextStepId: "scenario2_measure"
+                },
+                {
+                    text: "Based on internal IT data, create a detailed project plan and present it for immediate approval to the IT Director.",
+                    outcomeBriefing: "While efficiency is good, this approach bypasses crucial steps. PRINCE2 emphasizes continuous business justification and clearly defined roles; the Executive Sponsor, not just the IT Director, would formally authorize the project. Skipping a proper 'Project Brief' and broad stakeholder engagement risks misalignment and a lack of true business buy-in, undermining the project's long-term success and potentially leading to a 'project in trouble' scenario from a PRINCE2 perspective.",
+                    nextStepId: "scenario2_measure"
+                }
+            ]
+        },
+        "scenario2_measure": {
+            focus: "Phase 2: MEASURE (PMP: Planning/Executing; PRINCE2: IP/CS) - Current Change Performance Baselines",
+            briefing: "With the project defined and initiated, you're in the 'Measure' phase. PMP's 'Planning' process group (e.g., Plan Scope, Plan Quality) guides data collection, while PRINCE2's 'Initiating a Project' (IP) and 'Controlling a Stage' (CS) processes ensure that quality criteria are defined and data collection is managed effectively to establish reliable baselines for IT change management.",
+            animatedSequence: [
+                {
+                    staticNetwork: `    [PRINCE2: IP - Create Quality Management Approach, Planning]
+             |
+             V
+    [PMP: PLANNING - Plan Quality Management, Collect Requirements]
+             |
+             V
+          [PROCESS FLOW - Change Management]
+          [Request] -> [Review] -> [Approve] -> [Implement] -> [Verify]
+             |              |           |            |              |
+             V              V           V            V              V
+          [DATA POINTS]     [BASELINE METRICS] [DATA COLLECTION PLAN (PMP)]
+          'Lead Time'       'Avg. Success Rate: X%'  'Source: ITSM, CI/CD Logs'
+          'Failure Rate'    'Avg. Rollback Time: Y hrs' 'Method: Automated/Manual'
+          'Approval Time'   'Cost of Failure: Z'   'Quality Check: Sample Audit'
+    
+    (Measuring IT Change with PMP-PRINCE2 Quality Assurance)`,
+                    description: "Visualizing the 'Measure' phase: Mapping the change process, setting quality criteria (PRINCE2), establishing baselines, and meticulously planning data collection (PMP) to quantify current performance and identify defects.",
+                    duration: 4000
+                }
+            ],
+            task: "To accurately measure current IT change performance and establish a reliable baseline, how do you best combine Six Sigma's data focus with PMP's planning and PRINCE2's quality considerations?",
+            choices: [
+                {
+                    text: "Develop a 'Quality Management Approach' (PRINCE2) and a detailed 'Data Collection Plan' (PMP) specifying metrics (e.g., Change Success Rate, Mean Time To Rollback), data sources (ITSM, CI/CD tools), collection methods, and validation processes. Ensure quality tolerance (PRINCE2) is set for the data.",
+                    outcomeBriefing: "Correct. This integrated action is robust. The PRINCE2 'Quality Management Approach' defines how quality will be achieved and measured, while PMP's 'Data Collection Plan' executes it. Setting quality tolerances (PRINCE2) ensures the collected data itself is reliable. This rigorous approach is fundamental to Six Sigma's 'Measure' phase, providing a solid, verifiable baseline against which improvements will be assessed, minimizing risks and errors in subsequent analysis.",
+                    nextStepId: "scenario3_analyze"
+                },
+                {
+                    text: "Gather existing change management reports from the last few months and extrapolate current performance, without formal data validation.",
+                    outcomeBriefing: "Relying on existing reports without formal validation or a structured data collection plan introduces significant risks. PRINCE2 emphasizes 'Focus on Products' and quality; data is a product and must be fit for purpose. PMP calls for 'Plan Quality Management.' Without these, the data may be inconsistent, incomplete, or inaccurate, leading to flawed analysis in the Six Sigma 'Analyze' phase and potentially misdirecting the entire improvement effort.",
+                    nextStepId: "scenario3_analyze"
+                }
+            ]
+        },
+        "scenario3_analyze": {
+            focus: "Phase 3: ANALYZE (PMP: Executing/Monitoring & Controlling; PRINCE2: CS/SB) - Root Cause Identification",
+            briefing: "With reliable baseline data, the 'Analyze' phase begins. You'll apply Six Sigma tools to identify root causes of change management bottlenecks. PMP's 'Monitoring & Controlling' ensures analysis is tracked, while PRINCE2's 'Controlling a Stage' (CS) and 'Managing a Stage Boundary' (SB) processes guide issue management, reporting progress, and ensuring continued business justification.",
+            animatedSequence: [
+                {
+                    staticNetwork: `    [PRINCE2: CS - Review Work Package, Report Highlight]
+             |
+             V
+    [PMP: EXECUTING - Direct & Manage Work / MONITORING & CONTROLLING - Perform Integrated Change Control]
+             |
+             V
+          [DATA ANALYSIS & ROOT CAUSE TOOLS]
+          +-----------------+-------------------+
+          | Pareto Chart    | PRINCE2: Issue    |
+          | (Top causes of  |  Register -       |
+          |  change failure)|  Document issues  |
+          | Fishbone Diagram|  identified       |
+          | (Causes: People,| PMP: Root Cause   |
+          |  Process, Tool, |  Analysis Report  |
+          |  Environment)   |                   |
+          +-----------------+-------------------+
+             |
+             V
+          [VERIFIED ROOT CAUSES]
+    'Manual Approval Delays'
+    'Lack of Standardized Testing'
+    'Poor Communication on Dependencies'
+    
+    (PMP/PRINCE2-Managed Six Sigma Analysis)`,
+                    description: "Visualizing the 'Analyze' phase: Employing Six Sigma tools (Pareto, Fishbone) for root cause analysis, while managing issues (PRINCE2 Issue Register) and documenting findings in a PMP-style report for stakeholders.",
+                    duration: 4000
+                }
+            ],
+            task: "You've identified 'manual approval processes and lack of automated testing' as significant contributors to change delays and failures. How do you confirm this as a verifiable root cause, integrating Six Sigma analysis with PMP's information dissemination and PRINCE2's issue management?",
+            choices: [
+                {
+                    text: "Conduct a 'Value Stream Map' (Six Sigma) of the change process to identify waste and bottlenecks, perform '5 Whys' analysis on failed changes, document findings in a 'Root Cause Analysis Report' (PMP 'Work Performance Reports'), register these as 'Issues' (PRINCE2 Issue Register), and present to the Project Board (PRINCE2 'Directing a Project').",
+                    outcomeBriefing: "Correct. This comprehensive action effectively integrates all three. Value Stream Mapping and '5 Whys' are robust Six Sigma analytical tools. Documenting findings in a PMP report and registering them as PRINCE2 'Issues' ensures formal tracking and visibility. Presenting to the Project Board demonstrates adherence to PRINCE2's 'Manage by Exception' and 'Defined Roles and Responsibilities,' allowing for informed decisions on how to proceed into the 'Improve' phase.",
+                    nextStepId: "scenario4_improve"
+                },
+                {
+                    text: "Conclude that the IT Director needs to push for faster approvals and tell the testing team to 'test harder,' then move directly to suggesting solutions.",
+                    outcomeBriefing: "This reactive approach, lacking data-driven verification, contradicts the core principles of Six Sigma, PMP, and PRINCE2. Six Sigma demands root cause verification; PMP requires objective 'Work Performance Information'; and PRINCE2 emphasizes 'Manage by Exception' and 'Business Justification' based on facts, not assumptions. Prescribing solutions prematurely without thorough analysis risks addressing symptoms rather than true problems, leading to ineffective and unsustainable 'improvements.'",
+                    nextStepId: "scenario4_improve"
+                }
+            ]
+        },
+        "scenario4_improve": {
+            focus: "Phase 4: IMPROVE (PMP: Executing/Monitoring & Controlling; PRINCE2: CS/MP) - Solution Implementation",
+            briefing: "With verified root causes, the 'Improve' phase begins. From a PMP perspective (primarily 'Direct and Manage Project Work' and 'Implement Risk Responses'), you'll develop and implement solutions. PRINCE2's 'Controlling a Stage' (CS) and 'Managing Product Delivery' (MP) processes ensure that specialist products (the solutions) are developed, tested, and delivered within agreed tolerances and quality criteria.",
+            animatedSequence: [
+                {
+                    staticNetwork: `    [PRINCE2: CS - Authorize Work Package, Take Corrective Action]
+             |
+             V
+    [PMP: EXECUTING - Direct & Manage Project Work / MONITORING & CONTROLLING - Control Quality]
+             |
+             V
+          [SOLUTION DESIGN & DEVELOPMENT]
+          +-----------------+-------------------+
+          | Automate Change | PRINCE2: Product  |
+          |  Approval Flows |  Description for  |
+          |  (Workflow Mgmt)|  'Automated Flow' |
+          | Implement       | PMP: Activity     |
+          |  Automated      |  Schedule for     |
+          |  Testing in CI/CD|  Implementation   |
+          +-----------------+-------------------+
+             |
+             V
+          [PILOT, VALIDATE & DELIVER (PRINCE2: MP)]
+          'Test with non-prod changes'
+          'Verify against CTQs (Six Sigma)'
+             |
+             V
+          [DEPLOY SOLUTIONS (PMP: Executing)]
+          'Roll out controlled to all systems'
+    
+    (PMP/PRINCE2-Governed Implementation of Six Sigma Solutions)`,
+                    description: "Visualizing the 'Improve' phase: Designing and developing solutions (automating approvals, testing) with PRINCE2 'Product Descriptions', executing the plan (PMP), piloting, and verifying effectiveness against CTQs.",
+                    duration: 4000
+                }
+            ],
+            task: "To effectively implement solutions (e.g., automated change approvals, integrated automated testing) and manage their deployment, how do you best integrate Six Sigma's improvement actions with PMP's execution and PRINCE2's product delivery and stage control?",
+            choices: [
+                {
+                    text: "Develop 'Product Descriptions' (PRINCE2) for each solution (e.g., 'Automated Approval Workflow'). Create a 'Change Management Plan' (PMP) for pilot implementation, manage the 'Work Packages' (PRINCE2) for solution development, and conduct thorough testing, validating effectiveness against defined CTQs before full deployment.",
+                    outcomeBriefing: "Correct. This integrated action is highly effective. PRINCE2 'Product Descriptions' ensure clarity on deliverables. PMP's 'Change Management Plan' provides structure for rollout. Managing 'Work Packages' (PRINCE2) ensures controlled delivery of solutions. Piloting and validating against Six Sigma CTQs rigorously confirms the improvements. This ensures high-quality 'products' (solutions) are delivered, reducing project risks and enhancing success probability.",
+                    nextStepId: "scenario5_control"
+                },
+                {
+                    text: "Immediately implement the new automated processes across the board to realize benefits quickly, assuming they will work as designed.",
+                    outcomeBriefing: "Rapid, untested, wide-scale implementation contradicts 'Manage by Stages' and 'Manage by Exception' (PRINCE2), and PMP's disciplined execution. It foregoes crucial validation (Six Sigma 'Improve' phase). Without piloting and controlled deployment, unforeseen issues are highly likely, leading to new service disruptions, potential project failure, and a violation of PRINCE2's 'Focus on Products' and 'Learn from Experience' principles by not validating before mass rollout.",
+                    nextStepId: "scenario5_control"
+                }
+            ]
+        },
+        "scenario5_control": {
+            focus: "Phase 5: CONTROL (PMP: Monitoring & Controlling/Closing; PRINCE2: CS/CP) - Sustaining Improvements",
+            briefing: "After successful implementation, the 'Control' phase ensures that the gains are sustained. From a PMP perspective (primarily 'Perform Quality Control' and 'Close Project or Phase'), this involves establishing ongoing monitoring. PRINCE2's 'Controlling a Stage' (CS) and 'Closing a Project' (CP) processes ensure continuous monitoring, formal handover, and realization of benefits.",
+            animatedSequence: [
+                {
+                    staticNetwork: `    [PRINCE2: CS - Continuous Monitoring, Update PID]
+             |
+             V
+    [PMP: MONITORING & CONTROLLING - Perform Quality Control]
+             |
+             V
+          [CONTROL PLAN - Six Sigma]
+          +-----------------+-------------------+
+          | SPC Charts      | PRINCE2: Benefits |
+          | (Monitor change |  Review Plan -    |
+          |  success rates) |  Track ROI        |
+          | Audits:         | PMP: Transition   |
+          |  Automated Test |  Plan, Lessons    |
+          |  Coverage       |  Learned Register |
+          +-----------------+-------------------+
+             |
+             V
+    [PMP: CLOSING - Close Project / PRINCE2: CP - Evaluate Project, Handover]
+    
+    (PMP/PRINCE2-Controlled Sustainment of Six Sigma Gains)`,
+                    description: "Visualizing the 'Control' phase: Implementing SPC, regular audits, and PMP/PRINCE2's formal handover, benefits review, and project closure processes to sustain and embed improvements.",
+                    duration: 4000
+                }
+            ],
+            task: "To ensure the improved IT change management process (automated approvals, testing) remains effective long-term, what is the most critical 'Control' phase action, encompassing Six Sigma sustainment, PMP project closure, and PRINCE2 benefits realization and project closure elements?",
+            choices: [
+                {
+                    text: "Implement a 'Control Plan' (Six Sigma) including Statistical Process Control (SPC) for key change metrics. Update the 'Organizational Process Assets' (PMP) with new procedures. Create a 'Benefits Review Plan' (PRINCE2) to track ROI post-project and formally 'Close the Project' (PMP/PRINCE2), archiving documentation and capturing 'Lessons Learned'.",
+                    outcomeBriefing: "Correct. This comprehensive action exemplifies the 'Control' phase. SPC (Six Sigma) provides data-driven monitoring. PMP ensures process assets are updated. The PRINCE2 'Benefits Review Plan' ensures that the project's business justification is tracked post-closure. Formally closing the project (PMP/PRINCE2) and capturing lessons learned is vital for organizational learning and preventing regression, ensuring sustained benefits and a successful project lifecycle.",
+                    nextStepId: "end"
+                },
+                {
+                    text: "Declare success, disband the project team, and move on, assuming the new automated processes will maintain themselves.",
+                    outcomeBriefing: "This common error completely undermines the entire improvement effort. Without a robust 'Control Plan' (Six Sigma), 'Benefits Review Plan' (PRINCE2), and formal project closure with handover (PMP/PRINCE2), gains are rarely sustained. Processes can drift, documentation becomes outdated, and the 'benefits' may never truly materialize or be measured. This approach contradicts 'Manage by Stages,' 'Learn from Experience,' and 'Continuous Business Justification' (PRINCE2 principles), ultimately leading to failure in sustaining IT service improvement.",
+                    nextStepId: "end"
+                }
+            ]
+        },
+        "end": {
+            focus: "Simulation Complete: IT Service Improvement through Six Sigma, PMP & PRINCE2!",
+            briefing: "Congratulations! You have successfully navigated an IT service improvement project using the integrated power of Six Sigma's DMAIC methodology, PMP's project management, and PRINCE2's robust governance. This holistic approach ensures both effective process optimization and efficient, controlled project delivery.",
+            animatedSequence: [
+                {
+                    staticNetwork: `      [PRINCE2: SU / DP]  <-- Business Case
+               |
+      [PMP: INITIATING]
+               |
+               V
+      D E F I N E    [PMP: PLANNING]
+        /       \\   /
+     /           \\ /
+  M E A S U R E --- A N A L Y Z E  [PMP: EXECUTING]
+     \\           / \\
+        \\       /   \\
+          I M P R O V E  [PMP: MONITORING & CONTROLLING]
+              |
+              V
+          C O N T R O L
+              |
+              V
+      [PMP: CLOSING]  --> [PRINCE2: CP]
+    
+    🏆 YOU'VE MASTERED IT SERVICE IMPROVEMENT WITH SIX SIGMA, PMP & PRINCE2! 🏆
+    
+                     Powered by Gemini`,
+                    description: "A final overview of the complete DMAIC cycle, underpinned by PMP Process Groups and PRINCE2 governance, highlighting the robust synergy for IT service excellence.",
+                    duration: 5000
+                }
+            ],
+            task: "Thank you for participating in this advanced simulator. Your integrated project management and process improvement skills are now even more formidable!",
+            choices: []
+        }
+    };
+
+    // --- SIMULATOR ENGINE ---
+    let currentStepId = "start";
+    let mainAnimationTimeout;
+
+    const frameworkFocusEl = document.getElementById('framework-focus');
+    const briefingEl = document.getElementById('briefing');
+    const networkEl = document.getElementById('network-animation');
+    const stepDescriptionEl = document.getElementById('step-description');
+    const taskEl = document.getElementById('task');
+    const choicesEl = document.getElementById('choices');
+    const interactionAreaEl = document.getElementById('interaction-area');
+    const waitingMessageEl = document.getElementById('waiting-message');
+    const briefingTitleEl = document.querySelector('.section-title.briefing-title');
+    const taskTitleEl = document.querySelector('.section-title.task-title');
+
+
+    function stopCurrentAnimations() {
+        clearTimeout(mainAnimationTimeout);
+    }
+
+    async function animateSequence(sequence) {
+        stopCurrentAnimations(); // Clear any running animations
+        interactionAreaEl.style.display = 'none';
+        waitingMessageEl.style.display = 'block';
+
+        for (let i = 0; i < sequence.length; i++) {
+            const frame = sequence[i];
+            stepDescriptionEl.textContent = frame.description;
+            stepDescriptionEl.style.display = 'flex';
+
+            if (frame.staticNetwork) {
+                networkEl.textContent = frame.staticNetwork;
+                await new Promise(resolve => mainAnimationTimeout = setTimeout(resolve, frame.duration));
+            }
+        }
+
+        waitingMessageEl.style.display = 'none';
+        interactionAreaEl.style.display = 'block';
+    }
+
+    async function displayStep(stepId) {
+        const step = scenarioSteps[stepId];
+        if (!step) {
+            console.error("Step not found:", stepId);
+            return;
+        }
+
+        currentStepId = stepId;
+
+        stopCurrentAnimations(); // Ensure all previous animations are stopped
+
+        // Reset elements
+        stepDescriptionEl.style.display = 'none';
+        stepDescriptionEl.innerHTML = '';
+        choicesEl.innerHTML = '';
+        interactionAreaEl.style.display = 'none';
+        taskEl.className = 'task'; // Reset class for task
+        briefingTitleEl.style.display = 'block';
+        taskTitleEl.style.display = 'block';
+
+
+        // Populate initial step content
+        frameworkFocusEl.textContent = step.focus;
+        briefingEl.textContent = step.briefing;
+        taskEl.textContent = step.task;
+
+        if (stepId === "end") {
+            briefingTitleEl.style.display = 'none'; // Hide briefing title for final message
+            briefingEl.style.display = 'none'; // Hide briefing content for final message
+            taskTitleEl.style.display = 'none';
+            choicesEl.style.display = 'none';
+            taskEl.className = 'final-message';
+        } else {
+            briefingEl.style.display = 'flex';
+            choicesEl.style.display = 'flex';
+        }
+
+        // Run the animated sequence
+        await animateSequence(step.animatedSequence);
+
+        // After animation, set up choices
+        if (step.choices && step.choices.length > 0) {
+            step.choices.forEach((choice, index) => {
+                const button = document.createElement('button');
+                button.textContent = choice.text;
+                button.addEventListener('click', () => handleChoice(choice));
+                choicesEl.appendChild(button);
+            });
+        }
+    }
+
+    function handleChoice(selectedChoice) {
+        // Display the outcome briefing in the stepDescription area
+        stepDescriptionEl.innerHTML = selectedChoice.outcomeBriefing;
+        stepDescriptionEl.style.display = 'flex';
+
+        // Disable all choice buttons
+        Array.from(choicesEl.children).forEach(button => button.disabled = true);
+        
+        // Prepare for next step
+        const nextStepId = selectedChoice.nextStepId;
+        if (nextStepId) {
+            // Add a small delay for user to read outcome, then go to next step
+            setTimeout(() => {
+                displayStep(nextStepId);
+            }, 5000); // 5 seconds to read outcome and explanation
+        }
+    }
+
+    // --- START SIMULATION ---
+    displayStep(currentStepId);
+
+</script>
+</body>
+</html>
