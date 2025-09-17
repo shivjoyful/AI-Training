@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate DHTML Wireshark Troubleshooting (Lockouts, Bottlenecks, Slowness)</title>
+
+    <style>
+        /* General Styling */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            background-color: #f0f2f5;
+            color: #333;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 1.5rem 0;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            position: relative;
+            z-index: 10; /* Ensure header is on top */
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.7em; /* Slightly smaller for longer title */
+        }
+
+        .container {
+            display: flex;
+            flex-grow: 1;
+            overflow: hidden; /* Prevent content overflow */
+        }
+
+        /* Control Panel / Info Area */
+        .control-panel {
+            width: 380px; /* Slightly wider for more text */
+            background-color: #ffffff;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            overflow-y: auto; /* Scroll for long content */
+            flex-shrink: 0; /* Don't shrink */
+        }
+
+        .control-panel h2 {
+            color: #34495e;
+            margin-top: 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .control-panel p, .control-panel ul {
+            font-size: 0.95em;
+            margin-bottom: 10px;
+        }
+
+        .control-panel ul {
+            padding-left: 20px;
+        }
+
+        .control-panel button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-top: 15px;
+            margin-right: 10px;
+            transition: background-color 0.2s ease;
+        }
+
+        .control-panel button:hover {
+            background-color: #2980b9;
+        }
+
+        .control-panel button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .control-panel button.reset-btn {
+            background-color: #e74c3c;
+        }
+        .control-panel button.reset-btn:hover {
+            background-color: #c0392b;
+        }
+
+        /* Network Animation Area */
+        .network-animation-area {
+            flex-grow: 1;
+            background-color: #e6e9ed;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden; /* Clip packet movement if it goes out */
+        }
+
+        .network-device {
+            width: 80px;
+            height: 80px;
+            background-color: #3498db;
+            border-radius: 8px;
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.8em;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            border: 2px solid transparent;
+            transition: border-color 0.3s ease;
+        }
+
+        .network-device.highlight {
+            border-color: #f1c40f; /* Yellow highlight */
+            box-shadow: 0 0 20px rgba(241, 196, 15, 0.7);
+        }
+
+        /* Specific device positions */
+        #client-host { left: 10%; top: 50%; transform: translateY(-50%); background-color: #28a745; } /* Green */
+        #server-host { right: 10%; top: 50%; transform: translateY(-50%); background-color: #e67e22; } /* Orange */
+        #switch-device { left: 50%; top: 50%; transform: translate(-50%, -50%); background-color: #9b59b6; width: 100px; height: 100px; } /* Purple */
+
+        .device-label {
+            position: absolute;
+            color: #333;
+            font-weight: bold;
+            font-size: 0.9em;
+            margin-top: 90px; /* Below the device */
+            text-align: center;
+        }
+        #client-label { left: 10%; transform: translateX(-50%); }
+        #server-label { right: 10%; transform: translateX(50%); }
+        #switch-label { left: 50%; transform: translateX(-50%); }
+
+        /* Promiscuous mode visual */
+        #promiscuous-indicator {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: #f1c40f; /* Yellow */
+            border-radius: 50%;
+            top: -10px; /* Position above client host */
+            right: -10px;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            box-shadow: 0 0 15px rgba(241, 196, 15, 0.7);
+            animation: pulse 1.5s infinite alternate ease-in-out;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.7em;
+            color: #333;
+            font-weight: bold;
+        }
+        #promiscuous-indicator.active {
+            opacity: 1;
+        }
+        @keyframes pulse {
+            from { transform: scale(0.8); opacity: 0.6; }
+            to { transform: scale(1.1); opacity: 1; }
+        }
+
+        /* Capture Filter visual */
+        #capture-filter-indicator {
+            position: absolute;
+            left: 30%; /* Roughly between client and switch */
+            top: 45%;
+            background-color: rgba(0,0,0,0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.75em;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            transform: rotate(-10deg);
+        }
+        #capture-filter-indicator.active {
+            opacity: 1;
+        }
+
+        /* Packet Styling */
+        #packet {
+            width: 40px;
+            height: 25px;
+            background-color: #f1c40f; /* Yellow packet */
+            border: 1px solid #c9a40c;
+            border-radius: 3px;
+            position: absolute;
+            top: 50%;
+            left: 10%; /* Start at client */
+            transform: translateY(-50%);
+            display: none; /* Hidden initially */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            font-size: 0.7em;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 1.5s ease-in-out; /* Smooth movement */
+        }
+
+        /* Animation classes for packet */
+        #packet.animate-to-switch {
+            transform: translate(calc(50vw - 10% - 20px), -50%); /* Move from client to switch */
+        }
+        #packet.animate-to-server {
+            transform: translate(calc(90vw - 10% - 20px), -50%); /* Move from client to server (past switch) */
+        }
+        #packet.animate-back-to-switch {
+            transform: translate(calc(50vw - 10% - 20px), -50%); /* Move from server to switch */
+        }
+        #packet.animate-back-to-client {
+             transform: translateY(-50%); /* Reset to client's initial Y, but X is already 10% of width */
+        }
+
+
+        /* OSI/TCP-IP Model Visualization */
+        .model-container {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #ccc;
+            background-color: rgba(255,255,255,0.9);
+            padding: 10px;
+            border-radius: 5px;
+            display: none; /* Hidden initially */
+            z-index: 5; /* Below header */
+        }
+
+        .model-layer {
+            padding: 8px 15px;
+            border-bottom: 1px solid #eee;
+            text-align: center;
+            font-size: 0.9em;
+            color: #555;
+            transition: background-color 0.3s ease, color 0.3s ease, font-weight 0.3s ease;
+        }
+        .model-layer:last-child { border-bottom: none; }
+
+        .model-layer.active {
+            background-color: #3498db;
+            color: white;
+            font-weight: bold;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+        }
+
+        .model-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+
+        /* Wireshark Output Area */
+        .wireshark-output {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #23272e; /* Dark background for code */
+            color: #a9b7c6; /* Light text color */
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.8em;
+            width: 80%;
+            max-width: 700px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            display: none; /* Hidden initially */
+            white-space: pre-wrap; /* Preserve whitespace and wrap */
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #555;
+            z-index: 5;
+        }
+
+        .output-highlight {
+            color: #f1c40f; /* Yellow highlight for active line */
+            font-weight: bold;
+        }
+        .output-highlight-secondary {
+            color: #76c7c0; /* Teal/cyan highlight for related but not primary */
+            font-weight: bold;
+        }
+        .output-time {
+            color: #92e078; /* Greenish for time */
+            font-weight: bold;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 900px) {
+            .container {
+                flex-direction: column;
+            }
+            .control-panel {
+                width: 100%;
+                max-height: 40vh; /* Limit height on small screens */
+                overflow-y: auto;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            }
+            .network-animation-area {
+                min-height: 50vh; /* Ensure some height for animation */
+                padding-top: 50px; /* Adjust for device placement */
+            }
+            .network-device {
+                top: 20%; /* Move devices up slightly */
+                transform: translateX(-50%); /* Adjust centering */
+            }
+            #client-host { left: 10%; }
+            #server-host { right: 10%; }
+            #switch-device { left: 50%; }
+
+            #client-label { top: 30%; left: 10%; }
+            #server-label { top: 30%; right: 10%; }
+            #switch-label { top: 30%; left: 50%; }
+
+            #promiscuous-indicator {
+                top: 10px; right: -5px;
+                width: 15px; height: 15px; font-size: 0.6em;
+            }
+
+            #capture-filter-indicator {
+                top: 35%; left: 30%; font-size: 0.65em; padding: 3px 6px;
+            }
+
+            #packet {
+                top: 25%;
+            }
+            #packet.animate-to-switch {
+                transform: translate(calc(50vw - 10% - 20px), 0);
+            }
+            #packet.animate-to-server {
+                transform: translate(calc(90vw - 10% - 20px), 0);
+            }
+            #packet.animate-back-to-switch {
+                transform: translate(calc(50vw - 10% - 20px), 0);
+            }
+            #packet.animate-back-to-client {
+                transform: translateY(0);
+            }
+
+            .wireshark-output {
+                width: 95%;
+                bottom: 10px;
+                max-height: 150px;
+                font-size: 0.75em;
+            }
+            .model-container {
+                display: none !important; /* Hide model on small screens to save space */
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>DHTML Wireshark Troubleshooting (Lockouts, Bottlenecks, Slowness)</h1>
+    </header>
+
+    <div class="container">
+        <div class="control-panel">
+            <h2 id="trainingTitle">Getting Started...</h2>
+            <p id="trainingDescription">Welcome to focused Wireshark troubleshooting! We'll dive directly into real-world scenarios to detect and diagnose common network and application issues.</p>
+            <p id="currentStepInfo">Click "Next Step" to begin.</p>
+
+            <div class="button-group">
+                <button id="nextStepBtn">Next Step</button>
+                <button id="resetBtn" class="reset-btn" disabled>Reset</button>
+            </div>
+
+            <div id="osiTcpIpInfo" style="margin-top: 20px;">
+                <h3>Current Scenario Focus</h3>
+                <p>No active scenario.</p>
+            </div>
+        </div>
+
+        <div class="network-animation-area">
+            <!-- Network Devices -->
+            <div class="network-device" id="client-host">
+                Client
+                <div id="promiscuous-indicator">P</div> <!-- 'P' for Promiscuous -->
+            </div>
+            <div class="device-label" id="client-label">192.168.1.100</div>
+
+            <div class="network-device" id="switch-device">Switch</div>
+            <div class="device-label" id="switch-label">Layer 2</div>
+
+            <div class="network-device" id="server-host">
+                Server
+                <br><small id="serverRole">Domain Controller</small>
+            </div>
+            <div class="device-label" id="server-label">192.168.1.1</div>
+
+            <!-- Capture Filter visual -->
+            <div id="capture-filter-indicator">BPF Filter: kerberos</div>
+
+            <!-- Packet -->
+            <div id="packet">KERB</div>
+
+            <!-- OSI/TCP-IP Model Visual - Keeping it for conceptual context, but less central -->
+            <div id="osiModelVisual" class="model-container">
+                <div class="model-title">OSI Model Layer</div>
+                <div class="model-layer" id="osi-layer-7">7. Application</div>
+                <div class="model-layer" id="osi-layer-6">6. Presentation</div>
+                <div class="model-layer" id="osi-layer-5">5. Session</div>
+                <div class="model-layer" id="osi-layer-4">4. Transport (TCP/UDP)</div>
+                <div class="model-layer" id="osi-layer-3">3. Network (IP)</div>
+                <div class="model-layer" id="osi-layer-2">2. Data Link (Ethernet)</div>
+                <div class="model-layer" id="osi-layer-1">1. Physical</div>
+            </div>
+
+            <!-- Wireshark Output Simulation -->
+            <pre id="wiresharkOutput" class="wireshark-output">
+[Simulated Wireshark Packet Detail]
+</pre>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const trainingTitle = document.getElementById('trainingTitle');
+            const trainingDescription = document.getElementById('trainingDescription');
+            const currentStepInfo = document.getElementById('currentStepInfo');
+            const nextStepBtn = document.getElementById('nextStepBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const osiTcpIpInfo = document.getElementById('osiTcpIpInfo');
+            const serverRoleDisplay = document.getElementById('serverRole');
+
+            const clientHost = document.getElementById('client-host');
+            const serverHost = document.getElementById('server-host');
+            const switchDevice = document.getElementById('switch-device');
+            const packet = document.getElementById('packet');
+
+            const promiscuousIndicator = document.getElementById('promiscuous-indicator');
+            const captureFilterIndicator = document.getElementById('capture-filter-indicator');
+
+
+            const osiModelVisual = document.getElementById('osiModelVisual');
+            const osiLayers = {
+                'Application': document.getElementById('osi-layer-7'),
+                'Presentation': document.getElementById('osi-layer-6'),
+                'Session': document.getElementById('osi-layer-5'),
+                'Transport': document.getElementById('osi-layer-4'),
+                'Network': document.getElementById('osi-layer-3'),
+                'Data Link': document.getElementById('osi-layer-2'),
+                'Physical': document.getElementById('osi-layer-1')
+            };
+
+            const wiresharkOutput = document.getElementById('wiresharkOutput');
+
+            let currentStep = 0;
+            let packetTime = 0.0; // Simulated Wireshark time
+
+            const trainingSteps = [
+                {
+                    title: "Ready for Troubleshooting with Wireshark!",
+                    description: "We'll jump directly into three common, critical scenarios: Account Lockouts, Network Bottlenecks, and Application Slowness. Understanding these will significantly boost your troubleshooting skills.",
+                    action: () => {
+                        resetAnimation();
+                        promiscuousIndicator.classList.add('active');
+                        clientHost.classList.add('highlight');
+                        serverHost.classList.add('highlight');
+                        packetTime = 0.0;
+                    },
+                    layer: null
+                },
+                // --- Scenario 1: Account Lockout (Kerberos) ---
+                {
+                    title: "Scenario 1: Account Lockout - Kerberos Authentication Failure",
+                    description: "A common helpdesk call: 'My account is locked out!' Wireshark can show us the exact Kerberos error codes causing it. We'll simulate a user trying to log in with the wrong password multiple times.",
+                    action: () => {
+                        serverRoleDisplay.textContent = "KDC (Kerberos DC)";
+                        captureFilterIndicator.classList.add('active');
+                        captureFilterIndicator.innerHTML = 'BPF Filter: kerberos';
+                        osiTcpIpInfo.innerHTML = `<h3>Scenario: Account Lockout</h3><p>Focusing on Kerberos (UDP/TCP port 88) traffic to a KDC.</p>`;
+                        highlightOsiLayer('Application', "Client attempts authentication via Kerberos.");
+                        packet.textContent = 'AS-REQ';
+                        packet.style.left = '10%';
+                        packetTime = 0.0; // Reset time for scenario
+                        updateWiresharkOutput([1,2,3,4],
+                            `[Time: <span class='output-time'>${packetTime.toFixed(4)}</span>] 1. Client AS-REQ (user1 - incorrect password):`,
+                            "<span class='output-highlight-secondary'>Frame 1: 150 bytes on wire</span>",
+                            "<span class='output-highlight'>IP Src: 192.168.1.100, Dst: 192.168.1.1</span>",
+                            "<span class='output-highlight'>UDP Src Port: 54321, Dst Port: 88 (Kerberos)</span>",
+                            "<span class='output-highlight'>Kerberos: AS-REQ (cname: user1)</span>"
+                        );
+                    },
+                    layer: 'Application'
+                },
+                {
+                    title: "KDC Responds with KRB-ERROR (Incorrect Password)",
+                    description: "The KDC (Domain Controller) receives the AS-REQ, recognizes the wrong password, and sends a Kerberos Error. Note the error code.",
+                    action: () => {
+                        packet.classList.add('animate-to-server');
+                        packet.textContent = 'KRB-ERROR';
+                        packetTime += 0.0005; // Quick response
+                        updateWiresharkOutput([1,2,3,4,5],
+                            `[Time: <span class='output-time'>${packetTime.toFixed(4)}</span>] 2. KDC KRB-ERROR (Incorrect Password):`,
+                            "<span class='output-highlight-secondary'>Frame 2: 170 bytes on wire</span>",
+                            "<span class='output-highlight'>IP Src: 192.168.1.1, Dst: 192.168.1.100</span>",
+                            "<span class='output-highlight'>UDP Src Port: 88 (Kerberos), Dst Port: 54321</span>",
+                            "<span class='output-highlight'>Kerberos: KRB-ERROR, Error code: KDC_ERR_PREAUTH_FAILED (24) - wrong password</span>"
+                        );
+                        osiTcpIpInfo.innerHTML = `<h3>Scenario: Account Lockout</h3><p><strong>Detected:</strong> KDC sent <strong>KRB-ERROR (24)</strong>: <code>KDC_ERR_PREAUTH_FAILED</code>. This means the supplied password for 'user1' was incorrect.</p><p>This is the first failed attempt.</p>`;
+                    },
+                    layer: 'Application'
+                },
+                {
+                    title: "Client Retries (Attempt 2)",
+                    description: "The client application automatically retries the authentication. If a user is typing a password, they might try again immediately.",
+                    action: () => {
+                        packet.classList.remove('animate-to-server');
+                        packet.classList.add('animate-back-to-client');
+                        packet.textContent = 'AS-REQ';
+                        packetTime += 0.500; // User waits slightly, retries
+                        updateWiresharkOutput([1,2,3,4],
+                            `[Time: <span class='output-time'>${packetTime.toFixed(4)}</span>] 3. Client AS-REQ (user1 - incorrect password, retry):`,
+                            "<span class='output-highlight-secondary'>Frame 3: 150 bytes on wire</span>",
+                            "<span class='output-highlight'>IP Src: 192.168.1.100, Dst: 192.168.1.1</span>",
+                            "<span class='output-highlight'>UDP Src Port: 54322, Dst Port: 88 (Kerberos)</span>",
+                            "<span class='output-highlight'>Kerberos: AS-REQ (cname: user1)</span>"
+                        );
+                    },
+                    layer: 'Application'
+                },
+                {
+                    title: "KDC Responds with KRB-ERROR (Still Incorrect)",
+                    description: "Another failed attempt, another `KRB-ERROR 24`. Repeated instances of this error code against the same client IP and username are strong indicators of a lockout approaching.",
+                    action: () => {
+                        packet.classList.remove('animate-back-to-client');
+                        packet.classList.add('animate-to-server');
+                        packet.textContent = 'KRB-ERROR';
+                        packetTime += 0.0005;
+                        updateWiresharkOutput([1,2,3,4,5],
+                            `[Time: <span class='output-time'>${packetTime.toFixed(4)}</span>] 4. KDC KRB-ERROR (Incorrect Password):`,
+                            "<span class='output-highlight-secondary'>Frame 4: 170 bytes on wire</span>",
+                            "<span class='output-highlight'>IP Src: 192.168.1.1, Dst: 192.168.1.100</span>",
+                            "<span class='output-highlight'>UDP Src Port: 88 (Kerberos), Dst Port: 54322</span>",
+                            "<span class='output-highlight'>Kerberos: KRB-ERROR, Error code: KDC_ERR_PREAUTH_FAILED (24) - wrong password</span>"
+                        );
+                        osiTcpIpInfo.innerHTML = `<h3>Scenario: Account Lockout</h3><p><strong>Detected:</strong> Another <strong>KRB-ERROR (24)</strong>. This confirms persistent incorrect password attempts.</p><p>Multiple sequential occurrences of this error from the same client IP/username will likely trigger an Active Directory account lockout policy.</p>`;
+                    },
+                    layer: 'Application'
+                },
+                {
+                    title: "Wireshark Analysis for Lockouts",
+                    description: "Look for frequent `Kerberos KRB-ERROR` packets, especially `KDC_ERR_PREAUTH_FAILED (24)` from a single client IP. This pinpoints the source of incorrect password attempts, whether it's a user, a misconfigured service, or a brute-force attack.",
+                    action: () => {
+                        packet.classList.remove('animate-to-server');
+                        packet.classList.add('animate-back-to-client');
+                        packet.style.display = 'none'; // Packet disappears after reaching client
+                        osiModelVisual.style.display = 'none';
+                        osiTcpIpInfo.innerHTML = `<h3>Scenario: Account Lockout - Summary</h3><p><strong>Key Wireshark indicators:</strong></p><ul><li>Repeated <code>Kerberos AS-REQ</code> packets from the same source.</li><li>Frequent <code>Kerberos KRB-ERROR</code> responses from the KDC.</li><li>Specifically, <strong>Error code 24 (KDC_ERR_PREAUTH_FAILED)</strong> is the most common for incorrect passwords.</li></ul><p>Use display filter: <code>kerberos.Error_code == 24</code></p>`;
+                        updateWiresharkOutput([0],
+                            "Summary of Kerberos Lockout Detection:",
+                            "Look for multiple frames with 'Kerberos KRB-ERROR, Error code: KDC_ERR_PREAUTH_FAILED (24)' originating from the same client IP (e.g., 192.168.1.100) within a short time frame.",
+                            "This directly indicates incorrect password attempts, leading to an account lockout."
+                        );
+                    },
+                    layer: null
+                },
+                // --- Scenario 2: Network Bottleneck (High Latency / Retransmissions) ---
+                {
+                    title: "Scenario 2: Network Bottleneck - High Latency & Retransmissions",
+                    description: "Users complain about slow file transfers or web pages taking forever to load, but the server isn't busy. This often points to network congestion or latency.",
+                    action: () => {
+                        resetAnimation();
+                        promiscuousIndicator.classList.add('active');
+                        clientHost.classList.add('highlight');
+                        serverRoleDisplay.textContent = "File/Web Server";
+                        serverHost.classList.add('highlight');
+                        captureFilterIndicator.classList.add('active');
+                        captureFilterIndicator.innerHTML = 'BPF Filter: tcp port 80'; // HTTP for simplicity
+                        packetTime = 0.0; // Reset time for scenario
+                        highlightOsiLayer('Transport', "TCP will show us network performance issues.");
+                        packet.textContent = 'HTTP GET';
+                        packet.style.left = '10%';
+                        updateWiresharkOutput([1,2,3],
+                            `[Time: <span class='output-time'>${packetTime.toFixed(4)}</span>] 1. Client HTTP GET /large_file.zip:`,
+                            "<span class='output-highlight-secondary'>Frame 1: TCP/HTTP</span>",
+                            "<span class='output-highlight'>IP Src: 192.168.1.100, Dst: 192.168.1.1</span>",
+                            "<span class='output-highlight'>TCP Src Port: 54321, Dst Port: 80 (HTTP), Flags: PSH, ACK</span>"
+                        );
+                    },
+                    layer: 'Application'
+                },
+                {
+                    title: "Server Responds with Data (Initial Segment)",
+                    description: "The server quickly receives the request and sends the first segment of data.",
+                    action: () => {
+                        packet.classList.add('animate-to-server');
+                        packet.textContent = 'DATA';
+                        packetTime += 0.005; // Simulate normal RTT
+                        updateWiresharkOutput([1,2,3],
+                            `[Time: <span class='output-time'>${packetTime.toFixed(4)}</span>] 2. Server sending HTTP data (Segment 1):`,
+                            "<span class='output-highlight-secondary'>Frame 2: TCP/HTTP</span>",
+                            "<span class='output-highlight'>IP Src: 192.168.1.1, Dst: 192.168.1.100</span>",
+                            "<span class='output-highlight'>TCP Src Port: 80 (HTTP), Dst Port: 54321, Flags: PSH, ACK, Seq: 1, Len: 1460</span>"
+                        );
+                    },
+                    layer: 'Transport'
+                },
+                {
+                    title: "Client ACKs, But It's Slow (High RTT)",
+                    description: "The client acknowledges the data, but notice the long delay between the server sending data and the client acknowledging it. This is **high Round Trip Time (RTT)**.",
+                    action: () => {
+                        packet.classList.remove('animate-to-server');
+                        packet.classList.add('animate-back-to-client');
+                        packet.textContent = 'ACK';
+                        packetTime += 0.500; // Simulate a much higher RTT (e.g., cross-continent link)
+                        updateWiresharkOutput([1,2,3],
+                            `[Time: <span class='output-time'>${packetTime.toFixed(4)}</span>] 3. Client ACK for Segment 1 (DELAYED - High RTT):`,
+                            "<span class='output-highlight-secondary'>Frame 3: TCP</span>",
+                            "<span class='output-highlight'>IP Src: 192.168.1.100, Dst: 192.168.1.1</span>",
+                            "<span class='output-highlight'>TCP Src Port: 54321, Dst Port: 80 (HTTP), Flags: ACK, Ack: 1461</span>"
+                        );
+                        osiTcpIpInfo.innerHTML = `<h3>Scenario: Network Bottleneck</h3><p><strong>Anomaly:</strong> High Round Trip Time (RTT).</p><p>Server sent data at <span class='output-time'>${(packetTime - 0.5).toFixed(4)}s</span>, Client ACKed at <span class='output-time'>${packetTime.toFixed(4)}s</span>. A half-second delay for a simple ACK indicates significant network latency or processing delay on the client side.</p>`;
+                    },
+                    layer: 'Transport'
+                },
+                {
+                    title: "Server Retransmits Due to No ACK (Bottleneck)",
+                    description: "Because the ACK took so long, the server's retransmission timer expired, and it re-sends Segment 1. This is a clear sign of network trouble (packet loss or severe latency).",
+                    action: () => {
+                        packet.classList.remove('animate-back-to-client');
+                        packet.classList.add('animate-to-server'); // Move back to server side for retransmit
+                        packet.textContent = 'RETRANS';
+                        packetTime += 0.200; // Server waits, retransmits
+                        updateWiresharkOutput([1,2,3,4],
+                            `[Time: <span class='output-time'>${packetTime.toFixed(4)}</span>] 4. Server <span class='output-highlight'>TCP Retransmission</span> for Segment 1 (ANOMALY!):`,
+                            "<span class='output-highlight-secondary'>Frame 4: TCP/HTTP</span>",
+                            "<span class='output-highlight'>IP Src: 192.168.1.1, Dst: 192.168.1.100</span>",
+                            "<span class='output-highlight'>TCP Src Port: 80 (HTTP), Dst Port: 54321, Flags: PSH, ACK, Seq: 1, Len: 1460 (retransmitted)</span>",
+                            "<span class='output-highlight-secondary'>Wireshark would mark this as a 'TCP Retransmission' in the Info column.</span>"
+                        );
+                        osiTcpIpInfo.innerHTML = `<h3>Scenario: Network Bottleneck</h3><p><strong>Anomaly:</strong> TCP Retransmission.</p><p>The server didn't receive the ACK for its data segment in time, so it re-sent it. This implies packet loss, severe out-of-order delivery, or such high latency that the retransmission timer expired.</p><p>Both high RTT and retransmissions dramatically slow down TCP connections.</p>`;
+                    },
+                    layer: 'Transport'
+                },
+                 {
+                    title: "Wireshark Analysis for Network Bottlenecks",
+                    description: "Look for Wireshark's Expert Information (usually under Analyze > Expert Information) for flags like 'TCP Retransmission', 'Duplicate ACK', 'Window Full'. Use `tcp.analysis.retransmission` or `tcp.analysis.rto` display filters. High RTT can be seen in TCP stream graphs.",
+                    action: () => {
+                        packet.classList.remove('animate-to-server');
+                        packet.style.display = 'none'; // Packet disappears
+                        osiModelVisual.style.display = 'none';
+                        osiTcpIpInfo.innerHTML = `<h3>Scenario: Network Bottleneck - Summary</h3><p><strong>Key Wireshark indicators:</strong></p><ul><li>**High RTT:** Large time differences between a data packet and its corresponding ACK.</li><li>**TCP Retransmissions:** Server sending the same data segment multiple times.</li><li>**Duplicate ACKs:** Client repeatedly acknowledging the same data, indicating it's missing a segment.</li></ul><p>Use display filters: <code>tcp.analysis.retransmission</code>, <code>tcp.analysis.duplicate_ack</code></p>`;
+                        updateWiresharkOutput([0],
+                            "Summary of Network Bottleneck Detection:",
+                            "Use Wireshark's built-in TCP Analysis tools (Statistics > TCP Stream Graph > Round Trip Time Graph).",
+                            "Look for 'TCP Retransmission' in the Info column (often highlighted in black).",
+                            "High RTT values (latency) and retransmissions clearly point to network path issues."
+                        );
+                    },
+                    layer: null
+                },
+                // --- Scenario 3: Application Slowness (Server-Side Processing) ---
+                {
+                    title: "Scenario 3: Application Slowness - Server-Side Processing Delay",
+                    description: "The application is slow, but network checks out, and server resources (CPU, RAM) seem fine. The delay is often *between* the server receiving a request and generating its response.",
+                    action: () => {
+                        resetAnimation();
+                        promiscuousIndicator.classList.add('active');
+                        clientHost.classList.add('highlight');
+                        serverRoleDisplay.textContent = "Web Application Server";
+                        serverHost.classList.add('highlight');
+                        captureFilterIndicator.classList.add('active');
+                        captureFilterIndicator.innerHTML = 'BPF Filter: tcp port 80'; // Still HTTP
+                        packetTime = 0.0; // Reset time for scenario
+                        highlightOsiLayer('Application', "Looking for delays within the server's application layer.");
+                        packet.textContent = 'HTTP GET';
+                        packet.style.left = '10%';
+                        updateWiresharkOutput([1,2,3,4],
+                            `[Time: <span class='output-time'>${packetTime.toFixed(4)}</span>] 1. Client HTTP GET /complex_report:`,
+                            "<span class='output-highlight-secondary'>Frame 1: TCP/HTTP</span>",
+                            "<span class='output-highlight'>IP Src: 192.168.1.100, Dst: 192.168.1.1</span>",
+                            "<span class='output-highlight'>TCP Src Port: 54321, Dst Port: 80 (HTTP)</span>",
+                            "<span class='output-highlight'>HTTP: GET /complex_report.aspx</span>"
+                        );
+                    },
+                    layer: 'Application'
+                },
+                {
+                    title: "Server Receives Request (Fast Network)",
+                    description: "The client's request reaches the web server quickly. The network itself is not the bottleneck here.",
+                    action: () => {
+                        packet.classList.add('animate-to-server');
+                        packet.textContent = 'HTTP GET';
+                        packetTime += 0.002; // A very quick network hop
+                        updateWiresharkOutput([1,2,3,4],
+                            `[Time: <span class='output-time'>${packetTime.toFixed(4)}</span>] 2. Server receives HTTP GET /complex_report:`,
+                            "<span class='output-highlight-secondary'>Frame 2: TCP/HTTP</span>",
+                            "<span class='output-highlight'>IP Src: 192.168.1.100, Dst: 192.168.1.1</span>",
+                            "<span class='output-highlight'>TCP Src Port: 54321, Dst Port: 80 (HTTP)</span>",
+                            "<span class='output-highlight'>HTTP: GET /complex_report.aspx</span>"
+                        );
+                        osiTcpIpInfo.innerHTML = `<h3>Scenario: Application Slowness</h3><p>Client request sent at <span class='output-time'>${(packetTime - 0.002).toFixed(4)}s</span>, received by server at <span class='output-time'>${packetTime.toFixed(4)}s</span>. Network delay is negligible here.</p><p>Now we wait for the server to process the request and respond...</p>`;
+                    },
+                    layer: 'Application'
+                },
+                {
+                    title: "Server Takes a Long Time to Respond (Internal Delay)",
+                    description: "The application on the server (e.g., executing a complex database query, processing heavy business logic, or waiting on another backend service) takes a significant amount of time.",
+                    action: () => {
+                        packet.classList.remove('animate-to-server');
+                        packet.textContent = '...Thinking...'; // Simulate internal processing
+                        packetTime += 8.000; // Simulate an 8-second application processing delay
+                        updateWiresharkOutput([1,2,3,4,5],
+                            `[Time: <span class='output-time'>${packetTime.toFixed(4)}</span>] 3. Server HTTP 200 OK /complex_report (DELAYED RESPONSE!):`,
+                            "<span class='output-highlight-secondary'>Frame 3: TCP/HTTP</span>",
+                            "<span class='output-highlight'>IP Src: 192.168.1.1, Dst: 192.168.1.100</span>",
+                            "<span class='output-highlight'>TCP Src Port: 80 (HTTP), Dst Port: 54321</span>",
+                            "<span class='output-highlight'>HTTP: HTTP/1.1 200 OK (text/html)</span>",
+                            "<span class='output-highlight-secondary'>Wireshark shows a long gap between Frame 2 and Frame 3.</span>"
+                        );
+                        osiTcpIpInfo.innerHTML = `<h3>Scenario: Application Slowness - ANOMALY DETECTED!</h3><p>Server received request at <span class='output-time'>${(packetTime - 8.000).toFixed(4)}s</span>, but didn't respond until <span class='output-time'>${packetTime.toFixed(4)}s</span>.</p><p>The **8-second delay occurred entirely on the server-side** *after* the request was received and *before* the response was sent over the network.</p><p><strong>Conclusion:</strong> The problem is with the application's processing, not the network or basic server resources. Investigate application logs, database performance, or external dependencies.</p>`;
+                    },
+                    layer: 'Application'
+                },
+                {
+                    title: "Response Reaches Client (Fast Network)",
+                    description: "Once the server finally generates the response, it's quickly sent back to the client over the (still healthy) network.",
+                    action: () => {
+                        packet.classList.add('animate-back-to-client');
+                        packet.textContent = 'HTTP 200 OK';
+                        osiModelVisual.style.display = 'none';
+                    },
+                    layer: null
+                },
+                {
+                    title: "Wireshark Analysis for Application Slowness",
+                    description: "To find server-side application delays, look for a large time difference between when the server *receives* a request (e.g., HTTP GET) and when it *sends* the corresponding response (e.g., HTTP 200 OK). This is often called Time to First Byte (TTFB) or application processing time.",
+                    action: () => {
+                        packet.classList.remove('animate-back-to-client');
+                        packet.style.display = 'none'; // Packet disappears
+                        osiModelVisual.style.display = 'none';
+                        osiTcpIpInfo.innerHTML = `<h3>Scenario: Application Slowness - Summary</h3><p><strong>Key Wireshark indicators:</strong></p><ul><li>A long time gap between a client's request packet (e.g., <code>HTTP GET</code>) arriving at the server and the server's application response packet (e.g., <code>HTTP 200 OK</code>) departing.</li><li>The network Round Trip Time (RTT) to the server is otherwise normal.</li></ul><p>Calculate the delay by subtracting the timestamp of the incoming request from the timestamp of the outgoing response (as seen from the server's perspective).</p>`;
+                        updateWiresharkOutput([0],
+                            "Summary of Application Slowness Detection:",
+                            "Capture traffic on the server itself, or as close as possible.",
+                            "Look for a significant time difference (seconds, not milliseconds) between an incoming request packet and the outgoing application response packet.",
+                            "This gap is the 'Application Processing Time' and points to server-side code, database, or backend service issues."
+                        );
+                    },
+                    layer: null
+                },
+                {
+                    title: "Training Complete: Practical Troubleshooting with Wireshark!",
+                    description: "You've now tackled common real-world scenarios: diagnosing account lockouts via Kerberos errors, identifying network bottlenecks through TCP retransmissions, and pinpointing server-side application slowness using packet timestamps. These are invaluable skills for any network or systems administrator! Click Reset to restart.",
+                    action: () => {
+                        resetAnimation();
+                        nextStepBtn.disabled = true;
+                        resetBtn.disabled = false;
+                        packetTime = 0.0;
+                    },
+                    layer: null
+                }
+            ];
+
+            function updateUI() {
+                const step = trainingSteps[currentStep];
+                trainingTitle.textContent = step.title;
+                trainingDescription.innerHTML = step.description;
+                currentStepInfo.textContent = `Scenario ${currentStep + 1} of ${trainingSteps.length}`;
+                step.action();
+
+                if (currentStep === trainingSteps.length - 1) {
+                    nextStepBtn.disabled = true;
+                    resetBtn.disabled = false;
+                } else {
+                    nextStepBtn.disabled = false;
+                    resetBtn.disabled = false;
+                }
+            }
+
+            function highlightOsiLayer(layerName, infoText) {
+                for (const key in osiLayers) {
+                    osiLayers[key].classList.remove('active');
+                }
+                if (osiLayers[layerName]) {
+                    osiLayers[layerName].classList.add('active');
+                    osiTcpIpInfo.innerHTML = `<h3>Current Scenario Focus</h3><p><strong>Layer:</strong> ${layerName}</p><p>${infoText}</p>`;
+                } else {
+                     osiTcpIpInfo.innerHTML = `<h3>Current Scenario Focus</h3><p>No specific layer focus, general troubleshooting.</p>`;
+                }
+            }
+
+            function updateWiresharkOutput(highlightLines, ...lines) {
+                if (!Array.isArray(highlightLines)) {
+                    highlightLines = [highlightLines];
+                }
+
+                const formattedOutput = lines.map((line, index) => {
+                    const lineNum = index;
+                    if (highlightLines.includes(lineNum)) {
+                        if (line.includes("<span class='output-highlight-secondary'>") || line.includes("<span class='output-time'>")) {
+                            return `<span class='output-highlight'>${line}</span>`;
+                        }
+                        return `<span class='output-highlight'>${line}</span>`;
+                    }
+                    return line;
+                }).join('\n');
+                wiresharkOutput.innerHTML = formattedOutput;
+                wiresharkOutput.style.display = 'block';
+            }
+
+            function resetAnimation() {
+                packet.style.display = 'none';
+                packet.className = '';
+                packet.style.left = '10%';
+                packet.textContent = 'KERB'; // Default for the first scenario after reset
+
+                clientHost.classList.remove('highlight');
+                serverHost.classList.remove('highlight');
+                switchDevice.classList.remove('highlight');
+
+                promiscuousIndicator.classList.remove('active');
+                captureFilterIndicator.classList.remove('active');
+                captureFilterIndicator.innerHTML = 'BPF Filter: kerberos'; // Default filter for first scenario
+
+                serverRoleDisplay.textContent = "Domain Controller"; // Default server role
+
+                for (const key in osiLayers) {
+                    osiLayers[key].classList.remove('active');
+                }
+                osiModelVisual.style.display = 'none';
+                wiresharkOutput.style.display = 'none';
+                wiresharkOutput.textContent = '[Simulated Wireshark Packet Detail]';
+                osiTcpIpInfo.innerHTML = `<h3>Current Scenario Focus</h3><p>No active scenario.</p>`;
+
+                packetTime = 0.0;
+            }
+
+            nextStepBtn.addEventListener('click', () => {
+                if (currentStep < trainingSteps.length - 1) {
+                    currentStep++;
+                    updateUI();
+                }
+            });
+
+            resetBtn.addEventListener('click', () => {
+                currentStep = 0;
+                updateUI();
+            });
+
+            // Initial UI setup
+            updateUI();
+        });
+    </script>
+</body>
+</html>
