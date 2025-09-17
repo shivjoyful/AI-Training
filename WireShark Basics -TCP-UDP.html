@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate DHTML Wireshark Basics Training (TCP/UDP Packet Analysis for Active Directory LDAP & DNS)</title>
+
+    <style>
+        /* General Styling */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            background-color: #f0f2f5;
+            color: #333;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 1.5rem 0;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            position: relative;
+            z-index: 10; /* Ensure header is on top */
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2em; /* Slightly smaller for longer title */
+        }
+
+        .container {
+            display: flex;
+            flex-grow: 1;
+            overflow: hidden; /* Prevent content overflow */
+        }
+
+        /* Control Panel / Info Area */
+        .control-panel {
+            width: 380px; /* Slightly wider for more text */
+            background-color: #ffffff;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            overflow-y: auto; /* Scroll for long content */
+            flex-shrink: 0; /* Don't shrink */
+        }
+
+        .control-panel h2 {
+            color: #34495e;
+            margin-top: 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .control-panel p, .control-panel ul {
+            font-size: 0.95em;
+            margin-bottom: 10px;
+        }
+
+        .control-panel ul {
+            padding-left: 20px;
+        }
+
+        .control-panel button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-top: 15px;
+            margin-right: 10px;
+            transition: background-color 0.2s ease;
+        }
+
+        .control-panel button:hover {
+            background-color: #2980b9;
+        }
+
+        .control-panel button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .control-panel button.reset-btn {
+            background-color: #e74c3c;
+        }
+        .control-panel button.reset-btn:hover {
+            background-color: #c0392b;
+        }
+
+        /* Network Animation Area */
+        .network-animation-area {
+            flex-grow: 1;
+            background-color: #e6e9ed;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden; /* Clip packet movement if it goes out */
+        }
+
+        .network-device {
+            width: 80px;
+            height: 80px;
+            background-color: #3498db;
+            border-radius: 8px;
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.8em;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            border: 2px solid transparent;
+            transition: border-color 0.3s ease;
+        }
+
+        .network-device.highlight {
+            border-color: #f1c40f; /* Yellow highlight */
+            box-shadow: 0 0 20px rgba(241, 196, 15, 0.7);
+        }
+
+        /* Specific device positions */
+        #client-host { left: 10%; top: 50%; transform: translateY(-50%); background-color: #28a745; } /* Green */
+        #server-host { right: 10%; top: 50%; transform: translateY(-50%); background-color: #e67e22; } /* Orange */
+        #switch-device { left: 50%; top: 50%; transform: translate(-50%, -50%); background-color: #9b59b6; width: 100px; height: 100px; } /* Purple */
+
+        .device-label {
+            position: absolute;
+            color: #333;
+            font-weight: bold;
+            font-size: 0.9em;
+            margin-top: 90px; /* Below the device */
+            text-align: center;
+        }
+        #client-label { left: 10%; transform: translateX(-50%); }
+        #server-label { right: 10%; transform: translateX(50%); }
+        #switch-label { left: 50%; transform: translateX(-50%); }
+
+        /* Promiscuous mode visual */
+        #promiscuous-indicator {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: #f1c40f; /* Yellow */
+            border-radius: 50%;
+            top: -10px; /* Position above client host */
+            right: -10px;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            box-shadow: 0 0 15px rgba(241, 196, 15, 0.7);
+            animation: pulse 1.5s infinite alternate ease-in-out;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.7em;
+            color: #333;
+            font-weight: bold;
+        }
+        #promiscuous-indicator.active {
+            opacity: 1;
+        }
+        @keyframes pulse {
+            from { transform: scale(0.8); opacity: 0.6; }
+            to { transform: scale(1.1); opacity: 1; }
+        }
+
+        /* Capture Filter visual */
+        #capture-filter-indicator {
+            position: absolute;
+            left: 30%; /* Roughly between client and switch */
+            top: 45%;
+            background-color: rgba(0,0,0,0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.75em;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            transform: rotate(-10deg);
+        }
+        #capture-filter-indicator.active {
+            opacity: 1;
+        }
+
+        /* Packet Styling */
+        #packet {
+            width: 40px;
+            height: 25px;
+            background-color: #f1c40f; /* Yellow packet */
+            border: 1px solid #c9a40c;
+            border-radius: 3px;
+            position: absolute;
+            top: 50%;
+            left: 10%; /* Start at client */
+            transform: translateY(-50%);
+            display: none; /* Hidden initially */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            font-size: 0.7em;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 1.5s ease-in-out; /* Smooth movement */
+        }
+
+        /* Animation classes for packet */
+        #packet.animate-to-switch {
+            transform: translate(calc(50vw - 10% - 20px), -50%); /* Move from client to switch */
+        }
+        #packet.animate-to-server {
+            transform: translate(calc(90vw - 10% - 20px), -50%); /* Move from client to server (past switch) */
+        }
+        #packet.animate-back-to-switch {
+            transform: translate(calc(50vw - 10% - 20px), -50%); /* Move from server to switch */
+        }
+        #packet.animate-back-to-client {
+             transform: translateY(-50%); /* Reset to client's initial Y, but X is already 10% of width */
+        }
+
+
+        /* OSI/TCP-IP Model Visualization */
+        .model-container {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #ccc;
+            background-color: rgba(255,255,255,0.9);
+            padding: 10px;
+            border-radius: 5px;
+            display: none; /* Hidden initially */
+            z-index: 5; /* Below header */
+        }
+
+        .model-layer {
+            padding: 8px 15px;
+            border-bottom: 1px solid #eee;
+            text-align: center;
+            font-size: 0.9em;
+            color: #555;
+            transition: background-color 0.3s ease, color 0.3s ease, font-weight 0.3s ease;
+        }
+        .model-layer:last-child { border-bottom: none; }
+
+        .model-layer.active {
+            background-color: #3498db;
+            color: white;
+            font-weight: bold;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+        }
+
+        .model-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+
+        /* Wireshark Output Area */
+        .wireshark-output {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #23272e; /* Dark background for code */
+            color: #a9b7c6; /* Light text color */
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.8em;
+            width: 80%;
+            max-width: 700px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            display: none; /* Hidden initially */
+            white-space: pre-wrap; /* Preserve whitespace and wrap */
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #555;
+            z-index: 5;
+        }
+
+        .output-highlight {
+            color: #f1c40f; /* Yellow highlight for active line */
+            font-weight: bold;
+        }
+        .output-highlight-secondary {
+            color: #76c7c0; /* Teal/cyan highlight for related but not primary */
+            font-weight: bold;
+        }
+
+
+        /* Mobile Responsiveness */
+        @media (max-width: 900px) {
+            .container {
+                flex-direction: column;
+            }
+            .control-panel {
+                width: 100%;
+                max-height: 40vh; /* Limit height on small screens */
+                overflow-y: auto;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            }
+            .network-animation-area {
+                min-height: 50vh; /* Ensure some height for animation */
+                padding-top: 50px; /* Adjust for device placement */
+            }
+            .network-device {
+                top: 20%; /* Move devices up slightly */
+                transform: translateX(-50%); /* Adjust centering */
+            }
+            #client-host { left: 10%; }
+            #server-host { right: 10%; }
+            #switch-device { left: 50%; }
+
+            #client-label { top: 30%; left: 10%; }
+            #server-label { top: 30%; right: 10%; }
+            #switch-label { top: 30%; left: 50%; }
+
+            #promiscuous-indicator {
+                top: 10px; right: -5px;
+                width: 15px; height: 15px; font-size: 0.6em;
+            }
+
+            #capture-filter-indicator {
+                top: 35%; left: 30%; font-size: 0.65em; padding: 3px 6px;
+            }
+
+            #packet {
+                top: 25%;
+            }
+            #packet.animate-to-switch {
+                transform: translate(calc(50vw - 10% - 20px), 0);
+            }
+            #packet.animate-to-server {
+                transform: translate(calc(90vw - 10% - 20px), 0);
+            }
+            #packet.animate-back-to-switch {
+                transform: translate(calc(50vw - 10% - 20px), 0);
+            }
+            #packet.animate-back-to-client {
+                transform: translateY(0);
+            }
+
+            .wireshark-output {
+                width: 95%;
+                bottom: 10px;
+                max-height: 150px;
+                font-size: 0.75em;
+            }
+            .model-container {
+                display: none !important; /* Hide model on small screens to save space */
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>DHTML Wireshark Basics Training (TCP/UDP Packet Analysis for Active Directory LDAP & DNS)</h1>
+    </header>
+
+    <div class="container">
+        <div class="control-panel">
+            <h2 id="trainingTitle">Getting Started...</h2>
+            <p id="trainingDescription">Welcome! This interactive guide will walk you through the very basics of network packet analysis with Wireshark.</p>
+            <p id="currentStepInfo">Click "Next Step" to begin.</p>
+
+            <div class="button-group">
+                <button id="nextStepBtn">Next Step</button>
+                <button id="resetBtn" class="reset-btn" disabled>Reset</button>
+            </div>
+
+            <div id="osiTcpIpInfo" style="margin-top: 20px;">
+                <h3>Current Layer Focus</h3>
+                <p>No active layer.</p>
+            </div>
+        </div>
+
+        <div class="network-animation-area">
+            <!-- Network Devices -->
+            <div class="network-device" id="client-host">
+                Client
+                <div id="promiscuous-indicator">P</div> <!-- 'P' for Promiscuous -->
+            </div>
+            <div class="device-label" id="client-label">192.168.1.100</div>
+
+            <div class="network-device" id="switch-device">Switch</div>
+            <div class="device-label" id="switch-label">Layer 2</div>
+
+            <div class="network-device" id="server-host">
+                Server
+                <br><small id="serverRole">Domain Controller</small>
+            </div>
+            <div class="device-label" id="server-label">192.168.1.1</div>
+
+            <!-- Capture Filter visual -->
+            <div id="capture-filter-indicator">BPF Filter: tcp port 389</div>
+
+            <!-- Packet -->
+            <div id="packet">TCP</div>
+
+            <!-- OSI/TCP-IP Model Visual -->
+            <div id="osiModelVisual" class="model-container">
+                <div class="model-title">OSI Model</div>
+                <div class="model-layer" id="osi-layer-7">7. Application</div>
+                <div class="model-layer" id="osi-layer-6">6. Presentation</div>
+                <div class="model-layer" id="osi-layer-5">5. Session</div>
+                <div class="model-layer" id="osi-layer-4">4. Transport (TCP/UDP)</div>
+                <div class="model-layer" id="osi-layer-3">3. Network (IP)</div>
+                <div class="model-layer" id="osi-layer-2">2. Data Link (Ethernet)</div>
+                <div class="model-layer" id="osi-layer-1">1. Physical</div>
+            </div>
+
+            <!-- Wireshark Output Simulation -->
+            <pre id="wiresharkOutput" class="wireshark-output">
+[Simulated Wireshark Packet Detail]
+</pre>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const trainingTitle = document.getElementById('trainingTitle');
+            const trainingDescription = document.getElementById('trainingDescription');
+            const currentStepInfo = document.getElementById('currentStepInfo');
+            const nextStepBtn = document.getElementById('nextStepBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const osiTcpIpInfo = document.getElementById('osiTcpIpInfo');
+            const serverRole = document.getElementById('serverRole');
+
+
+            const clientHost = document.getElementById('client-host');
+            const serverHost = document.getElementById('server-host');
+            const switchDevice = document.getElementById('switch-device');
+            const packet = document.getElementById('packet');
+
+            const promiscuousIndicator = document.getElementById('promiscuous-indicator');
+            const captureFilterIndicator = document.getElementById('capture-filter-indicator');
+
+
+            const osiModelVisual = document.getElementById('osiModelVisual');
+            const osiLayers = {
+                'Application': document.getElementById('osi-layer-7'),
+                'Presentation': document.getElementById('osi-layer-6'),
+                'Session': document.getElementById('osi-layer-5'),
+                'Transport': document.getElementById('osi-layer-4'),
+                'Network': document.getElementById('osi-layer-3'),
+                'Data Link': document.getElementById('osi-layer-2'),
+                'Physical': document.getElementById('osi-layer-1')
+            };
+
+            const wiresharkOutput = document.getElementById('wiresharkOutput');
+
+            let currentStep = 0;
+            const trainingSteps = [
+                {
+                    title: "Welcome to Wireshark Basics!",
+                    description: "Wireshark is the most popular network protocol analyzer. It lets you see what's happening on your network at a microscopic level. Let's explore how network traffic flows.",
+                    action: () => {
+                        resetAnimation();
+                        serverRole.textContent = "Domain Controller"; // Reset server role
+                    },
+                    layer: null
+                },
+                {
+                    title: "The Network: Client, Switch, Domain Controller",
+                    description: "Our simple network consists of a Client, a Switch, and a Server acting as a Domain Controller. We'll simulate an LDAP query from the Client to the DC.",
+                    action: () => {
+                        clientHost.classList.add('highlight');
+                        serverHost.classList.remove('highlight');
+                        switchDevice.classList.remove('highlight');
+                        serverRole.textContent = "Domain Controller";
+                    },
+                    layer: null
+                },
+                {
+                    title: "Network Interface Cards (NICs)",
+                    description: "Every device connects to the network via a Network Interface Card (NIC). Normally, a NIC only processes traffic specifically addressed to it, ignoring other traffic on the wire.",
+                    action: () => {
+                        clientHost.classList.add('highlight');
+                    },
+                    layer: null
+                },
+                {
+                    title: "Promiscuous Mode & Npcap/libcap",
+                    description: "To capture *all* traffic, Wireshark puts the NIC into **Promiscuous Mode**. This is enabled by special drivers like <a href='https://nmap.org/npcap/' target='_blank'>Npcap</a> (Windows) or libcap (Linux/macOS).",
+                    action: () => {
+                        clientHost.classList.add('highlight');
+                        promiscuousIndicator.classList.add('active');
+                    },
+                    layer: null
+                },
+                {
+                    title: "Capture Filters (BPF) for LDAP",
+                    description: "Networks can be very noisy. We'll use a **Capture Filter** to only see LDAP traffic (TCP port 389) and ignore everything else. This saves resources and focuses our capture.",
+                    action: () => {
+                        clientHost.classList.add('highlight');
+                        promiscuousIndicator.classList.add('active');
+                        captureFilterIndicator.classList.add('active');
+                        captureFilterIndicator.innerHTML = 'BPF Filter: tcp port 389';
+                        osiTcpIpInfo.innerHTML = `<h3>Capture Filter Active</h3><p><strong>Filter:</strong> <code>tcp port 389</code></p><p>Only TCP packets destined for or originating from port 389 (LDAP) will be captured.</p>`;
+                    },
+                    layer: null
+                },
+                {
+                    title: "Active Directory and LDAP",
+                    description: "Active Directory (AD) uses LDAP for querying and updating directory information. A Client needs to 'talk' to the Domain Controller (DC) using LDAP to find users, computers, or other resources.",
+                    action: () => {
+                        clientHost.classList.add('highlight');
+                        serverHost.classList.add('highlight');
+                        promiscuousIndicator.classList.add('active');
+                        captureFilterIndicator.classList.add('active');
+                    },
+                    layer: null
+                },
+                {
+                    title: "OSI Model: Understanding Layers",
+                    description: "Now we're ready to capture an LDAP session. Remember, packets are built and processed through the <a href='https://en.wikipedia.org/wiki/OSI_model' target='_blank'>OSI Model</a> layers, and Wireshark dissects traffic accordingly.",
+                    action: () => {
+                        clientHost.classList.add('highlight');
+                        promiscuousIndicator.classList.add('active');
+                        captureFilterIndicator.classList.add('active');
+                        osiModelVisual.style.display = 'flex';
+                        highlightOsiLayer('Application', "The client's AD-aware application (e.g., trying to log in) initiates communication.");
+                        packet.textContent = 'LDAP (Init)';
+                    },
+                    layer: 'Application'
+                },
+                // --- TCP Three-Way Handshake (SYN) ---
+                {
+                    title: "Client: Encapsulation - TCP SYN (Transport Layer)",
+                    description: "Before sending LDAP data, the Client must establish a TCP connection. It sends a SYN (synchronize) segment. This happens at the Transport layer.",
+                    action: () => {
+                        highlightOsiLayer('Transport', "TCP (Transmission Control Protocol) provides reliable, ordered, and error-checked delivery.");
+                        packet.textContent = 'TCP SYN';
+                    },
+                    layer: 'Transport'
+                },
+                {
+                    title: "Client: Encapsulation - IP & Ethernet for SYN",
+                    description: "The SYN segment is then encapsulated with IP (Network layer) and Ethernet (Data Link layer) headers.",
+                    action: () => {
+                        highlightOsiLayer('Data Link', "IP provides logical addressing, Ethernet physical addressing.");
+                    },
+                    layer: 'Data Link'
+                },
+                {
+                    title: "SYN Packet Transmits to Switch",
+                    description: "The SYN packet leaves the Client, travels to the Switch, and our Wireshark capture records it!",
+                    action: () => {
+                        packet.style.left = '10%';
+                        packet.classList.add('animate-to-switch');
+                        clientHost.classList.remove('highlight');
+                        switchDevice.classList.add('highlight');
+                        osiModelVisual.style.display = 'none';
+                        updateWiresharkOutput([1,2,3,4],
+                            "1. Client sending TCP SYN to DC:",
+                            "Frame 1: <span class='output-highlight-secondary'>74 bytes on wire (592 bits)</span>, 74 bytes captured (592 bits)",
+                            "<span class='output-highlight'>Ethernet II, Src: 00:11:22:33:44:55 (Client), Dst: 00:0a:0b:0c:0d:0e (Switch)</span>",
+                            "<span class='output-highlight'>Internet Protocol Version 4, Src: 192.168.1.100 (Client), Dst: 192.168.1.1 (DC)</span>",
+                            "<span class='output-highlight'>Transmission Control Protocol, Src Port: 54321, Dst Port: 389 (LDAP), Seq: 0, Len: 0, SYN, MSS: 1460</span>"
+                        );
+                    },
+                    layer: null
+                },
+                {
+                    title: "Switch Forwards SYN to DC",
+                    description: "The Switch forwards the SYN packet to the Domain Controller.",
+                    action: () => {
+                        packet.classList.remove('animate-to-switch');
+                        packet.classList.add('animate-to-server');
+                        switchDevice.classList.remove('highlight');
+                        serverHost.classList.add('highlight');
+                        updateWiresharkOutput([1,2,3,4],
+                            "1. Client sending TCP SYN to DC (forwarded):",
+                            "Frame 1: <span class='output-highlight-secondary'>74 bytes on wire (592 bits)</span>, 74 bytes captured (592 bits)",
+                            "<span class='output-highlight'>Ethernet II, Src: 00:11:22:33:44:55 (Client), Dst: 00:1a:2b:3c:4d:5e (DC)</span>", // Dst MAC changes at switch for DC
+                            "<span class='output-highlight'>Internet Protocol Version 4, Src: 192.168.1.100 (Client), Dst: 192.168.1.1 (DC)</span>",
+                            "<span class='output-highlight'>Transmission Control Protocol, Src Port: 54321, Dst Port: 389 (LDAP), Seq: 0, Len: 0, SYN, MSS: 1460</span>"
+                        );
+                    },
+                    layer: null
+                },
+                {
+                    title: "Analyzing TCP SYN Packet (1/3 Handshake)",
+                    description: "Let's break down this first packet: <br><br>1. <span class='output-highlight'>Ethernet:</span> MAC addresses for the immediate next hop (Src: Client, Dst: Switch/DC). <br>2. <span class='output-highlight'>IP:</span> Logical addresses for end-to-end communication (Src: Client IP, Dst: DC IP). <br>3. <span class='output-highlight'>TCP:</span> Flags show 'SYN', meaning connection request. Client chooses a high Source Port (54321) and targets the Destination Port 389 (LDAP). Sequence (Seq) number is 0 to start.",
+                    action: () => {
+                        serverHost.classList.add('highlight');
+                        osiModelVisual.style.display = 'flex';
+                        highlightOsiLayer('Transport', "We are analyzing the SYN packet, focusing on the header details Wireshark shows.");
+                        updateWiresharkOutput([2,3,4],
+                            "1. Client sending TCP SYN to DC:",
+                            "Frame 1: <span class='output-highlight-secondary'>74 bytes on wire (592 bits)</span>, 74 bytes captured (592 bits)",
+                            "<span class='output-highlight'>Ethernet II, Src: 00:11:22:33:44:55 (Client), Dst: 00:1a:2b:3c:4d:5e (DC)</span>",
+                            "<span class='output-highlight'>Internet Protocol Version 4, Src: 192.168.1.100 (Client), Dst: 192.168.1.1 (DC)</span>",
+                            "<span class='output-highlight'>Transmission Control Protocol, Src Port: 54321, Dst Port: 389 (LDAP), Seq: 0, Len: 0, SYN, MSS: 1460</span>"
+                        );
+                    },
+                    layer: 'Transport'
+                },
+                // --- TCP Three-Way Handshake (SYN-ACK) ---
+                {
+                    title: "DC: Receives SYN, Prepares SYN-ACK",
+                    description: "The DC receives the SYN, decapsulates it up to the Transport layer, and sends back a SYN-ACK (synchronize-acknowledge) to confirm receipt and synchronize its own sequence number.",
+                    action: () => {
+                        serverHost.classList.add('highlight');
+                        highlightOsiLayer('Transport', "The server's TCP stack responds to the SYN.");
+                        osiModelVisual.style.display = 'flex';
+                        packet.textContent = 'TCP SYN-ACK';
+                        updateWiresharkOutput([1,2,3,4],
+                            "2. DC sending TCP SYN-ACK to Client:",
+                            "Frame 2: <span class='output-highlight-secondary'>74 bytes on wire (592 bits)</span>, 74 bytes captured (592 bits)",
+                            "<span class='output-highlight'>Ethernet II, Src: 00:1a:2b:3c:4d:5e (DC), Dst: 00:0a:0b:0c:0d:0e (Switch)</span>",
+                            "<span class='output-highlight'>Internet Protocol Version 4, Src: 192.168.1.1 (DC), Dst: 192.168.1.100 (Client)</span>",
+                            "<span class='output-highlight'>Transmission Control Protocol, Src Port: 389 (LDAP), Dst Port: 54321, Seq: 0, Ack: 1, Len: 0, SYN, ACK</span>"
+                        );
+                    },
+                    layer: 'Transport'
+                },
+                {
+                    title: "SYN-ACK Packet Transmits to Switch",
+                    description: "The SYN-ACK packet travels from the DC to the Switch.",
+                    action: () => {
+                        packet.classList.remove('animate-to-server');
+                        packet.classList.add('animate-back-to-switch');
+                        serverHost.classList.remove('highlight');
+                        switchDevice.classList.add('highlight');
+                        osiModelVisual.style.display = 'none';
+                    },
+                    layer: null
+                },
+                {
+                    title: "Switch Forwards SYN-ACK to Client",
+                    description: "The Switch forwards the SYN-ACK to the Client.",
+                    action: () => {
+                        packet.classList.remove('animate-back-to-switch');
+                        packet.classList.add('animate-back-to-client');
+                        switchDevice.classList.remove('highlight');
+                        clientHost.classList.add('highlight');
+                        updateWiresharkOutput([1,2,3,4],
+                            "2. DC sending TCP SYN-ACK to Client (forwarded):",
+                            "Frame 2: <span class='output-highlight-secondary'>74 bytes on wire (592 bits)</span>, 74 bytes captured (592 bits)",
+                            "<span class='output-highlight'>Ethernet II, Src: 00:1a:2b:3c:4d:5e (DC), Dst: 00:11:22:33:44:55 (Client)</span>",
+                            "<span class='output-highlight'>Internet Protocol Version 4, Src: 192.168.1.1 (DC), Dst: 192.168.1.100 (Client)</span>",
+                            "<span class='output-highlight'>Transmission Control Protocol, Src Port: 389 (LDAP), Dst Port: 54321, Seq: 0, Ack: 1, Len: 0, SYN, ACK</span>"
+                        );
+                    },
+                    layer: null
+                },
+                {
+                    title: "Analyzing TCP SYN-ACK Packet (2/3 Handshake)",
+                    description: "Now we analyze the DC's response: <br><br>1. <span class='output-highlight'>Ethernet/IP:</span> Source/Destination are reversed, as expected. <br>2. <span class='output-highlight'>TCP:</span> Flags are 'SYN, ACK'. The SYN is for the DC's own sequence number, the ACK (value 1) acknowledges the Client's initial SYN.",
+                    action: () => {
+                        clientHost.classList.add('highlight');
+                        osiModelVisual.style.display = 'flex';
+                        highlightOsiLayer('Transport', "Analyzing the SYN-ACK packet, the second step of the TCP handshake.");
+                        updateWiresharkOutput([2,3,4],
+                            "2. DC sending TCP SYN-ACK to Client:",
+                            "Frame 2: <span class='output-highlight-secondary'>74 bytes on wire (592 bits)</span>, 74 bytes captured (592 bits)",
+                            "<span class='output-highlight'>Ethernet II, Src: 00:1a:2b:3c:4d:5e (DC), Dst: 00:11:22:33:44:55 (Client)</span>",
+                            "<span class='output-highlight'>Internet Protocol Version 4, Src: 192.168.1.1 (DC), Dst: 192.168.1.100 (Client)</span>",
+                            "<span class='output-highlight'>Transmission Control Protocol, Src Port: 389 (LDAP), Dst Port: 54321, Seq: 0, Ack: 1, Len: 0, SYN, ACK</span>"
+                        );
+                    },
+                    layer: 'Transport'
+                },
+                // --- TCP Three-Way Handshake (ACK) ---
+                {
+                    title: "Client: Receives SYN-ACK, Sends ACK",
+                    description: "The Client receives the SYN-ACK, acknowledges it with an ACK segment. The TCP connection is now established!",
+                    action: () => {
+                        clientHost.classList.add('highlight');
+                        highlightOsiLayer('Transport', "The client's TCP stack completes the handshake.");
+                        osiModelVisual.style.display = 'flex';
+                        packet.textContent = 'TCP ACK';
+                        updateWiresharkOutput([1,2,3,4],
+                            "3. Client sending TCP ACK to DC:",
+                            "Frame 3: <span class='output-highlight-secondary'>66 bytes on wire (528 bits)</span>, 66 bytes captured (528 bits)",
+                            "<span class='output-highlight'>Ethernet II, Src: 00:11:22:33:44:55 (Client), Dst: 00:0a:0b:0c:0d:0e (Switch)</span>",
+                            "<span class='output-highlight'>Internet Protocol Version 4, Src: 192.168.1.100 (Client), Dst: 192.168.1.1 (DC)</span>",
+                            "<span class='output-highlight'>Transmission Control Protocol, Src Port: 54321, Dst Port: 389 (LDAP), Seq: 1, Ack: 1, Len: 0, ACK</span>"
+                        );
+                    },
+                    layer: 'Transport'
+                },
+                {
+                    title: "ACK Packet Transmits to Switch",
+                    description: "The ACK packet travels from the Client to the Switch.",
+                    action: () => {
+                        packet.classList.remove('animate-back-to-client');
+                        packet.classList.add('animate-to-switch');
+                        clientHost.classList.remove('highlight');
+                        switchDevice.classList.add('highlight');
+                        osiModelVisual.style.display = 'none';
+                    },
+                    layer: null
+                },
+                {
+                    title: "Switch Forwards ACK to DC",
+                    description: "The Switch forwards the ACK to the Domain Controller. The TCP connection is now fully established.",
+                    action: () => {
+                        packet.classList.remove('animate-to-switch');
+                        packet.classList.add('animate-to-server');
+                        switchDevice.classList.remove('highlight');
+                        serverHost.classList.add('highlight');
+                        updateWiresharkOutput([1,2,3,4],
+                            "3. Client sending TCP ACK to DC (forwarded):",
+                            "Frame 3: <span class='output-highlight-secondary'>66 bytes on wire (528 bits)</span>, 66 bytes captured (528 bits)",
+                            "<span class='output-highlight'>Ethernet II, Src: 00:11:22:33:44:55 (Client), Dst: 00:1a:2b:3c:4d:5e (DC)</span>",
+                            "<span class='output-highlight'>Internet Protocol Version 4, Src: 192.168.1.100 (Client), Dst: 192.168.1.1 (DC)</span>",
+                            "<span class='output-highlight'>Transmission Control Protocol, Src Port: 54321, Dst Port: 389 (LDAP), Seq: 1, Ack: 1, Len: 0, ACK</span>"
+                        );
+                    },
+                    layer: null
+                },
+                {
+                    title: "Analyzing TCP ACK Packet (3/3 Handshake)",
+                    description: "The final step in the handshake: <br><br>1. <span class='output-highlight'>Ethernet/IP:</span> Again, addressing for the path. <br>2. <span class='output-highlight'>TCP:</span> Only the 'ACK' flag is set. The Sequence number (1) and Acknowledgement number (1) are both now tracking the data flow. The TCP connection is now fully established, and application data can flow.",
+                    action: () => {
+                        serverHost.classList.add('highlight');
+                        osiModelVisual.style.display = 'flex';
+                        highlightOsiLayer('Transport', "Analyzing the final ACK packet, completing the TCP three-way handshake.");
+                        updateWiresharkOutput([2,3,4],
+                            "3. Client sending TCP ACK to DC:",
+                            "Frame 3: <span class='output-highlight-secondary'>66 bytes on wire (528 bits)</span>, 66 bytes captured (528 bits)",
+                            "<span class='output-highlight'>Ethernet II, Src: 00:11:22:33:44:55 (Client), Dst: 00:1a:2b:3c:4d:5e (DC)</span>",
+                            "<span class='output-highlight'>Internet Protocol Version 4, Src: 192.168.1.100 (Client), Dst: 192.168.1.1 (DC)</span>",
+                            "<span class='output-highlight'>Transmission Control Protocol, Src Port: 54321, Dst Port: 389 (LDAP), Seq: 1, Ack: 1, Len: 0, ACK</span>"
+                        );
+                    },
+                    layer: 'Transport'
+                },
+                // --- LDAP Search Request ---
+                {
+                    title: "Client: LDAP Search Request (Application Layer)",
+                    description: "With the TCP connection established, the Client now sends its LDAP Search Request to query the directory. This is the application data.",
+                    action: () => {
+                        serverHost.classList.remove('highlight');
+                        clientHost.classList.add('highlight');
+                        highlightOsiLayer('Application', "The client's application sends the LDAP query.");
+                        osiModelVisual.style.display = 'flex';
+                        packet.textContent = 'LDAP Search';
+                        packet.classList.remove('animate-to-server'); // Reset packet position
+                        packet.classList.remove('animate-back-to-client');
+                        packet.style.left = '10%'; // Ensure client side start
+                        updateWiresharkOutput([1,2,3,4,5],
+                            "4. Client sending LDAP Search Request:",
+                            "Frame 4: <span class='output-highlight-secondary'>90 bytes on wire (720 bits)</span>, 90 bytes captured (720 bits)",
+                            "<span class='output-highlight'>Ethernet II, Src: 00:11:22:33:44:55 (Client), Dst: 00:0a:0b:0c:0d:0e (Switch)</span>",
+                            "<span class='output-highlight'>Internet Protocol Version 4, Src: 192.168.1.100 (Client), Dst: 192.168.1.1 (DC)</span>",
+                            "<span class='output-highlight'>Transmission Control Protocol, Src Port: 54321, Dst Port: 389 (LDAP), Seq: 1, Ack: 1, Len: 24, PSH, ACK</span>",
+                            "<span class='output-highlight'>Lightweight Directory Access Protocol (Search Request)</span>"
+                        );
+                    },
+                    layer: 'Application'
+                },
+                 {
+                    title: "LDAP Search Request to DC",
+                    description: "The LDAP Search Request is encapsulated and sent to the Domain Controller.",
+                    action: () => {
+                        packet.classList.add('animate-to-switch');
+                        clientHost.classList.remove('highlight');
+                        switchDevice.classList.add('highlight');
+                        osiModelVisual.style.display = 'none';
+                    },
+                    layer: null
+                },
+                {
+                    title: "DC: Receives LDAP Search Request",
+                    description: "The DC receives the LDAP Search Request, decapsulates it, and processes the query at the Application layer.",
+                    action: () => {
+                        packet.classList.remove('animate-to-switch');
+                        packet.classList.add('animate-to-server');
+                        switchDevice.classList.remove('highlight');
+                        serverHost.classList.add('highlight');
+                        osiModelVisual.style.display = 'flex';
+                        highlightOsiLayer('Application', "The Domain Controller's LDAP service processes the search request.");
+                    },
+                    layer: 'Application'
+                },
+                {
+                    title: "Analyzing LDAP Search Request Packet",
+                    description: "This is where the actual directory query is: <br><br>1. <span class='output-highlight'>Ethernet/IP/TCP:</span> The usual headers. Notice the TCP flags now include 'PSH' (Push), indicating there's application data. <br>2. <span class='output-highlight'>LDAP:</span> This is the Application layer. Wireshark shows it's a 'Search Request'. In a real capture, you'd see details like the Base DN, Filter, and Attributes requested (e.g., 'cn=Users,dc=example,dc=com', '(objectClass=user)', 'sAMAccountName').",
+                    action: () => {
+                        serverHost.classList.add('highlight');
+                        osiModelVisual.style.display = 'flex';
+                        highlightOsiLayer('Application', "We are analyzing the LDAP Search Request packet, the core of the query.");
+                        updateWiresharkOutput([2,3,4,5],
+                            "4. Client sending LDAP Search Request:",
+                            "Frame 4: <span class='output-highlight-secondary'>90 bytes on wire (720 bits)</span>, 90 bytes captured (720 bits)",
+                            "<span class='output-highlight'>Ethernet II, Src: 00:11:22:33:44:55 (Client), Dst: 00:1a:2b:3c:4d:5e (DC)</span>",
+                            "<span class='output-highlight'>Internet Protocol Version 4, Src: 192.168.1.100 (Client), Dst: 192.168.1.1 (DC)</span>",
+                            "<span class='output-highlight'>Transmission Control Protocol, Src Port: 54321, Dst Port: 389 (LDAP), Seq: 1, Ack: 1, Len: 24, <span class='output-highlight-secondary'>PSH</span>, ACK</span>",
+                            "<span class='output-highlight'>Lightweight Directory Access Protocol (Search Request)</span>"
+                        );
+                    },
+                    layer: 'Application'
+                },
+                // --- LDAP Search Response ---
+                {
+                    title: "DC: LDAP Search Response (Application Layer)",
+                    description: "The Domain Controller generates an LDAP Search Response containing the requested directory information.",
+                    action: () => {
+                        serverHost.classList.add('highlight');
+                        highlightOsiLayer('Application', "The Domain Controller constructs the LDAP search response.");
+                        packet.textContent = 'LDAP Response';
+                        updateWiresharkOutput([1,2,3,4,5],
+                            "5. DC sending LDAP Search Response:",
+                            "Frame 5: <span class='output-highlight-secondary'>120 bytes on wire (960 bits)</span>, 120 bytes captured (960 bits)",
+                            "<span class='output-highlight'>Ethernet II, Src: 00:1a:2b:3c:4d:5e (DC), Dst: 00:0a:0b:0c:0d:0e (Switch)</span>",
+                            "<span class='output-highlight'>Internet Protocol Version 4, Src: 192.168.1.1 (DC), Dst: 192.168.1.100 (Client)</span>",
+                            "<span class='output-highlight'>Transmission Control Protocol, Src Port: 389 (LDAP), Dst Port: 54321, Seq: 1, Ack: 25, Len: 54, PSH, ACK</span>",
+                            "<span class='output-highlight'>Lightweight Directory Access Protocol (Search Response)</span>"
+                        );
+                    },
+                    layer: 'Application'
+                },
+                {
+                    title: "LDAP Search Response to Client",
+                    description: "The LDAP Search Response is sent back to the Client.",
+                    action: () => {
+                        packet.classList.remove('animate-to-server');
+                        packet.classList.add('animate-back-to-switch');
+                        serverHost.classList.remove('highlight');
+                        switchDevice.classList.add('highlight');
+                        osiModelVisual.style.display = 'none';
+                    },
+                    layer: null
+                },
+                {
+                    title: "Client: Receives LDAP Search Response",
+                    description: "The Client receives the LDAP Search Response, decapsulates it, and presents the information to the requesting application.",
+                    action: () => {
+                        packet.classList.remove('animate-back-to-switch');
+                        packet.classList.add('animate-back-to-client');
+                        switchDevice.classList.remove('highlight');
+                        clientHost.classList.add('highlight');
+                        osiModelVisual.style.display = 'flex';
+                        highlightOsiLayer('Application', "The client application processes the received LDAP search results.");
+                    },
+                    layer: 'Application'
+                },
+                {
+                    title: "Analyzing LDAP Search Response Packet",
+                    description: "The final piece of the puzzle: <br><br>1. <span class='output-highlight'>Ethernet/IP/TCP:</span> Source and Destination are reversed again. TCP still has PSH, ACK flags set. <br>2. <span class='output-highlight'>LDAP:</span> This is the 'Search Response'. In a live capture, you would expand this layer to see the actual directory entries and attributes returned (e.g., 'sAMAccountName: jsmith', 'displayName: John Smith'). This is the data the client requested!",
+                    action: () => {
+                        clientHost.classList.add('highlight');
+                        osiModelVisual.style.display = 'flex';
+                        highlightOsiLayer('Application', "We are analyzing the LDAP Search Response packet, the answer to the query.");
+                        updateWiresharkOutput([2,3,4,5],
+                            "5. DC sending LDAP Search Response:",
+                            "Frame 5: <span class='output-highlight-secondary'>120 bytes on wire (960 bits)</span>, 120 bytes captured (960 bits)",
+                            "<span class='output-highlight'>Ethernet II, Src: 00:1a:2b:3c:4d:5e (DC), Dst: 00:11:22:33:44:55 (Client)</span>",
+                            "<span class='output-highlight'>Internet Protocol Version 4, Src: 192.168.1.1 (DC), Dst: 192.168.1.100 (Client)</span>",
+                            "<span class='output-highlight'>Transmission Control Protocol, Src Port: 389 (LDAP), Dst Port: 54321, Seq: 1, Ack: 25, Len: 54, <span class='output-highlight-secondary'>PSH</span>, ACK</span>",
+                            "<span class='output-highlight'>Lightweight Directory Access Protocol (Search Response)</span>"
+                        );
+                    },
+                    layer: 'Application'
+                },
+                // --- Transition to UDP ---
+                {
+                    title: "Transition to UDP: DNS Queries",
+                    description: "So far we've looked at TCP, a connection-oriented, reliable protocol. Now, let's explore **UDP (User Datagram Protocol)**, which is connectionless and best-effort. A common example is DNS queries.",
+                    action: () => {
+                        resetAnimation();
+                        serverRole.textContent = "DNS Server"; // Update server role
+                        clientHost.classList.add('highlight');
+                        serverHost.classList.add('highlight');
+                        promiscuousIndicator.classList.add('active');
+                    },
+                    layer: null
+                },
+                {
+                    title: "UDP: Connectionless & Faster",
+                    description: "Unlike TCP, UDP does *not* establish a three-way handshake. The client simply sends a datagram, and the server responds. This makes it faster but less reliable (no guaranteed delivery or ordering).",
+                    action: () => {
+                        clientHost.classList.add('highlight');
+                        serverHost.classList.add('highlight');
+                        promiscuousIndicator.classList.add('active');
+                        osiTcpIpInfo.innerHTML = `<h3>Current Layer Focus: UDP</h3><p><strong>UDP (User Datagram Protocol)</strong> is connectionless. There is no SYN/SYN-ACK/ACK handshake.</p>`;
+                    },
+                    layer: 'Transport'
+                },
+                {
+                    title: "Capture Filters (BPF) for DNS",
+                    description: "We'll change our Capture Filter to focus on DNS traffic, which typically uses UDP port 53.",
+                    action: () => {
+                        clientHost.classList.add('highlight');
+                        promiscuousIndicator.classList.add('active');
+                        captureFilterIndicator.classList.add('active');
+                        captureFilterIndicator.innerHTML = 'BPF Filter: udp port 53';
+                        osiTcpIpInfo.innerHTML = `<h3>Capture Filter Active</h3><p><strong>Filter:</strong> <code>udp port 53</code></p><p>Only UDP packets destined for or originating from port 53 (DNS) will be captured.</p>`;
+                    },
+                    layer: null
+                },
+                // --- DNS Query (UDP) ---
+                {
+                    title: "Client: DNS Query (Application & UDP Layer)",
+                    description: "The client needs to resolve a hostname (e.g., 'www.example.com'). It creates a DNS Query and encapsulates it directly into a UDP datagram.",
+                    action: () => {
+                        clientHost.classList.add('highlight');
+                        highlightOsiLayer('Application', "The client's application (e.g., web browser) needs to resolve a hostname.");
+                        highlightOsiLayer('Transport', "UDP encapsulates the DNS query directly.");
+                        osiModelVisual.style.display = 'flex';
+                        packet.textContent = 'DNS Query';
+                    },
+                    layer: 'Application'
+                },
+                {
+                    title: "DNS Query Packet Transmits to Switch",
+                    description: "The UDP DNS Query packet leaves the Client and travels to the Switch. Notice: No SYN, just the query!",
+                    action: () => {
+                        packet.style.left = '10%';
+                        packet.classList.add('animate-to-switch');
+                        clientHost.classList.remove('highlight');
+                        switchDevice.classList.add('highlight');
+                        osiModelVisual.style.display = 'none';
+                        updateWiresharkOutput([1,2,3,4],
+                            "6. Client sending UDP DNS Query:",
+                            "Frame 6: <span class='output-highlight-secondary'>74 bytes on wire (592 bits)</span>, 74 bytes captured (592 bits)",
+                            "<span class='output-highlight'>Ethernet II, Src: 00:11:22:33:44:55 (Client), Dst: 00:0a:0b:0c:0d:0e (Switch)</span>",
+                            "<span class='output-highlight'>Internet Protocol Version 4, Src: 192.168.1.100 (Client), Dst: 192.168.1.1 (DNS Server)</span>",
+                            "<span class='output-highlight'>User Datagram Protocol, Src Port: 54322, Dst Port: 53 (DNS)</span>",
+                            "<span class='output-highlight'>Domain Name System (query: www.example.com)</span>"
+                        );
+                    },
+                    layer: null
+                },
+                {
+                    title: "Switch Forwards DNS Query to DNS Server",
+                    description: "The Switch forwards the UDP DNS Query packet to the DNS Server (our 'Server' device now acting as DNS).",
+                    action: () => {
+                        packet.classList.remove('animate-to-switch');
+                        packet.classList.add('animate-to-server');
+                        switchDevice.classList.remove('highlight');
+                        serverHost.classList.add('highlight');
+                        updateWiresharkOutput([1,2,3,4],
+                            "6. Client sending UDP DNS Query (forwarded):",
+                            "Frame 6: <span class='output-highlight-secondary'>74 bytes on wire (592 bits)</span>, 74 bytes captured (592 bits)",
+                            "<span class='output-highlight'>Ethernet II, Src: 00:11:22:33:44:55 (Client), Dst: 00:1a:2b:3c:4d:5e (DNS Server)</span>",
+                            "<span class='output-highlight'>Internet Protocol Version 4, Src: 192.168.1.100 (Client), Dst: 192.168.1.1 (DNS Server)</span>",
+                            "<span class='output-highlight'>User Datagram Protocol, Src Port: 54322, Dst Port: 53 (DNS)</span>",
+                            "<span class='output-highlight'>Domain Name System (query: www.example.com)</span>"
+                        );
+                    },
+                    layer: null
+                },
+                {
+                    title: "Analyzing UDP DNS Query Packet",
+                    description: "Let's analyze this connectionless query: <br><br>1. <span class='output-highlight'>Ethernet/IP:</span> Standard addressing. <br>2. <span class='output-highlight'>UDP:</span> Simpler header than TCP. Only Source/Destination Ports are key (Client's ephemeral port, DNS Server's port 53). No sequence/acknowledgement numbers or flags for connection management! <br>3. <span class='output-highlight'>DNS:</span> This is the Application layer. Wireshark clearly shows it's a 'query' for 'www.example.com'.",
+                    action: () => {
+                        serverHost.classList.add('highlight');
+                        osiModelVisual.style.display = 'flex';
+                        highlightOsiLayer('Application', "Analyzing the DNS Query, the application payload of the UDP datagram.");
+                        highlightOsiLayer('Transport', "Examining the UDP header: simple and connectionless.");
+                        updateWiresharkOutput([2,3,4],
+                            "6. Client sending UDP DNS Query:",
+                            "Frame 6: <span class='output-highlight-secondary'>74 bytes on wire (592 bits)</span>, 74 bytes captured (592 bits)",
+                            "<span class='output-highlight'>Ethernet II, Src: 00:11:22:33:44:55 (Client), Dst: 00:1a:2b:3c:4d:5e (DNS Server)</span>",
+                            "<span class='output-highlight'>Internet Protocol Version 4, Src: 192.168.1.100 (Client), Dst: 192.168.1.1 (DNS Server)</span>",
+                            "<span class='output-highlight'>User Datagram Protocol, Src Port: 54322, Dst Port: 53 (DNS)</span>",
+                            "<span class='output-highlight'>Domain Name System (query: www.example.com)</span>"
+                        );
+                    },
+                    layer: 'Application'
+                },
+                // --- DNS Response (UDP) ---
+                {
+                    title: "DNS Server: DNS Response (Application & UDP Layer)",
+                    description: "The DNS Server resolves the name and creates a DNS Response, encapsulating it into a UDP datagram and sending it back.",
+                    action: () => {
+                        serverHost.classList.add('highlight');
+                        highlightOsiLayer('Application', "The DNS server prepares the response with the resolved IP address.");
+                        highlightOsiLayer('Transport', "UDP encapsulates the DNS response.");
+                        osiModelVisual.style.display = 'flex';
+                        packet.textContent = 'DNS Response';
+                        updateWiresharkOutput([1,2,3,4],
+                            "7. DNS Server sending UDP DNS Response:",
+                            "Frame 7: <span class='output-highlight-secondary'>90 bytes on wire (720 bits)</span>, 90 bytes captured (720 bits)",
+                            "<span class='output-highlight'>Ethernet II, Src: 00:1a:2b:3c:4d:5e (DNS Server), Dst: 00:0a:0b:0c:0d:0e (Switch)</span>",
+                            "<span class='output-highlight'>Internet Protocol Version 4, Src: 192.168.1.1 (DNS Server), Dst: 192.168.1.100 (Client)</span>",
+                            "<span class='output-highlight'>User Datagram Protocol, Src Port: 53 (DNS), Dst Port: 54322</span>",
+                            "<span class='output-highlight'>Domain Name System (response: www.example.com type A, addr 203.0.113.1)</span>"
+                        );
+                    },
+                    layer: 'Application'
+                },
+                {
+                    title: "DNS Response Packet Transmits to Switch",
+                    description: "The UDP DNS Response packet travels from the DNS Server to the Switch.",
+                    action: () => {
+                        packet.classList.remove('animate-to-server');
+                        packet.classList.add('animate-back-to-switch');
+                        serverHost.classList.remove('highlight');
+                        switchDevice.classList.add('highlight');
+                        osiModelVisual.style.display = 'none';
+                    },
+                    layer: null
+                },
+                {
+                    title: "Switch Forwards DNS Response to Client",
+                    description: "The Switch forwards the UDP DNS Response packet back to the Client.",
+                    action: () => {
+                        packet.classList.remove('animate-back-to-switch');
+                        packet.classList.add('animate-back-to-client');
+                        switchDevice.classList.remove('highlight');
+                        clientHost.classList.add('highlight');
+                        updateWiresharkOutput([1,2,3,4],
+                            "7. DNS Server sending UDP DNS Response (forwarded):",
+                            "Frame 7: <span class='output-highlight-secondary'>90 bytes on wire (720 bits)</span>, 90 bytes captured (720 bits)",
+                            "<span class='output-highlight'>Ethernet II, Src: 00:1a:2b:3c:4d:5e (DNS Server), Dst: 00:11:22:33:44:55 (Client)</span>",
+                            "<span class='output-highlight'>Internet Protocol Version 4, Src: 192.168.1.1 (DNS Server), Dst: 192.168.1.100 (Client)</span>",
+                            "<span class='output-highlight'>User Datagram Protocol, Src Port: 53 (DNS), Dst Port: 54322</span>",
+                            "<span class='output-highlight'>Domain Name System (response: www.example.com type A, addr 203.0.113.1)</span>"
+                        );
+                    },
+                    layer: null
+                },
+                {
+                    title: "Analyzing UDP DNS Response Packet",
+                    description: "The DNS server's answer: <br><br>1. <span class='output-highlight'>Ethernet/IP/UDP:</span> Source and Destination are reversed. UDP header is still simple. <br>2. <span class='output-highlight'>DNS:</span> This is the 'response' containing the resolved information, including the hostname ('www.example.com'), the query type ('A' for IPv4 address), and the 'addr' (the actual IP address, 203.0.113.1). The client now knows where to connect!",
+                    action: () => {
+                        clientHost.classList.add('highlight');
+                        osiModelVisual.style.display = 'flex';
+                        highlightOsiLayer('Application', "We are analyzing the DNS Response packet, providing the resolved IP address.");
+                        highlightOsiLayer('Transport', "Reviewing the UDP header for the response.");
+                        updateWiresharkOutput([2,3,4],
+                            "7. DNS Server sending UDP DNS Response:",
+                            "Frame 7: <span class='output-highlight-secondary'>90 bytes on wire (720 bits)</span>, 90 bytes captured (720 bits)",
+                            "<span class='output-highlight'>Ethernet II, Src: 00:1a:2b:3c:4d:5e (DNS Server), Dst: 00:11:22:33:44:55 (Client)</span>",
+                            "<span class='output-highlight'>Internet Protocol Version 4, Src: 192.168.1.1 (DNS Server), Dst: 192.168.1.100 (Client)</span>",
+                            "<span class='output-highlight'>User Datagram Protocol, Src Port: 53 (DNS), Dst Port: 54322</span>",
+                            "<span class='output-highlight'>Domain Name System (response: www.example.com type A, addr 203.0.113.1)</span>"
+                        );
+                    },
+                    layer: 'Application'
+                },
+                {
+                    title: "Training Complete: TCP vs. UDP Power!",
+                    description: "You've now explored both TCP (with its reliable handshake for LDAP) and UDP (with its fast, connectionless DNS queries). Understanding these differences and how to read their packets is crucial for effective network troubleshooting with Wireshark! Click Reset to restart.",
+                    action: () => {
+                        resetAnimation();
+                        nextStepBtn.disabled = true;
+                        resetBtn.disabled = false;
+                    },
+                    layer: null
+                }
+            ];
+
+            function updateUI() {
+                const step = trainingSteps[currentStep];
+                trainingTitle.textContent = step.title;
+                trainingDescription.innerHTML = step.description; // Use innerHTML for potential links
+                currentStepInfo.textContent = `Step ${currentStep + 1} of ${trainingSteps.length}`;
+                step.action();
+
+                if (currentStep === trainingSteps.length - 1) {
+                    nextStepBtn.disabled = true;
+                    resetBtn.disabled = false;
+                } else {
+                    nextStepBtn.disabled = false;
+                    resetBtn.disabled = false;
+                }
+            }
+
+            function highlightOsiLayer(layerName, infoText) {
+                // Clear all highlights first
+                for (const key in osiLayers) {
+                    osiLayers[key].classList.remove('active');
+                }
+                // Highlight the specific layer
+                if (osiLayers[layerName]) {
+                    osiLayers[layerName].classList.add('active');
+                    osiTcpIpInfo.innerHTML = `<h3>Current Layer Focus</h3><p><strong>Layer:</strong> ${layerName}</p><p>${infoText}</p>`;
+                } else {
+                     osiTcpIpInfo.innerHTML = `<h3>Current Layer Focus</h3><p>No active layer focus.</p>`;
+                }
+            }
+
+            function updateWiresharkOutput(highlightLines, ...lines) {
+                if (!Array.isArray(highlightLines)) {
+                    highlightLines = [highlightLines];
+                }
+
+                const formattedOutput = lines.map((line, index) => {
+                    const lineNum = index; // 0-indexed line number
+                    if (highlightLines.includes(lineNum)) { // Check if this line number should be highlighted
+                        // Line already contains span for secondary highlight, so just wrap in primary if it doesn't have it
+                        if (line.includes("<span class='output-highlight-secondary'>")) {
+                            return `<span class='output-highlight'>${line}</span>`;
+                        }
+                        return `<span class='output-highlight'>${line}</span>`;
+                    }
+                    return line;
+                }).join('\n');
+                wiresharkOutput.innerHTML = formattedOutput;
+                wiresharkOutput.style.display = 'block'; // Ensure it's visible when content is there
+            }
+
+
+            function resetAnimation() {
+                packet.style.display = 'none';
+                packet.className = ''; // Remove all animation classes
+                packet.style.left = '10%'; // Reset packet position
+                packet.textContent = 'TCP'; // Reset packet content to default for the first TCP step
+
+                clientHost.classList.remove('highlight');
+                serverHost.classList.remove('highlight');
+                switchDevice.classList.remove('highlight');
+
+                promiscuousIndicator.classList.remove('active');
+                captureFilterIndicator.classList.remove('active');
+                captureFilterIndicator.innerHTML = 'BPF Filter: tcp port 389'; // Reset filter text
+
+
+                for (const key in osiLayers) {
+                    osiLayers[key].classList.remove('active');
+                }
+                osiModelVisual.style.display = 'none';
+                wiresharkOutput.style.display = 'none';
+                wiresharkOutput.textContent = '[Simulated Wireshark Packet Detail]';
+                osiTcpIpInfo.innerHTML = `<h3>Current Layer Focus</h3><p>No active layer focus.</p>`;
+            }
+
+
+            nextStepBtn.addEventListener('click', () => {
+                if (currentStep < trainingSteps.length - 1) {
+                    currentStep++;
+                    updateUI();
+                }
+            });
+
+            resetBtn.addEventListener('click', () => {
+                currentStep = 0;
+                updateUI();
+            });
+
+            // Initial UI setup
+            updateUI();
+        });
+    </script>
+</body>
+</html>
